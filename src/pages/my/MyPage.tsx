@@ -7,7 +7,7 @@ const MyPageLayout: React.FC = () => {
   return (
     <div>
       <Outlet />
-      <BottomNav />   {/* ✅ 마이페이지 어디서든 고정 */}
+      <BottomNav /> 
     </div>
   );
 };
