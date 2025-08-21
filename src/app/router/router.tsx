@@ -55,8 +55,9 @@ export const router = createBrowserRouter([
 
   {
     path: '/mypage',
-    element: <UserDropdown />,
+    element: <MyPage />,
     children: [
+      { index: true, element: <UserDropdown /> },
       {
         path: 'myinfo',
         children: [

@@ -61,17 +61,11 @@ const UserDropdown: React.FC = () => {
       <div className={styles.menuGroupWrap}>
         {sections.map((sec) => (
           <div key={sec.parent} className={styles.menuSection}>
-            {/* ✅ 부모 라벨: 클릭 불가, 스타일만 다르게 */}
             <div className={styles.parentLabel}>{sec.parent}</div>
-
             {sec.items?.map((it) => (
-              <MenuItem key={it.label} label={it.label} onClick={() => navigate(it.path)} />
+              <MenuItem key={it.label} label={it.label} to={it.path} showArrow />
             ))}
-
-            {/* children 없는 경우 (예: 북마크) → 바로 parent만 단독 표시 */}
-            {!sec.items && (
-              <MenuItem key={sec.parent} label={sec.parent} onClick={() => navigate(sec.path)} />
-            )}
+            {!sec.items && <MenuItem key={sec.parent} label={sec.parent} to={sec.path} showArrow />}
           </div>
         ))}
       </div>

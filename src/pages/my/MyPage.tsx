@@ -1,21 +1,15 @@
+// MyPageLayout.tsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-// import Sidebar from '@/components/my/sidebar/Sidebar';
-import Header from '@/components/common/header/Header';
-import styles from './MyPage.module.css';
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav';
 
-const MyPage: React.FC = () => {
+const MyPageLayout: React.FC = () => {
   return (
-    <div className={styles.pageWrapper}>
-      <Header /> 
-      <div className={styles.wrapper}>
-        {/* <Sidebar /> */}
-        <main className={styles.content}>
-          <Outlet />
-        </main>
-      </div>
+    <div>
+      <Outlet />
+      <BottomNav />   {/* ✅ 마이페이지 어디서든 고정 */}
     </div>
   );
 };
 
-export default MyPage;
+export default MyPageLayout;

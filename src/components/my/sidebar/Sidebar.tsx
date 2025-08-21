@@ -29,7 +29,7 @@ export const sidebarItems: SidebarItem[] = [
     label: '북마크',
     path: '/mypage/bookmark',
     children: [
-      { label: '관심목록', path: '' },
+      { label: '관심목록', path: '/mypage/bookmark' },
     ],
   },
 ]
