@@ -17,15 +17,20 @@ const AddressSearchModal: React.FC<AddressSearchModalProps> = ({ onComplete, onC
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <button onClick={onClose} className={styles.closeBtn}>
-          ×
-        </button>
-        <DaumPostcodeEmbed onComplete={handleComplete} style={{ width: '100%', height: '100%' }} />
+  <div className={styles.overlay}>
+    <div className={styles.modal}>
+      <button onClick={onClose} className={styles.closeBtn}>×</button>
+      {/* 👇 안쪽 래퍼로 100% 채우기 */}
+      <div className={styles.modalBody}>
+        <DaumPostcodeEmbed
+          onComplete={handleComplete}
+          /* 위젯은 컨테이너 사이즈를 그대로 씀 */
+          style={{ width: '100%', height: '100%' }}
+        />
       </div>
     </div>
-  )
+  </div>
+);
 }
 
 export default AddressSearchModal

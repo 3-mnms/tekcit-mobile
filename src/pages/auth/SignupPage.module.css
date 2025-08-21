@@ -7,7 +7,7 @@
 }
 
 .card {
-  width: 480px;
+  width: 90%;
   background-color: white;
   padding: 2.5rem;
   display: flex;
@@ -33,20 +33,29 @@
 
 .rrnRow {
   display: flex;
-  align-items: stretch;
-  column-gap: 8px;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   margin-bottom: 1rem;
 }
 
-.rrnRow .inputWrapper {
-  flex: 1;
+.rrnFrontWrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.rrnFrontWrap>* {
+  margin-bottom: 0 !important;
+  width: 100%;
 }
 
 .hyphen {
-  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1px;
+  font-size: 1.2rem;
   color: #aaa;
-  margin: 0 4px;
 }
 
 .progressWrapper {
@@ -81,7 +90,9 @@
 .rrnBackGroup {
   display: grid;
   grid-template-columns: 40px auto;
+  align-items: center;
   column-gap: 8px;
+  min-width: 0;
 }
 
 .rrnOneDigit {
@@ -89,8 +100,8 @@
   text-align: center;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  height: 45px;
-  font-size: 14px;
+  height: 44px;
+  font-size: 15px;
   outline: none;
 }
 
@@ -98,6 +109,7 @@
   border-color: #60a5fa;
   box-shadow: 0 0 0 3px rgba(96, 165, 250, .25);
 }
+
 
 .inputInvalid {
   border-color: #ef4444 !important;
@@ -110,10 +122,8 @@
 }
 
 .dots {
-  font-size: 15px;
+  font-size: 10px;
   color: #9ca3af;
-  margin-top: 10px;
-  /* align-self: center; */
 }
 
 .skipButton {
