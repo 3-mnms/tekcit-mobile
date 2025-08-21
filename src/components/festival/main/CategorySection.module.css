@@ -73,7 +73,7 @@
   padding: 0 1.5rem 10px 1.5rem;
 
   scroll-snap-type: x mandatory;
-  justify-content: flex-start;
+  /* justify-content: flex-start; */
 }
 
 .cardSlider::-webkit-scrollbar {
@@ -81,9 +81,12 @@
 }
 
 .card {
-  /* flex: 0 0 calc(100% / 5 - 1rem); */
-  width: 180px;
+  flex: 0 0 180px;
   text-align: center;
+
+  border: 1px solid #e5e7eb; /* 옅은 회색 테두리 */
+  border-radius: 0.75rem; /* 테두리를 위해 살짝 더 둥글게 */
+  overflow: hidden; 
 }
 
 .cardLink { display: block; text-decoration: column; color: inherit; }
