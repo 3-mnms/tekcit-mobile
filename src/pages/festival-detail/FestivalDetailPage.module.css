@@ -11,7 +11,7 @@
   grid-template-columns: 1fr clamp(320px, 26vw, 420px);
   column-gap: 2rem;
   align-items: start;
-  padding: 2rem 5%;
+  padding: 1rem 5%;
 }
 
 /* 좌측 컬럼: 내용이 길어져도 OK */
