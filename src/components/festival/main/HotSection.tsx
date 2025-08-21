@@ -63,7 +63,7 @@ const HotSection: React.FC = () => {
   useEffect(() => {
     const handleResize = () => {
       const ratio = window.innerWidth / window.innerHeight;
-      if (ratio < 0.7) setVisibleCount(2);      // 모바일 세로형
+      if (ratio < 0.7) setVisibleCount(3);      // 모바일 세로형
       else if (ratio < 0.9) setVisibleCount(3); // 태블릿
       else if (ratio < 1.2) setVisibleCount(4); // 노트북
       else setVisibleCount(5);                  // 와이드

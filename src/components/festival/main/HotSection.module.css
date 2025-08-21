@@ -1,5 +1,5 @@
 .section {
-  padding: 2rem;
+  padding: 1rem 0;
   background-color: #4D9AFD;
 }
 
@@ -11,25 +11,25 @@
 }
 
 .cardList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  justify-content: center;
-  align-items: start;
+  display: flex;
+  padding-left: 20px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+}
+.cardList::-webkit-scrollbar {
+  display: none;
 }
 
 .card {
   background-color: white;
   border-radius: 1rem;
-  overflow: hidden;
-  text-align: center;
-  padding: 1rem;
+  padding: 0.5rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 
-  width: 100%;
-  max-width: 220px; /* 카드의 최대 너비 */
-  min-width: 160px; /* 카드의 최소 너비 */
-  flex: 1 1 auto;
+  width: 70%;
+  flex-shrink: 0; 
+  margin-right: 15px;
 }
 
 .cardLink { display: block; text-decoration: none; color: inherit; }
@@ -39,7 +39,7 @@
   position: relative;
   aspect-ratio: 2 / 3; /* 포스터 비율 고정 */
   width: 100%;
-  max-width: 180px; /* 카드 안에서 최대 크기 제한 */
+  max-width: 200px;
   border-radius: 12px;
   overflow: hidden;
   background-color: #eee;
@@ -64,7 +64,7 @@
 
 .rank {
   position: absolute;
-  top: 8px;
+  top: -8px;
   left: 8px;
   font-size: 2rem;
   font-weight: 700;
@@ -86,4 +86,14 @@
   font-size: 0.875rem;
   color: #999; /* 기존보다 연한 색상 */
   margin-bottom: 0.2rem;
+}
+
+@media (max-width: 768px) {
+  .section {
+    /* padding: 10px; */
+  }
+
+  .title {
+    display: none;
+  }
 }

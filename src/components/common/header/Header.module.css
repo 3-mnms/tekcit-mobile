@@ -99,3 +99,48 @@
   right: 10px;
   z-index: 100;
 }
+
+.mobileSearchButton {
+  display: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #333;
+  position: right;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-wrap: wrap;
+    padding: 10px 15px;
+  }
+
+  .left {
+    width: auto;
+  }
+  
+  .logo {
+    height: 30px;
+  }
+
+  .categoryList {
+    display: none;
+  }
+
+  .rightButton {
+    display: none;
+  }
+
+  .mobileSearchButton {
+    display: block;
+  }
+
+  .center {
+    order: 3; 
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .right {
+    width: auto;
+  }
+}

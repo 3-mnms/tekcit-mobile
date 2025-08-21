@@ -1,15 +1,17 @@
 /* ✅ 전체 섹션 레이아웃 */
 .section {
   width: 100%;
-  padding: 2rem 1.5rem;
+  padding: 2rem 0;
+  padding-bottom: 20%;
 }
 
 /* ✅ 섹션 상단: 제목 + 탭 정렬 */
 .sectionHeader {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
   gap: 1rem;
 }
 
@@ -18,15 +20,23 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #111827;
-  margin-bottom: 1rem;
 }
 
 /* ✅ 카테고리 탭 리스트 */
 .tabList {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  width: 100%;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+
+ -ms-overflow-style: none; /* IE and Edge */
+ scrollbar-width: none; /* Firefox */
+}
+
+.tabList::-webkit-scrollbar {
+ display: none;
 }
 
 /* ✅ 탭 버튼 스타일 */
@@ -40,6 +50,7 @@
   transition: all 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tabButton:hover {
@@ -51,14 +62,18 @@
   color: white;
 }
 
-/* ✅ 카드 리스트 (반응형 너비 기반) */
+/* ✅ 카드 리스트*/
 .cardSlider {
   display: flex;
   gap: 1rem;
   overflow: hidden;
-  justify-content: center;
-  width: 100%;
   flex-wrap: nowrap;
+  overflow-x: auto;
+  width: 100%;
+  padding: 0 1.5rem 10px 1.5rem;
+
+  scroll-snap-type: x mandatory;
+  justify-content: flex-start;
 }
 
 .cardSlider::-webkit-scrollbar {
@@ -66,29 +81,14 @@
 }
 
 .card {
-  flex: 0 0 calc(100% / 5 - 1rem);
-  max-width: 180px;
+  /* flex: 0 0 calc(100% / 5 - 1rem); */
+  width: 180px;
   text-align: center;
 }
 
-.cardLink { display: block; text-decoration: none; color: inherit; }
+.cardLink { display: block; text-decoration: column; color: inherit; }
 .cardLink:hover { cursor: pointer; }
 
-@media (max-width: 1280px) {
-  .card {
-    flex: 0 0 calc(100% / 4 - 1rem);
-  }
-}
-@media (max-width: 1024px) {
-  .card {
-    flex: 0 0 calc(100% / 3 - 1rem);
-  }
-}
-@media (max-width: 640px) {
-  .card {
-    flex: 0 0 calc(100% / 2 - 1rem);
-  }
-}
 
 /* ✅ 카드 내부 구성 */
 .imageWrapper {

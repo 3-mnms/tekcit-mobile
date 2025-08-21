@@ -106,6 +106,9 @@ const Header: React.FC = () => {
       </div>
 
       <div className={styles.right} ref={dropdownRef}>
+        <div className={styles.mobileSearchButton} onClick={handleSearch}>
+          <i className="fa-solid fa-magnifying-glass" />
+        </div>
         {isLoading ? (
           <div className={styles.rightButton} aria-hidden="true" />
         ) : tokenInfo ? (
