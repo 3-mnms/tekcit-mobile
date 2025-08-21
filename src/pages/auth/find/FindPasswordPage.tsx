@@ -114,7 +114,7 @@ const FindPasswordPage: React.FC = () => {
               disabled={sendMut.isPending}
               className={styles.btnControl}
             >
-              {sendMut.isPending ? '전송 중…' : '인증 전송'}
+              {sendMut.isPending ? '전송 중…' : '코드 전송'}
             </Button>
           </div>
 
