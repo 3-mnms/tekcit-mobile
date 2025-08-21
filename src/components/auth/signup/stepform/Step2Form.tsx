@@ -38,6 +38,8 @@ const Step2Form: React.FC<Props> = ({ acc, onPrev, onNext, updateAcc }) => {
     onNext()
   }
 
+  // ...상단 동일
+
   return (
     <form onSubmit={handleSubmit(submit)} className={styles.formContent}>
       <SignupInputField
@@ -61,18 +63,20 @@ const Step2Form: React.FC<Props> = ({ acc, onPrev, onNext, updateAcc }) => {
       />
 
       <div className={styles.rrnRow}>
-        <SignupInputField
-          {...register('rrnFront', {
-            onChange: (e) => {
-              const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6)
-              setValue('rrnFront', value, { shouldValidate: true })
-            },
-          })}
-          icon={<FaIdCard />}
-          placeholder="주민등록번호 앞 7자리"
-          error={errors.rrnFront?.message}
-          touched={!!touchedFields.rrnFront}
-        />
+        <div className={styles.rrnFrontWrap}>
+          <SignupInputField
+            {...register('rrnFront', {
+              onChange: (e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6)
+                setValue('rrnFront', value, { shouldValidate: true })
+              },
+            })}
+            icon={<FaIdCard />}
+            placeholder="주민등록번호 앞 6자리"
+            error={errors.rrnFront?.message}
+            touched={!!touchedFields.rrnFront}
+          />
+        </div>
 
         <span className={styles.hyphen}>-</span>
 
@@ -97,10 +101,8 @@ const Step2Form: React.FC<Props> = ({ acc, onPrev, onNext, updateAcc }) => {
             aria-describedby={errors.rrnBackFirst ? 'rrnBackFirst-error' : undefined}
           />
 
-          {/* dots를 같은 그룹 안으로 이동 */}
           <span className={styles.dots}>●●●●●●</span>
 
-          {/* 에러가 두 칸 전체 너비로 깔림 */}
           {errors.rrnBackFirst?.message && (
             <p id="rrnBackFirst-error" className={styles.rrnBackError}>
               {errors.rrnBackFirst.message}
