@@ -25,10 +25,11 @@
 
 .emailRow {
     display: grid;
-    grid-template-columns: 1fr 120px;
+    grid-template-columns: 1fr 60px;
     gap: 8px;
     align-items: stretch;
     margin-top: 10px;
+    width: 100%;
 }
 
 .btnControl {
