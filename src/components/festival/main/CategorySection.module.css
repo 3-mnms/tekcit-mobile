@@ -17,7 +17,7 @@
 
 /* ✅ 제목 스타일 */
 .title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #111827;
 }
@@ -109,23 +109,25 @@
 }
 
 .name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   margin: 0.75rem 0 0.25rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  padding: 0 0.5rem;
 }
 
 .location {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   color: #444;
   margin-bottom: 0.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  padding: 0 0.5rem;
 }
 
 .date {
