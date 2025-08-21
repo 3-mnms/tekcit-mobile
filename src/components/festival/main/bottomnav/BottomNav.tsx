@@ -20,7 +20,7 @@ const BottomNav: React.FC = () => {
         <i className="fa-solid fa-bars" />
         <span>카테고리</span>
       </button>
-      <button type="button" onClick={() => navigate('/my')} className={styles.navItem}>
+      <button type="button" onClick={() => navigate('/mypage')} className={styles.navItem}>
         <i className="fa-solid fa-user" />
         <span>마이페이지</span>
       </button>

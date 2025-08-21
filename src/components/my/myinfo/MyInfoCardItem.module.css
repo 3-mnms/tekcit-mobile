@@ -1,0 +1,20 @@
+.card {
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.label {
+  font-size: 1rem;
+}
+
+.arrow {
+  font-size: 1.25rem;
+  color: #999;
+}
