@@ -207,12 +207,12 @@ const CategorySection: React.FC = () => {
                     />
                   </div>
                   <h3 className={styles.name}>{title}</h3>
+                  <p className={styles.location}>{(festival as any).fcltynm}</p>
                   <p className={styles.date}>
                     {festival.prfpdfrom === festival.prfpdto
                       ? festival.prfpdfrom
                       : `${festival.prfpdfrom} ~ ${festival.prfpdto}`}
                   </p>
-                  <p className={styles.location}>{(festival as any).fcltynm}</p>
                 </Link>
               ) : (
                 <div className={styles.cardStatic} title="상세 이동 불가: 식별자 없음">
@@ -228,12 +228,12 @@ const CategorySection: React.FC = () => {
                     />
                   </div>
                   <h3 className={styles.name}>{title}</h3>
+                  <p className={styles.location}>{(festival as any).fcltynm}</p>
                   <p className={styles.date}>
                     {festival.prfpdfrom === festival.prfpdto
                       ? festival.prfpdfrom
                       : `${festival.prfpdfrom} ~ ${festival.prfpdto}`}
                   </p>
-                  <p className={styles.location}>{(festival as any).fcltynm}</p>
                 </div>
               )}
             </div>

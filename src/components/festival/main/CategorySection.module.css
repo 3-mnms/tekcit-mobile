@@ -17,7 +17,7 @@
 
 /* ✅ 제목 스타일 */
 .title {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: #111827;
 }
@@ -73,7 +73,7 @@
   padding: 0 1.5rem 10px 1.5rem;
 
   scroll-snap-type: x mandatory;
-  justify-content: flex-start;
+  /* justify-content: flex-start; */
 }
 
 .cardSlider::-webkit-scrollbar {
@@ -81,9 +81,12 @@
 }
 
 .card {
-  /* flex: 0 0 calc(100% / 5 - 1rem); */
-  width: 180px;
+  flex: 0 0 180px;
   text-align: center;
+
+  border: 1px solid #e5e7eb; /* 옅은 회색 테두리 */
+  border-radius: 0.75rem; /* 테두리를 위해 살짝 더 둥글게 */
+  overflow: hidden; 
 }
 
 .cardLink { display: block; text-decoration: column; color: inherit; }
@@ -106,23 +109,25 @@
 }
 
 .name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   margin: 0.75rem 0 0.25rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  padding: 0 0.5rem;
 }
 
 .location {
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   color: #444;
   margin-bottom: 0.2rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  padding: 0 0.5rem;
 }
 
 .date {
