@@ -1,6 +1,5 @@
 // src/pages/home/index.tsx
 import { useState } from "react";
-import reactLogo from "../../shared/assets/react.svg"; // 별칭(@) 쓰는 경우
 import viteLogo from "/vite.svg";                  // vite.svg는 public 루트
 import "../../app/styles/App.css";                     // 전역/페이지 스타일
 
@@ -14,7 +13,7 @@ export default function HomePage() {
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
         <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
+          <img className="logo react" alt="React logo" />
         </a>
       </div>
 
