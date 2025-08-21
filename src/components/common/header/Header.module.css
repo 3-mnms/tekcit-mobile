@@ -108,6 +108,36 @@
   position: right;
 }
 
+/* Header.module.css 맨 아래에 추가 */
+
+.pageTitleHeader {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #333;
+  width: 40px; /* 크기 고정 */
+}
+
+.pageTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111;
+  /* 제목이 길 경우를 대비 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeholder {
+  width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
+}
+
 @media (max-width: 768px) {
   .header {
     flex-wrap: wrap;
