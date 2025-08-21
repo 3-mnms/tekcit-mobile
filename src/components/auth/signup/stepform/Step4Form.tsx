@@ -126,7 +126,6 @@ const Step4Form: React.FC<Props> = ({
           />
           {/* ⏱ 입력 밑에 타이머 텍스트 (검은색) */}
           <div style={{ marginTop: -10, marginLeft: 10, fontSize: 12, color: '#111827' }}>
-            인증 코드는 5분 동안 유효합니다.
             {codeLeft > 0 && <> (남은 시간 {mmss(codeLeft)})</>}
             {codeLeft === 0 && isEmailCodeSent && <> (만료됨 · 재전송 후 다시 시도하세요)</>}
           </div>
