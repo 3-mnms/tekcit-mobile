@@ -6,7 +6,7 @@
   border-bottom: 1px solid #ddd;
   background-color: #fff;
   gap: 16px;
-  flex-wrap: nowrap; /* ✅ 한줄 유지 */
+  flex-wrap: nowrap;
   overflow: hidden;
 }
 
@@ -21,23 +21,33 @@
   height: 28px;
 }
 
-.categoryList {
+.searchHeader {
+  justify-content: flex-start; 
+  gap: 0.5rem;
+}
+
+.searchWrapper {
   display: flex;
-  gap: 1.25rem;
   align-items: center;
-  margin-left: 1rem;
+  flex-grow: 1; /* ✅ 남은 공간을 검색창이 모두 차지 */
+  height: 40px;
+  background-color: #f3f4f6;
+  border-radius: 9999px;
+  padding: 0 0.75rem 0 1rem;
+  border: 1px solid #ccc;
 }
 
-.categoryItem {
-  font-weight: 500;
-  color: #111;
+.searchInput {
+  width: 100%;
+  border: none;
+  background: none;
+}
+.searchButton {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #555;
   cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.categoryItem:hover {
-  color: #4d9afd;
-  text-decoration: underline;
 }
 
 .center {
@@ -47,130 +57,11 @@
   min-width: 200px;
 }
 
-/* ✅ 검색창 영역 기본 표시 */
-.searchWrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 6px 12px;
-  gap: 8px;
-  width: 90%;
-}
+
 
 /* ✅ 좁은 화면일 때 검색창 숨김 */
 @media (max-width: 800px) {
   .center {
     display: none;
-  }
-}
-
-.searchInput {
-  border: none;
-  outline: none;
-  flex: 1;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.right {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.rightButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-}
-
-.rightButton:focus {
-  outline: none;
-}
-
-.dropdownWrapper {
-  position: absolute;
-  top: 60px; 
-  right: 10px;
-  z-index: 100;
-}
-
-.mobileSearchButton {
-  display: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #333;
-  position: right;
-}
-
-/* Header.module.css 맨 아래에 추가 */
-
-.pageTitleHeader {
-  justify-content: space-between;
-  align-items: center;
-}
-
-.backButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #333;
-  width: 40px; /* 크기 고정 */
-}
-
-.pageTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #111;
-  /* 제목이 길 경우를 대비 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.placeholder {
-  width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
-}
-
-@media (max-width: 768px) {
-  .header {
-    flex-wrap: wrap;
-    padding: 10px 15px;
-  }
-
-  .left {
-    width: auto;
-  }
-  
-  .logo {
-    height: 20px;
-  }
-
-  .categoryList {
-    display: none;
-  }
-
-  .rightButton {
-    display: none;
-  }
-
-  .mobileSearchButton {
-    display: block;
-  }
-
-  .center {
-    order: 3; 
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .right {
-    width: auto;
   }
 }

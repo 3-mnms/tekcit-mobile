@@ -3,10 +3,6 @@ html, body, #root {
   min-height: 100%;
 }
 
-:root {
-  --header-height: 72px; /* 헤더가 fixed/sticky면 72px, 아니면 0으로 */
-}
-
 /* 컨테이너 */
 .page {
   display: grid;
@@ -42,7 +38,7 @@ html, body, #root {
   }
 
   .filterCol {
-    display: none;      /* ✅ 필터 숨김 */
+    display: none;  
   }
 
   .resultsCol {
