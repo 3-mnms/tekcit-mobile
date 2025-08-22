@@ -1,0 +1,149 @@
+/* ✅ 모바일 퍼스트 스타일 + 시스템 폰트 + 대표색 (#4D9AFD) */
+:root {
+  --primary: #4D9AFD;           /* 민정 대표색 */
+  --text-strong: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --bg-soft: #f9fafb;
+  --card: #ffffff;
+  --radius-lg: 12px;
+  --shadow-1: 0 2px 10px rgba(17, 24, 39, .06);
+  --shadow-2: 0 8px 24px rgba(17, 24, 39, .08);
+}
+
+/* ✅ 전체 컨테이너(하단 고정바 높이만큼 패딩 확보) */
+.container {
+  width: 100%;
+  max-width: 640px;                    /* 태블릿까지 넉넉히 */
+  margin: 0 auto;
+  padding: 20px 16px 96px;             /* ⬅️ 하단 고정바(64) + 여유 */
+  background-color: var(--card);
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+}
+
+/* ✅ 화면이 매우 작을 때 내부 여백 감소 */
+@media (max-width: 360px) {
+  .container { padding: 16px 12px 92px; }
+}
+
+.title {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 800;
+  text-align: center;
+  margin: 8px 0 20px;
+  color: var(--text-strong);
+}
+
+/* ───────── Section 공통 ───────── */
+.section {
+  margin-top: 20px;
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* 결제 수단 카드 래퍼 */
+.paymentMethodWrapper {
+  display: grid;
+  gap: 12px;                           /* 카드 간격 넓혀 터치 편의성 ↑ */
+}
+
+/* 수수료 정보 카드 */
+.feeSection {
+  margin-top: 16px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-1);
+}
+
+/* 약관: 체크박스 터치 영역 확대 */
+.termsSection {
+  margin-top: 16px;
+}
+
+.checkboxWrapper {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  user-select: none;
+}
+
+.checkboxWrapper input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--primary);        /* ✅ 대표색 */
+}
+
+/* 데스크톱 전용 버튼(모바일에선 숨김) */
+.buttonWrapper {
+  margin-top: 16px;
+  display: none;                       /* 기본: 모바일 숨김 */
+}
+
+@media (min-width: 768px) {
+  .buttonWrapper { display: block; }
+}
+
+/* ───────── 하단 고정 CTA 바 (모바일 전용) ───────── */
+.ctaBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr 140px;     /* 총액 | 버튼 */
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+.ctaTotal {
+  display: grid;
+  gap: 4px;
+}
+
+.ctaLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ctaAmount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.ctaButton {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px !important;       /* 버튼 컴포넌트 덮어쓰기 */
+  background: var(--primary) !important;/* ✅ 대표색 */
+  color: #fff !important;
+}
+
+/* 데스크톱에선 고정 바 숨김 */
+@media (min-width: 768px) {
+  .ctaBar { display: none; }
+}
+
+/* ───────── 접근성/애니메이션 보정 ───────── */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
