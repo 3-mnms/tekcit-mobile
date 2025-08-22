@@ -18,7 +18,7 @@ const UserDropdown: React.FC = () => {
   const [loading, setLoading] = useState(false)
 
   const handleAlarmClick = () => {
-    alert('알림 클릭됨!')
+    navigate('./notification');
   }
 
   const handleLogout = async () => {

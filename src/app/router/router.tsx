@@ -20,6 +20,7 @@ import FestivalDetailPage from "@/pages/festival-detail/FestivalDetailPage";
 
 // mypage
 import UserDropdown from '@/pages/my/dropdown/UserDropdown'
+import NotificationDropdown from '@/pages/my/dropdown/NotificationDropdown'
 import MyPage from '@/pages/my/MyPage'
 // import Sidebar from '@components/my/sidebar/Sidebar'
 import MyInfoPage from '@/pages/my/myInfo/MyInfoPage'
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
     element: <MyPage />,
     children: [
       { index: true, element: <UserDropdown /> },
+      { path: 'notification', element: <NotificationDropdown/>},
       {
         path: 'myinfo',
         children: [
