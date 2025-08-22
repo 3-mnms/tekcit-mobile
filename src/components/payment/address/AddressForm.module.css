@@ -1,0 +1,179 @@
+/* 📦 컨테이너: 카드 톤 + iPhone SE 폭 고정 멍 */
+.address-container {
+  padding: 12px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  max-width: 375px;                   /* iPhone SE 기준 */
+  margin: 0 auto;
+  font-family: 'Pretendard','Noto Sans KR',system-ui,-apple-system,sans-serif;
+}
+
+/* 상단 라인: 레이블 + 관리버튼 */
+.address-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ✅ 이미 끝단 배치인데 혹시 gap 때문에 떠 있으면 수정 */
+  margin-bottom: 12px;
+}
+
+.tabs-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-right: auto; /* ✅ 왼쪽에 고정 */
+}
+.tab-manage-btn {
+  margin-left: auto; /* ✅ 버튼은 오른쪽 끝으로 강제 밀기 */
+  border: 1px solid #4d9afd;
+  background-color: #ffffff;
+  color: #4d9afd;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+.tab-manage-btn:active { transform: translateY(1px); }
+
+/* ===== 모달: 전체화면 시트 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  background-color: rgba(15,23,42,0.5);
+}
+
+.modal-sheet {
+  margin: auto 0 0;                    /* 하단 정렬 */
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.12);
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background: #fff;
+  border-bottom: 1px solid #eef2f7;
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.modal-close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  padding: 8px;
+  margin: -8px;
+  cursor: pointer;
+}
+
+.modal-content {
+  max-height: calc(80vh - env(safe-area-inset-bottom));
+  padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+/* ===== 폼 레이아웃 ===== */
+.form-grid {
+  display: grid;
+  grid-auto-rows: minmax(44px, auto);
+  gap: 12px;
+}
+
+.form-field { display: grid; gap: 6px; }
+
+label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* 인풋/셀렉트 공통 */
+input,
+select {
+  height: 44px;                           /* 터치 타깃 */
+  padding: 0 12px;
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  background: #fff;
+}
+input::placeholder { color: #9ca3af; }
+
+/* 포커스 스타일 */
+input:focus,
+select:focus {
+  border-color: #4d9afd;
+  box-shadow: 0 0 0 3px rgba(77,154,253,0.18);
+}
+
+/* ===== 연락처: flex 고정폭 배치 ===== */
+.phone-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.phone-prefix {               /* 앞자리 셀렉트 */
+  width: 80px;
+}
+
+.phone-mid,                   /* 중간/끝 네 자리 */
+.phone-end {
+  width: 74px;
+  text-align: center;
+}
+
+/* 에러 라인 높이 고정 */
+.error-space { min-height: 18px; }
+
+/* 주소 행: 인풋 + 버튼 */
+.address-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.address-search-btn {
+  border: 1px solid #4d9afd;
+  background-color: #eaf4ff;
+  color: #2563eb;
+  padding: 0 12px;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+.address-search-btn:active { transform: translateY(1px); }
+
+/* 에러 텍스트 */
+.error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* 초소형 안전망 */
+@media (max-width: 360px) {
+  .address-container { padding: 10px; }
+  .phone-prefix { width: 72px; }
+  .phone-mid, .phone-end { width: 68px; }
+}

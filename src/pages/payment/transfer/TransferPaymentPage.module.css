@@ -1,0 +1,182 @@
+/* 페이지 컨테이너 멍 */
+.page {
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 16px 12px 88px;  /* 하단 CTA 공간 확보 */
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+
+/* 헤더 멍 */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f5f7fb;
+  padding: 8px 0 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  color: #1f2937;
+}
+
+/* 카드 공통 멍 */
+.card {
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 14px;
+}
+
+.cardTitle {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* 금액 요약 박스 멍 */
+.priceBox {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f7faff;
+  border: 1px solid #e6eefc;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.priceLabel {
+  font-size: 13px;
+  color: #374151;
+}
+
+.priceStrong {
+  font-size: 18px;
+  color: #ef4444;
+  font-weight: 800;
+}
+
+/* 결제 수단 카드(아코디언) 멍 */
+.methodCard {
+  border: 1px solid #e6e9f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: border-color 0.2s ease, background 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.methodCard.active {
+  border-color: #4d9afd;
+  background: #eef5ff;
+}
+
+.methodHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.methodText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  display: inline-block;
+}
+
+.radioOn {
+  border-color: #4d9afd;
+  box-shadow: inset 0 0 0 4px #4d9afd;
+}
+
+.methodBody {
+  margin-top: 12px;
+}
+
+/* 하단 CTA 바 멍 */
+.ctaBar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  max-width: 375px;
+  margin: 0 auto;
+
+  background: #ffffff;
+  border-top: 1px solid #e6e9f0;
+  padding: 12px;
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.agree {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 8px;
+}
+
+.agree input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4d9afd;
+}
+
+.agreeText {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+/* CTA 버튼 멍 */
+.nextBtn {
+  width: 100% !important;
+  height: 46px !important;
+  border-radius: 10px !important;
+  background: #4d9afd !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  border: none !important;
+}
+
+.nextBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 스크롤바 멍 */
+.page::-webkit-scrollbar {
+  width: 6px;
+}
+.page::-webkit-scrollbar-thumb {
+  background: #d6dbe6;
+  border-radius: 6px;
+}

@@ -1,0 +1,64 @@
+.container{
+  min-height:100vh;
+  background:#f5f7fb;
+  padding:24px 16px 72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.topbar, .summaryCard, .filterBar, .historySection{
+  width:960px; max-width:100%;
+}
+
+/* 상단 타이틀 바 */
+.topbar{
+  display:flex; align-items:center; justify-content:center;
+  position:relative; margin-bottom:12px;
+}
+.pageTitle{ font-size:18px; font-weight:800; letter-spacing:-.01em; }
+.infoBtn{
+  position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:28px; height:28px; border-radius:50%;
+  border:1px solid #e5e7eb; background:#fafafa; cursor:pointer;
+}
+
+/* 요약 카드 */
+.summaryCard{
+  display:flex; justify-content:space-between; gap:16px;
+  background:#fff; border:1px solid #eee; border-radius:14px;
+  padding:20px 18px; box-shadow:0 4px 20px rgba(0,0,0,.04);
+}
+.summaryLeft{ display:grid; gap:6px; }
+.summaryLabel{ font-weight:800; font-size:16px; color:#111; }
+.summaryValue{ font-weight:900; font-size:36px; letter-spacing:-.02em; }
+.metaRow{ display:flex; gap:12px; align-items:center; color:#6b7280; flex-wrap:wrap; }
+.linkBtn{ border:none; background:none; color:#111; font-weight:700; cursor:pointer; }
+.summaryRight{ display:flex; align-items:center; }
+.chargeBtn{ height:42px; min-width:120px; border-radius:10px; font-weight:800; }
+
+/* 월 필터 */
+.filterBar{
+  display:flex; justify-content:flex-end; margin:10px 0 6px;
+}
+.monthSelect{
+  border:1px solid #e5e7eb; border-radius:8px; height:36px; padding:0 10px; background:#fff;
+}
+
+/* 히스토리 + 빈 상태 */
+.historySection{
+  background:#fff; border:1px solid #eee; border-radius:14px;
+  padding:18px; box-shadow:0 4px 20px rgba(0,0,0,.04);
+  min-height:220px; display:flex; flex-direction:column; gap:8px;
+}
+.emptyBox{
+  margin:40px auto 20px; text-align:center; color:#6b7280;
+}
+.emptyAction{ margin-top:12px; }
+
+/* 스켈레톤 */
+.skeleton{
+  display:inline-block; width:120px; height:32px; border-radius:8px;
+  background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%);
+  background-size:400% 100%; animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
