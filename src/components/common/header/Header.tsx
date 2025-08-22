@@ -52,7 +52,7 @@ const Header: React.FC = () => {
           </div>
         )}
         {centerMode === 'title' && headerTitle && (
-          <h1 className={styles.title}>{headerTitle}</h1>
+          <h1 className={`${styles.title} ${styles.titleWithEllipsis}`}>{headerTitle}</h1>
         )}
       </div>
 

@@ -48,7 +48,7 @@
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 6%;
   color: #111;
@@ -64,7 +64,7 @@
 .infoRow {
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.8rem;
 }
 
 .label {
