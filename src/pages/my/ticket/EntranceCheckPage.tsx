@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import styles from './EntranceCheckPage.module.css'
 import EntranceCheckModal from '@/components/my/ticket/EntranceCheckModal'
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
-import Header from '@/components/common/header/Header'
+import HostHeader from '@/components/host/hostHeader'
 
 interface TicketInfo {
   id: number
@@ -49,7 +49,7 @@ const EntranceCheckPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* <Header/> */}
+      <HostHeader title="관리자모드"/>
       {/* <p className={styles.host}></p> */}
       <div className={styles.page}>
         <h2 className={styles.title}>입장 인원 수 조회</h2>
