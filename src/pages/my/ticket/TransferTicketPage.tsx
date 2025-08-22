@@ -1,18 +1,18 @@
-// src/pages/transfer/TransferTicketPage.tsx
-import React from 'react';
-import styles from './TransferTicketPage.module.css';
-import MyHeader from '@/components/my/hedaer/MyHeader';
+import React from 'react'
+import styles from './TransferTicketPage.module.css'
+import MyHeader from '@/components/my/hedaer/MyHeader'
+import { useNavigate } from 'react-router-dom' 
 
 interface Ticket {
-  id: number;
-  date: string;
-  number: string;
-  title: string;
-  time: string;
-  count: number;
-  status: '결제 완료' | '결제 대기' | '취소 완료';
-  imageUrl: string;
-  isTransferred: boolean;
+  id: number
+  date: string
+  number: string
+  title: string
+  time: string
+  count: number
+  status: '결제 완료' | '결제 대기' | '취소 완료'
+  imageUrl: string
+  isTransferred: boolean
 }
 
 const dummyTickets: Ticket[] = [
@@ -38,14 +38,16 @@ const dummyTickets: Ticket[] = [
     imageUrl: 'https://picsum.photos/id/1029/600/900',
     isTransferred: true,
   },
-];
+]
 
 const TransferTicketPage: React.FC = () => {
-  const handleTransfer = (id: number) => {
-    alert(`티켓 ${id} 양도하기`);
-  };
+  const navigate = useNavigate()
 
-  const visibleTickets = dummyTickets.filter((t) => t.status === '결제 완료');
+  const handleTransfer = (ticket: Ticket) => {
+    navigate(`${ticket.id}`, { state: { ticket } })
+  }
+
+  const visibleTickets = dummyTickets.filter((t) => t.status === '결제 완료')
 
   return (
     <section className={styles.page}>
@@ -97,7 +99,7 @@ const TransferTicketPage: React.FC = () => {
                   <button
                     type="button"
                     className={styles.transferBtn}
-                    onClick={() => handleTransfer(ticket.id)}
+                    onClick={() => handleTransfer(ticket)}
                   >
                     양도하기
                   </button>
@@ -108,7 +110,7 @@ const TransferTicketPage: React.FC = () => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default TransferTicketPage;
+export default TransferTicketPage
