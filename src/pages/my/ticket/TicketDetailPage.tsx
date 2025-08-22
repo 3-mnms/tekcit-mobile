@@ -1,4 +1,3 @@
-// src/pages/my/ticket/TicketDetailPage.tsx
 import React from 'react'
 import styles from './TicketDetailPage.module.css'
 import { useParams } from 'react-router-dom'
@@ -7,7 +6,7 @@ import TicketInfoCard from '@/components/my/ticket/TicketInfoCard'
 import PaymentInfoSection from '@/components/my/ticket/PaymentInfoSection'
 
 const TicketDetailPage: React.FC = () => {
-  const { id } = useParams() // TODO: id로 상세 fetch
+  const { id } = useParams() 
 
   return (
     <section className={styles.page}>
@@ -18,6 +17,7 @@ const TicketDetailPage: React.FC = () => {
       <div className={styles.content}>
         <h2 className="text-lg font-bold">예매내역 확인 · 취소</h2>
         <TicketInfoCard />
+        <h2 className="text-lg font-bold">결제내역</h2>
         <PaymentInfoSection />
       </div>
     </section>

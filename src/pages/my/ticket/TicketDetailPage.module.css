@@ -23,4 +23,5 @@
            calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
   display: grid;
   gap: 16px;
+  margin-bottom: 10px;
 }
