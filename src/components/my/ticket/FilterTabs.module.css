@@ -5,16 +5,30 @@
 
 .tab {
   flex: 1;
-  padding: 10px 0;
-  text-align: center;
-  font-size: 14px;
+  min-height: 44px;
+  padding: 10px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  white-space: nowrap;
+  word-break: keep-all;
+
+  font-size: 13px;    
   font-weight: 600;
   color: #6b7280;
+
   background: none;
   border: none;
   cursor: pointer;
   position: relative;
 }
+
+@media (min-width: 380px) {
+  .tab { font-size: 14px; } /* 화면 넓으면 원래 크기 */
+}
+
 .tab.active {
   color: #111827;
   border-bottom: 2px solid #4d9afd;
@@ -22,7 +36,6 @@
 
 .chev {
   font-size: 16px;
-  margin-left: 6px;
   transition: transform 0.2s ease;
   vertical-align: middle;
 }

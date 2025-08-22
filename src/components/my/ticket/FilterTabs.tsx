@@ -8,7 +8,6 @@ export type Tab = '전체' | '예매완료' | '예매취소' | '관람일정 조
 interface Props {
   active: Tab;
   onChange: (t: Tab) => void;
-  /** 관람일정 조회 달력 열기/닫기 */
   isCalendarOpen: boolean;
   onToggleCalendar: () => void;
 }
@@ -35,8 +34,7 @@ const FilterTabs: React.FC<Props> = ({ active, onChange, isCalendarOpen, onToggl
         예매취소
       </button>
 
-      {/* 관람일정 조회: 탭 + 드롭 아이콘 */}
-      <button
+      {/* <button
         className={`${styles.tab} ${active === '관람일정 조회' ? styles.active : ''}`}
         onClick={() => onChange('관람일정 조회')}
       >
@@ -49,7 +47,7 @@ const FilterTabs: React.FC<Props> = ({ active, onChange, isCalendarOpen, onToggl
           }}
           aria-label="날짜 선택 열기"
         />
-      </button>
+      </button> */}
     </nav>
   );
 };
