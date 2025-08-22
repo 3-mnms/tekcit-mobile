@@ -1,3 +1,4 @@
+// src/pages/reservation/TicketOrderInfoPage.tsx
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styles from './TicketOrderInfoPage.module.css';
@@ -9,7 +10,7 @@ import TicketBookerInfoSection from '@/components/reservation/TicketBookerInfoSe
 import OrderConfirmSection from '@/components/reservation/OrderConfirmSection';
 
 type NavState = { fid: string; dateYMD: string; time: string; quantity: number; };
-const UNIT_PRICE = 88000; // 더미
+const UNIT_PRICE = 88000;
 
 const TicketOrderInfoPage: React.FC = () => {
   const { state } = useLocation() as { state?: NavState };
@@ -26,39 +27,43 @@ const TicketOrderInfoPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* 왼쪽: 정보/수령/배송지 */}
-      <div className={styles.leftCol}>
-        <TicketInfoSection
-          compact              // ✅ 높이 줄이기
-          date={state?.dateYMD}
-          time={state?.time}
-          quantity={qty}
-          unitPrice={UNIT_PRICE}
-          className={styles.noScroll}
-        />
+      <div className={styles.stack}>
+        <section className={styles.card}>
+          <TicketInfoSection
+            compact
+            date={state?.dateYMD}
+            time={state?.time}
+            quantity={qty}
+            unitPrice={UNIT_PRICE}
+            className={styles.noScroll}
+          />
+        </section>
 
-        <TicketDeliverySelectSection
-          value={method}
-          onChange={setMethod}
-        />
+        <section className={styles.card}>
+          <TicketDeliverySelectSection value={method} onChange={setMethod} />
+        </section>
 
         {isPaper && (
-          <section className={styles.noScroll}>
+          <section className={styles.card}>
             <AddressForm />
           </section>
         )}
-      </div>
 
-      {/* 오른쪽: 예매자 + 총 가격/결제 버튼 — 항상 오른쪽 */}
-      <div className={styles.rightCol}>
-        <TicketBookerInfoSection className={styles.noScroll} />
-        <OrderConfirmSection
-          unitPrice={UNIT_PRICE}
-          quantity={qty}
-          onPay={handlePay}
-          className={styles.noScroll}
-        />
+        <section className={styles.card}>
+          <TicketBookerInfoSection className={styles.noScroll} />
+        </section>
+
+        <section className={`${styles.card} ${styles.confirm}`}>
+          <OrderConfirmSection
+            unitPrice={UNIT_PRICE}
+            quantity={qty}
+            onPay={handlePay}
+            className={styles.noScroll}
+          />
+        </section>
+        
       </div>
+      
     </div>
   );
 };

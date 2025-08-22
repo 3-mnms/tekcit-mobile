@@ -7,7 +7,7 @@ import styles from './OrderConfirmSection.module.css';
 type Props = {
   unitPrice: number;
   quantity: number;
-  method?: DeliveryMethod; // 사용하지 않음
+  method?: DeliveryMethod;
   onPay?: () => void;
   className?: string;
 };
