@@ -16,6 +16,7 @@ import FindPasswordPage from '@/pages/auth/find/FindPasswordPage'
 import ResetPasswordPage from '@/pages/auth/find/ResetPasswordPage'
 import KakaoSignupPage from '@/pages/auth/KakaoSignupPage'
 import KakaoAuthorizeGate from '@/components/auth/signup/KakaoAuthorizeGate'
+import FestivalDetailPage from "@/pages/festival-detail/FestivalDetailPage";
 
 // mypage
 import UserDropdown from '@/pages/my/dropdown/UserDropdown'
@@ -43,7 +44,7 @@ export const router = createBrowserRouter([
   { path: '/auth/signup', element: <SignupPage /> },
   { path: '/category/:name', element: <CategoryPage /> },
   { path: '/search', element: <SearchPage /> },
-  // { path: "/festival/:fid", element: <FestivalDetailPage /> },
+  { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {
     path: '/auth/signup/kakao',
     element: <KakaoAuthorizeGate />,
