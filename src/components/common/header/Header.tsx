@@ -7,14 +7,13 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { leftIcon, centerMode, headerTitle, resetHeader } = useUIStore();
+  const { leftIcon, centerMode, headerTitle } = useUIStore();
   const [keyword, setKeyword] = useState('');
 
   const handleSearch = () => {
     const q = keyword.trim();
     // 검색어가 없으면 검색하지 않고, 검색창 모드만 종료
     if (!q) {
-      resetHeader();
       navigate(-1); // 이전 페이지로 돌아가기
       return;
     }

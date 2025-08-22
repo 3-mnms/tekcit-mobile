@@ -84,3 +84,8 @@
 .placeholder {
   width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
 }
+
+.searchInput:focus-within {
+  border-color: #ccc !important; /* 기본 테두리 색으로 유지 */
+  box-shadow: none !important; /* 그림자 효과 없음 */
+}

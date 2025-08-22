@@ -58,7 +58,7 @@ export const router = createBrowserRouter([
   { path: '/category/:name', element: <CategoryPage /> },
   { path: '/category', element: <CategoryListPage /> },
   { path: '/search', element: <SearchPage /> },
-  { path: '/festival/:fid', element: <FestivalDetailPage /> },
+  { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {
     path: '/auth/signup/kakao',
     element: <KakaoAuthorizeGate />,
@@ -144,6 +144,13 @@ export const router = createBrowserRouter([
           { path: 'money-charge', element: <WalletChargePage /> },
         ],
       },
+    ],
+  },
+  {
+    path: '/host',
+    children: [
+      { path: '', element: <EntranceCheckPage/>},
+     
     ],
   },
 ])
