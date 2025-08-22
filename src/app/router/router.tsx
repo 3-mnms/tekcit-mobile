@@ -63,7 +63,7 @@ export const router = createBrowserRouter([
   { path: '/category/:name', element: <CategoryPage /> },
   { path: '/category', element: <CategoryListPage /> },
   { path: '/search', element: <SearchPage /> },
-  { path: '/festival/:fid', element: <FestivalDetailPage /> },
+  { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {
     path: '/auth/signup/kakao',
     element: <KakaoAuthorizeGate />,
@@ -151,14 +151,18 @@ export const router = createBrowserRouter([
       },
     ],
   },
-
-  // reservation
   {
     path: '/reservation',
     children: [
       { path: ':fid/queue', element: <QueuePage /> },
       { path: ':fid', element: <OrderPage /> },
       { path: ':fid/order-info', element: <OrderInfoPage /> },
+    ],
+  },
+  {
+    path: '/host',
+    children: [
+      { path: '', element: <EntranceCheckPage/>},
     ],
   },
 ])
