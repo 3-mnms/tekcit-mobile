@@ -21,9 +21,6 @@ const Header: React.FC = () => {
     navigate(`/search?keyword=${encodeURIComponent(q)}&page=1`);
   };
 
-  // ================================================================
-  // ✅ 검색 모드일 때 보여줄 헤더
-  // ================================================================
   if (headerMode === 'search') {
     return (
       <header className={`${styles.header} ${styles.searchHeader}`}>
@@ -48,9 +45,6 @@ const Header: React.FC = () => {
     );
   }
 
-  // ================================================================
-  // ✅ 기본 모드일 때 보여줄 헤더
-  // ================================================================
   return (
     <header className={styles.header}>
       <div className={styles.left}>

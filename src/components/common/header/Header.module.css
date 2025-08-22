@@ -2,23 +2,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 50px;
   padding: 12px 24px;
   border-bottom: 1px solid #ddd;
   background-color: #fff;
   gap: 16px;
-  flex-wrap: nowrap;
   overflow: hidden;
 }
 
-.left {
-  display: flex;
+.left, .right {
+  display: flex;  
   align-items: center;
-  gap: 16px;
   flex-shrink: 0;
 }
 
 .logo {
-  height: 28px;
+  height: 23px;
+  cursor: pointer;
 }
 
 .searchHeader {
@@ -29,8 +29,8 @@
 .searchWrapper {
   display: flex;
   align-items: center;
-  flex-grow: 1; /* ✅ 남은 공간을 검색창이 모두 차지 */
-  height: 40px;
+  flex-grow: 1;
+  height: 30px;
   background-color: #f3f4f6;
   border-radius: 9999px;
   padding: 0 0.75rem 0 1rem;
@@ -45,7 +45,7 @@
 .searchButton {
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: 0.8rem;
   color: #555;
   cursor: pointer;
 }
@@ -64,4 +64,24 @@
   .center {
     display: none;
   }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #111;
+  /* 제목이 길 경우를 대비 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeholder {
+  width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
 }
