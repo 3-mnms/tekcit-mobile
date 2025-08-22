@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import styles from './EntranceCheckPage.module.css'
 import EntranceCheckModal from '@/components/my/ticket/EntranceCheckModal'
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
-import HostHeader from '@/components/host/hostHeader'
 
 interface TicketInfo {
   id: number
@@ -49,7 +48,6 @@ const EntranceCheckPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <HostHeader title="관리자모드"/>
       {/* <p className={styles.host}></p> */}
       <div className={styles.page}>
         <h2 className={styles.title}>입장 인원 수 조회</h2>
@@ -80,11 +78,11 @@ const EntranceCheckPage: React.FC = () => {
             </div>
           ))}
         </div>
-
-        <button className={styles.checkBtn} disabled={selectedId === null} onClick={handleCheck}>
-          입장 인원 수 조회하기
-        </button>
-
+        <div className="buttonWrapper">
+          <button className={styles.checkBtn} disabled={selectedId === null} onClick={handleCheck}>
+            입장 인원 수 조회하기
+          </button>
+        </div>
         <EntranceCheckModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

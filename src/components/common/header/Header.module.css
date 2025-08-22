@@ -81,6 +81,15 @@
   text-overflow: ellipsis;
 }
 
+.titleWithEllipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  width: 60%; 
+  text-align: center;
+}
+
 .placeholder {
   width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
 }
