@@ -1,0 +1,96 @@
+.dropdown {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.usernameWrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.username {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.alarmButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.alarmIcon {
+  font-size: 20px;
+}
+
+.unreadDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #ef4444;
+}
+
+.menuGroupWrap {
+  margin-top: 12px;
+}
+
+.menuSection {
+  display: grid;
+  gap: 4px;
+}
+
+.sectionDivider {
+  height: 8px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.logoutButton {
+  font-size: 12px;
+  color: gray;
+  text-align: right;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  text-decoration: underline;
+}
+
+.logoutButton:hover {
+  color: #555;
+}
+
+.menuSection {
+  margin-top: 12px;
+}
+
+.parentLabel {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #000000;
+  padding: 6px 0;
+  cursor: default;      
+}

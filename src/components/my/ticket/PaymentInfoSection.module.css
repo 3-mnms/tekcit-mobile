@@ -1,0 +1,81 @@
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+}
+
+.rows {
+  display: grid;
+  gap: 6px;
+}
+.row {
+  display: grid;
+  grid-template-columns: 92px 1fr; 
+  gap: 10px;
+  align-items: start;
+  padding: 8px 0;
+  border-bottom: 1px dashed #edf2f7;
+}
+.row:last-child { border-bottom: 0; }
+
+.k {
+  color: #41454e;
+  font-weight: 600;
+  font-size: 14px;
+}
+.v {
+  color: #111827;
+  font-size: 14px;
+  word-break: keep-all;
+  justify-self: end;     
+  text-align: right;
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.em { font-weight: 700; }
+
+.divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 8px 0;
+}
+
+.summary {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.sumRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.total span:last-child {
+  color: #d33;
+  font-weight: 800;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+.neutral {
+  background: #eef2ff;
+  color: #3730a3;
+  border-color: #c7d2fe;
+}

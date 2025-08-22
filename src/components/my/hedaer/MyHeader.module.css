@@ -1,0 +1,45 @@
+.header {
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #eee;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+}
+
+.withDivider {
+  border-bottom: 1px solid #eee;
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.backBtn:active {
+  background: #f5f5f5;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+}
+
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

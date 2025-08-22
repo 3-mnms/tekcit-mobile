@@ -1,0 +1,107 @@
+/* src/components/my/ticket/ReservationList.module.css */
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+/* 카드 전체 — 오른쪽 화살표 대신 테두리 박스 */
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  padding: 12px;
+}
+
+/* 상단 타이틀(공연명 - 매수) */
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+  margin: 4px 4px 10px;
+}
+
+/* 본문: 포스터 왼쪽, 정보 오른쪽 */
+.body {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+/* 반응형: 넓으면 높이 정렬 개선 */
+@media (min-width: 480px) {
+  .body { grid-template-columns: 96px 1fr; gap: 14px; }
+}
+
+.poster {
+  width: 84px;
+  height: 112px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+@media (min-width: 480px) {
+  .poster { width: 96px; height: 128px; }
+}
+
+.info {
+  display: grid;
+  gap: 6px;
+}
+
+/* 라벨-값 2단 표기 (참고 이미지 스타일) */
+.row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.k { color: #6b7280; }
+.v { color: #111827; }
+
+.statusBar {
+  margin-top: 6px;
+}
+
+/* 상태 배지 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.done {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+.cancel {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+/* 빈 상태 */
+.empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 24px 0 8px;
+  font-size: 14px;
+}
+
+/* 다크 모드 살짝 */
+@media (prefers-color-scheme: dark) {
+  .card { border-color: #374151; background: #111827; }
+  .title { color: #e5e7eb; }
+  .k { color: #9ca3af; }
+  .v { color: #e5e7eb; }
+  .poster { border-color: #334155; background: #0b1220; }
+  .done { background: #042d26; color: #a7f3d0; border-color: #065f46; }
+  .cancel { background: #2a0c0c; color: #fecaca; border-color: #7f1d1d; }
+}

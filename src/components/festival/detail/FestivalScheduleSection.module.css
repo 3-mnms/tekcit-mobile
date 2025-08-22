@@ -1,0 +1,148 @@
+/* ====== 컨테이너 기본 레이아웃 ====== */
+.container {
+  gap: 1rem;
+  width: 100%;
+  background: #fff;
+  border-radius: 1rem;
+  padding: 0.8rem 4%;
+  border: 1px solid #ddd;
+  align-items: stretch;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+}
+
+/* ====== 섹션/라벨 ====== */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 0.8rem;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ====== 시간 버튼 그룹 ====== */
+.timeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.timeBtn {
+  border: 1px solid #ccc;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.timeBtn:hover { background-color: #e0eaff; }
+.selectedBtn {
+  background-color: #4D9AFD;
+  color: #fff;
+  border: none;
+}
+
+/* ====== 액션 버튼 ====== */
+.actionsRow {
+  margin-top: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.confirmBtn {
+  background-color: #4D9AFD;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  width: 100%;
+  transition: opacity 0.2s ease;
+}
+.confirmBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ====== 데이트피커 래퍼 ====== */
+.datepickerWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* 달력을 가운데 정렬 */
+}
+
+:global(.react-datepicker__month-container) {
+  width: 100%;
+}
+:global(.react-datepicker__header) {
+  background-color: #f8f8f8;
+}
+:global(.react-datepicker__current-month) {
+  font-size: 0.9rem;
+}
+:global(.react-datepicker__day-name) {
+  font-size: 0.85rem;
+  /* 👇 여기서 크기를 조절했어! 삐약! */
+  width: 2rem;
+  line-height: 1.5rem;
+}
+
+.custom-day,
+:global(.react-datepicker__day) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* 👇 여기서 크기를 조절했어! 삐약! */
+  width: 2rem;
+  height: 1.8rem;
+  font-size: 0.85rem; /* 숫자 글자 크기 */
+
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin: 0.15rem;
+}
+
+/* 선택 가능/불가 시각화 */
+.day-active { color: #2563eb; }
+.day-inactive { color: #ccc; }
+
+/* 선택 상태 (커스텀 + 기본 클래스 모두 커버) */
+.day-selected,
+.react-datepicker__day--selected {
+  background-color: #2563eb !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* 기본 disabled도 통일감 있게 */
+.react-datepicker__day--disabled {
+  color: #ccc !important;
+  pointer-events: none;   /* ← 이게 전부에 적용되면 안 됨 */
+}
+
+/* 호버 느낌 (비활성 제외) */
+.react-datepicker__day:not(.react-datepicker__day--disabled):hover {
+  background-color: #e0eaff;
+}
+
+/* ====== 안내 문구 ====== */
+.notice {
+  font-size: 0.9rem;
+  color: #374151;
+}

@@ -1,0 +1,26 @@
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
+}
+
+.body {
+  padding: 12px 25px 32px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #fff;
+  margin-bottom: 16px;
+}
+
+.addButton {
+  width: 100%;
+}

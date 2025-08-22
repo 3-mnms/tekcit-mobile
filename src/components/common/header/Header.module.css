@@ -2,76 +2,63 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
+  height: 50px;
+  padding: 11px;
   border-bottom: 1px solid #ddd;
   background-color: #fff;
   gap: 16px;
-  flex-wrap: nowrap; /* ✅ 한줄 유지 */
   overflow: hidden;
+
+  position: relative; 
 }
 
-.left {
-  display: flex;
+.left, .right {
+  display: flex;  
   align-items: center;
-  gap: 16px;
   flex-shrink: 0;
+  z-index: 2;
 }
 
 .logo {
-  height: 28px;
-}
-
-.categoryList {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  margin-left: 1rem;
-}
-
-.categoryItem {
-  font-weight: 500;
-  color: #111;
+  height: 18px;
   cursor: pointer;
-  transition: color 0.2s ease;
 }
 
-.categoryItem:hover {
-  color: #4d9afd;
-  text-decoration: underline;
+.searchHeader {
+  justify-content: flex-start; 
+  gap: 0.5rem;
+}
+
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  height: 30px;
+  background-color: #f3f4f6;
+  border-radius: 9999px;
+  padding: 0 0.75rem 0 1rem;
+  border: 1px solid #ccc;
+}
+
+.searchInput {
+  width: 100%;
+  border: none;
+  background: none;
+}
+.searchButton {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
 }
 
 .center {
   flex: 1 1 auto;
-  display: flex;
+  /* display: flex; */
   justify-content: center;
-  min-width: 200px;
 }
 
-/* ✅ 검색창 영역 기본 표시 */
-.searchWrapper {
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 6px 12px;
-  gap: 8px;
-  width: 90%;
-}
-
-/* ✅ 좁은 화면일 때 검색창 숨김 */
-@media (max-width: 800px) {
-  .center {
-    display: none;
-  }
-}
-
-.searchInput {
-  border: none;
-  outline: none;
-  flex: 1;
-  font-size: 14px;
-  font-weight: 500;
-}
 
 .right {
   display: flex;
@@ -79,23 +66,21 @@
   flex-shrink: 0;
 }
 
-.rightButton {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: 14px;
+.title {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
-}
-
-.rightButton:focus {
-  outline: none;
-}
-
-.dropdownWrapper {
+  color: #111;
   position: absolute;
-  top: 60px; 
-  right: 10px;
-  z-index: 100;
+  left: 50%;
+  top: 35%;
+  transform: translateX(-50%);
+  z-index: 1;
+  /* 제목이 길 경우를 대비 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placeholder {
+  width: 40px; /* 뒤로가기 버튼과 동일한 너비로 중앙 정렬 맞추기 */
 }

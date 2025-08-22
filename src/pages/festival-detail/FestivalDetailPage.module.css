@@ -1,0 +1,55 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding: 0.8rem 4%;
+  padding-bottom: 70px;
+}
+
+/* 탭 */
+.tabWrapper {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.Scheduler {
+  padding-top: 1rem;
+}
+
+.tabMenu {
+  display: flex;
+  gap: 2rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.tab {
+  all: unset;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #666;
+  padding-bottom: 0.25rem;
+}
+
+.active {
+  color: #000;
+  font-weight: 700;
+  border-bottom: 2px solid #000;
+}
+
+.tabContent {
+  background-color: #fff;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+}
+
+/* 단일 컬럼 안내용 */
+.singleColumn {
+  padding: 2rem 5%;
+}

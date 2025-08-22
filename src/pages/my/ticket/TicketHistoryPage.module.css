@@ -1,0 +1,51 @@
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  background: #fff;
+}
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff;
+}
+
+.content {
+  --page-padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--page-padding)
+           calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+}
+
+.fullBleed {
+  margin-left: calc(var(--page-padding) * -1);
+  margin-right: calc(var(--page-padding) * -1);
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  background: #fff;
+}
+
+.tabsWrap {
+  padding-top: 4px;
+}
+
+.calendarWrap {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 0;
+}
+
+.body {
+  padding-top: 20px;
+  padding-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
