@@ -1,43 +1,75 @@
-/* ✅ 카드 리스트 래퍼: 스크롤바 정리 + 위아래 여백 멍 */
-.address-wrapper {
-  max-height: min(56vh, 540px);      /* 높이 제한으로 스크롤 발생 멍 */
-  overflow: auto;
-  padding-right: 4px;                /* 스크롤바 공간 보정 멍 */
-  margin-top: 8px;
+/* ✅ 오버레이: 화면 전체 덮는 배경 멍 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(17, 24, 39, 0.45); /* 반투명 어둡게 멍 */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* bottom-sheet 느낌 멍 */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom))
+    env(safe-area-inset-left);
 }
 
-/* ✅ 스크롤바 미세 스타일 (크로미움) 멍 */
-.address-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-.address-wrapper::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 8px;
-}
-.address-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
+/* ✅ bottom-sheet 패널 멍 */
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  overflow: hidden;
+  max-height: 90vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
 }
 
-/* ✅ 리스트 간격/아이템 패딩 정리 멍 */
-.address-list {
+/* ✅ 헤더 고정 멍 */
+.headerSticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  /* background 제거해서 흰 줄 문제 해결 멍 */
+}
+
+/* ✅ 본문 스크롤 영역 멍 */
+.body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px 12px;
+}
+
+/* ✅ 안내/빈 상태 멍 */
+.info {
+  margin: 16px 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.emptyBox {
+  display: grid;
+  place-items: center;
+  height: 40vh;
+}
+
+/* ✅ 주소 리스트 멍 */
+.addressList {
   display: flex;
   flex-direction: column;
-  gap: 10px;                         /* 카드 간격 넉넉히 멍 */
-  padding: 8px 0 4px;
+  gap: 12px;
+  padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.address-list-item {
-  cursor: pointer;
-}
+/* ✅ 아이템 버튼 멍 */
 
-/* ✅ 선택된 아이템에는 외곽선 비활성, 내부 카드가 강조되므로 얇게만 멍 */
-.address-list-item.selected {
-  outline: none;
-}
-
-/* ✅ 하단 고정 버튼(있다면) 상단 그림자 멍 */
-.footerStickyShadow {
-  box-shadow: 0 -8px 24px rgba(0,0,0,.06);
+/* ✅ 푸터 고정 멍 */
+.footerSticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  background: #fff;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
 }

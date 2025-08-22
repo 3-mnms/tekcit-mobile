@@ -1,8 +1,3 @@
-// 📄 src/components/payment/address/AddressForm.tsx
-// - 아이폰 SE 기준 모바일 고정 레이아웃
-// - 주소만 필수, 나머지는 선택
-// - 연락처 인풋은 flex 고정폭 + 숫자만 허용 보강
-
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -17,13 +12,13 @@ interface AddressFormProps {
   onValidChange?: (isValid: boolean) => void
 }
 
-/** ✅ 폼 스키마: 주소만 필수, 나머지는 선택 멍 */
+/** 폼 스키마: 주소만 필수, 나머지는 선택 멍 */
 const schema = z.object({
   name: z.string().optional(),
   phonePrefix: z.enum(['010', '011', '016', '017', '018', '019']).optional(),
   phonePart1: z.string().optional(),
   phonePart2: z.string().optional(),
-  address: z.string().min(1, '주소를 입력해 주세요.'),
+  address: z.string().min(1, '주소를 입력해 주세요.'), // ✅ 유일한 필수값 멍
   zipCode: z.string().optional(),
 })
 
@@ -54,24 +49,23 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
     },
   })
 
-  // ✅ 모달 열림/닫힘 상태 멍
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  // ✅ 모든 값 감시 → address만 있으면 valid 처리 멍
   const watchAll = watch()
+
+  /** address만 채워지면 유효(true)로 상위에 전달 멍 */
   useEffect(() => {
     const isValid = !!watchAll.address?.trim()
     onValidChange?.(!!isValid)
   }, [watchAll, onValidChange])
 
-  // ✅ 모달에서 배송지 선택 시 address/zipCode만 세팅 멍
+  /** 모달에서 배송지 선택 시: address/zipCode만 주입(이름/전화는 그대로) 멍 */
   const handleAddressSelect = (addr: SelectedAddressPayload) => {
     setValue('address', addr.address ?? '', { shouldValidate: true })
     setValue('zipCode', addr.zipCode ?? '', { shouldValidate: true })
     setIsModalOpen(false)
   }
 
-  // ✅ 숫자만 허용하는 인풋 보정(사파리/안드로이드 대비) 멍
+  /** 숫자만 허용하는 인풋 보정(사파리 대비) 멍 */
   const onlyDigits =
     (max = 4) =>
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -80,27 +74,28 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
     }
 
   return (
+    // ✅ form 태그 정확히 열고, 파일 끝에서 정확히 닫습니다 멍
     <form className={styles['address-container']} autoComplete="on">
-      {/* ───────── 상단: 배송지 관리 버튼 ───────── */}
+      {/* 상단 탭/관리 영역 멍 */}
       <div className={styles['address-tabs']}>
-        <span className={styles['tabs-label']}>배송지 선택</span>
+        {/* 모달 열기: 등록된 배송지 목록에서 선택 멍 */}
         <button
           type="button"
           className={`plain-button ${styles['tab-manage-btn']}`}
           onClick={() => setIsModalOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={isModalOpen}
+          aria-haspopup="dialog"             // ✅ aria - haspopup(X) → aria-haspopup(O) 멍
+          aria-expanded={isModalOpen}        // ✅ aria - expanded(X) → aria-expanded(O) 멍
         >
           배송지 관리
         </button>
       </div>
 
-      {/* ───────── 전체화면 모달(시트) ───────── */}
+      {/* 전체화면 모달 멍 */}
       {isModalOpen && (
         <div className={styles['modal-overlay']} role="dialog" aria-modal="true">
           <div className={styles['modal-sheet']}>
+            {/* 모달 헤더 (모바일 상단 바) 멍 */}
             <div className={styles['modal-header']}>
-              <strong>배송지 관리</strong>
               <button
                 type="button"
                 className={styles['modal-close']}
@@ -111,6 +106,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
               </button>
             </div>
 
+            {/* 실제 컨텐츠 멍 */}
             <div className={styles['modal-content']}>
               <DeliveryManageModal
                 onClose={() => setIsModalOpen(false)}
@@ -121,69 +117,68 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
         </div>
       )}
 
-      {/* ───────── 폼: 단일 컬럼 ───────── */}
+      {/* 폼 영역: 단일 컬럼 레이아웃 멍 */}
       <div className={styles['form-grid']}>
-        {/* 받는 사람 */}
+        {/* 받는 사람 멍 */}
         <div className={styles['form-field']}>
           <label htmlFor="name">받는 사람</label>
           <input id="name" type="text" {...register('name')} placeholder="예) 홍길동" />
           {errors.name && <p className={styles['error']}>{errors.name.message}</p>}
         </div>
 
-        {/* 연락처 */}
+        {/* 연락처 멍 */}
         <div className={styles['form-field']}>
           <label>연락처</label>
 
-          {/* ✅ flex 고정폭 배치로 높이/간격 일관화 */}
+          {/* 앞자리 선택 멍 */}
           <div className={styles['phone-inputs']}>
-            <select
-              {...register('phonePrefix')}
-              aria-label="연락처 앞자리"
-              className={styles['phone-prefix']}
-            >
-              <option value="010">010</option>
-              <option value="011">011</option>
-              <option value="016">016</option>
-              <option value="017">017</option>
-              <option value="018">018</option>
-              <option value="019">019</option>
-            </select>
+            <div className={styles['phone-box']}>
+              <select {...register('phonePrefix')} aria-label="연락처 앞자리">
+                {/* ✅ '...' 제거하고 실제 옵션만 유지 멍 */}
+                <option value="010">010</option>
+                <option value="011">011</option>
+                <option value="016">016</option>
+                <option value="017">017</option>
+                <option value="018">018</option>
+                <option value="019">019</option>
+              </select>
+            </div>
 
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="1234"
-              {...register('phonePart1')}
-              onInput={onlyDigits(4)}
-              aria-label="연락처 중간"
-              className={styles['phone-mid']}
-            />
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={4}
-              placeholder="5678"
-              {...register('phonePart2')}
-              onInput={onlyDigits(4)}
-              aria-label="연락처 끝"
-              className={styles['phone-end']}
-            />
-          </div>
+            {/* 중간 4자리 멍 */}
+            <div className={`${styles['phone-box']} ${styles['phone-part1']}`}>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="1234"
+                {...register('phonePart1')}
+                onInput={onlyDigits(4)}
+                aria-label="연락처 중간"
+              />
+              <div className={styles['error-space']}>
+                {errors.phonePart1 && <p className={styles['error']}>{errors.phonePart1.message}</p>}
+              </div>
+            </div>
 
-          {/* 에러 라인 고정 공간 */}
-          <div className={styles['error-space']}>
-            {(errors.phonePrefix || errors.phonePart1 || errors.phonePart2) && (
-              <p className={styles['error']}>
-                {errors.phonePrefix?.message ||
-                  errors.phonePart1?.message ||
-                  errors.phonePart2?.message}
-              </p>
-            )}
+            {/* 끝 4자리 멍 */}
+            <div className={`${styles['phone-box']} ${styles['phone-part2']}`}>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={4}
+                placeholder="5678"
+                {...register('phonePart2')}
+                onInput={onlyDigits(4)}
+                aria-label="연락처 끝"
+              />
+              <div className={styles['error-space']}>
+                {errors.phonePart2 && <p className={styles['error']}>{errors.phonePart2.message}</p>}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* 주소(필수) */}
+        {/* 주소(필수) 멍 */}
         <div className={styles['form-field']}>
           <label htmlFor="address">주소 *</label>
           <div className={styles['address-row']}>
@@ -204,7 +199,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
           {errors.address && <p className={styles['error']}>{errors.address.message}</p>}
         </div>
 
-        {/* 우편번호(선택) */}
+        {/* 우편번호(선택) 멍 */}
         <div className={styles['form-field']}>
           <input
             type="text"
@@ -216,7 +211,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
           {errors.zipCode && <p className={styles['error']}>{errors.zipCode.message}</p>}
         </div>
       </div>
-    </form>
+    </form> // ✅ 여기서 form 닫힘 멍
   )
 }
 
