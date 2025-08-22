@@ -1,20 +1,24 @@
-.container {
-  padding: 1.5rem;
+.page {
   width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.25rem;
+.body {
+  padding: 12px 25px 32px;
 }
 
 .card {
   border: 1px solid #ddd;
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 16px;
   background-color: #fff;
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
 .addButton {

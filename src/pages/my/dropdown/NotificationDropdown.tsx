@@ -2,18 +2,14 @@ import React from 'react'
 import styles from './NotificationDropdown.module.css'
 import NotificationItem from '@components/my/dropdown/NotificationItem'
 import { useNotificationStore } from '@/models/dropdown/NotificationStore'
-import MyHeader from '@/components/my/hedaer/MyHeader';
+import MyHeader from '@/components/my/hedaer/MyHeader'
 
 const NotificationDropdown: React.FC = () => {
-  const { notifications, markAllAsRead, markAsRead, unreadCount } = useNotificationStore()
-
-  const unread = unreadCount()
+  const { notifications, markAllAsRead, markAsRead} = useNotificationStore()
 
   return (
     <div className={styles.page} role="region" aria-label="공지사항">
-      <MyHeader
-        title="공지사항"
-      />
+      <MyHeader title="공지사항" />
       <div className={styles.actionRow}>
         <button type="button" onClick={markAllAsRead} className={styles.allReadBtn}>
           전체 읽음
