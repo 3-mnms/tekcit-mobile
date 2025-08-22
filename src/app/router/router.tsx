@@ -51,6 +51,11 @@ import WalletPointPage from '@/pages/payment/pay/WalletPointPage'
 import WalletChargePage from '@/pages/payment/pay/WalletChargePage'
 import ResultPage from '@/pages/payment/result/ResultPage'
 
+// reservation
+import QueuePage from '@pages/reservation/TicketQueuePage'
+import OrderPage from '@pages/reservation/TicketOrderPage'
+import OrderInfoPage from '@pages/reservation/TicketOrderInfoPage'
+
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
   { path: '/login', element: <LoginPage /> },
@@ -144,6 +149,16 @@ export const router = createBrowserRouter([
           { path: 'money-charge', element: <WalletChargePage /> },
         ],
       },
+    ],
+  },
+
+  // reservation
+  {
+    path: '/reservation',
+    children: [
+      { path: ':fid/queue', element: <QueuePage /> },
+      { path: ':fid', element: <OrderPage /> },
+      { path: ':fid/order-info', element: <OrderInfoPage /> },
     ],
   },
 ])

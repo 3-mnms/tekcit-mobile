@@ -1,0 +1,164 @@
+.header {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.section {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: none;
+  border-radius: 0;
+}
+
+.calendar {
+  display: grid;              
+  place-items: center;       
+  padding: 0;     
+}
+
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 16px;
+  padding-bottom: 0;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+
+.subTitle {
+  font-weight: 700;
+  color: #111827;
+  margin: 6px 0 6px;
+}
+
+.timeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timeBtn {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.timeBtnActive {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  margin-top: 18px;
+}
+
+.label {
+  color: #374151;
+  font-weight: 600;
+}
+
+.qtyBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.qtyBtn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  background: #fff;
+  line-height: 1;
+}
+
+.qtyBtn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.qtyVal {
+  width: 24px;
+  text-align: center;
+}
+
+.inlineMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.limitInline {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dotSep {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: #d1d5db;
+  display: inline-block;
+}
+
+.bottomDock {
+  position: sticky;
+  background: #fff;
+  box-shadow: 0 -1px 6px rgba(0, 0, 0, .06);
+  display: flex;
+  flex-direction: column;
+}
+
+.totalBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-top: 1px solid #e5e7eb;
+  font-weight: 700;
+}
+
+.nextButton {
+  width: 100%;
+  height: 48px;
+  font-size: 18px;
+  font-weight: 800;
+  border: none;
+  border-radius: 0 !important;
+  background: #4d9afd;
+  color: #fff;
+}
+
+.nextButton:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.nextButton:not(:disabled):hover {
+  background: #3585ea;
+}
