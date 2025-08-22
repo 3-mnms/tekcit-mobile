@@ -50,6 +50,8 @@ import RefundPage from '@/pages/payment/refund/RefundPage'
 import WalletPointPage from '@/pages/payment/pay/WalletPointPage'
 import WalletChargePage from '@/pages/payment/pay/WalletChargePage'
 import ResultPage from '@/pages/payment/result/ResultPage'
+import QrScannerPage from '@/pages/qr-cord/QrScannerPage'
+import HostHeader from '@/components/host/hostHeader/hostHeader'
 
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
@@ -148,8 +150,10 @@ export const router = createBrowserRouter([
   },
   {
     path: '/host',
+    element: <HostHeader title="관리자모드" />,
     children: [
-      { path: '', element: <EntranceCheckPage/>},
+      { index: true, element: <EntranceCheckPage /> }, 
+      { path: 'qr-scanner', element: <QrScannerPage/>},
      
     ],
   },

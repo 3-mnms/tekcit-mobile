@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet  } from 'react-router-dom';
 import styles from './hostHeader.module.css';
 
 import { logout as logoutApi } from '@/shared/api/auth/login'
@@ -42,6 +42,7 @@ const HostHeader: React.FC<Props> = ({
     }
 
 return (
+  <div className={styles.layoutContainer}> 
     <header
       className={[
         styles.header,
@@ -65,6 +66,10 @@ return (
         </button>
       </div>
     </header>
+    <main className={styles.mainContent}>
+        <Outlet />
+      </main>
+    </div>
   );
 };
 
