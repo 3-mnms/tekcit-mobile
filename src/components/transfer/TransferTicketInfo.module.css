@@ -1,0 +1,101 @@
+.card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.title {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.headerRow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.thumbWrap {
+  flex: 0 0 auto;
+}
+
+.thumb, .thumbEmpty {
+  width: 84px;
+  height: 112px;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.thumbEmpty {
+  display: grid;
+  place-items: center;
+  background: #f3f4f6;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.headerMeta {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.festival {
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.sub {
+  color: #6b7280;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 12px 0;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  column-gap: 10px;
+  row-gap: 6px;
+}
+
+.k {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.v {
+  color: #111827;
+  font-size: 0.95rem;
+}
+
+.price {
+  font-weight: 700;
+}

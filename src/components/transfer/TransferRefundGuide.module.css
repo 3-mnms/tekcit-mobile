@@ -1,0 +1,24 @@
+.card {
+  width: 100%;
+  background: #fff;
+  border-radius: 1rem;
+}
+
+.box {
+  width: 100%;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1rem;
+  color: #4b5563;
+  font-size: 10px;
+}
+
+.list li {
+  margin: 0.4rem 0;
+  line-height: 1.4;
+}

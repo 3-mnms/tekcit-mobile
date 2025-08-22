@@ -3,10 +3,14 @@
   background-color: #fff;
   border-radius: 12px;
   padding: 20px;
+  padding-bottom: calc(20px + var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
   height: 100%;
+  display: flex;    
+  flex-direction: column;
+  box-sizing: border-box;
 }
-
 .header {
   display: flex;
   justify-content: space-between;
@@ -70,7 +74,7 @@
   font-size: 12px;
   color: gray;
   text-align: right;
-  margin-top: 16px;
+  margin-top: 30px;
   background: none;
   border: none;
   cursor: pointer;
