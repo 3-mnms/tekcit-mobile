@@ -15,7 +15,7 @@ import BottomNav from '@/components/festival/main/bottomnav/BottomNav';
 const FestivalDetailPage: React.FC = () => {
   const { fid } = useParams<{ fid: string }>();
   
-  const { setHeaderTitle } = useUIStore();
+  const { setHeader  } = useUIStore();
 
   const { data: detail, isLoading, isError } = useFestivalDetail(fid ?? '');
 
@@ -24,12 +24,9 @@ const FestivalDetailPage: React.FC = () => {
   
 useEffect(() => {
   if (detail) {
-    setHeaderTitle(detail.prfnm); 
+    setHeader({ centerMode: 'title', leftIcon: 'back', title: detail.prfnm });
   }
-  return () => {
-    setHeaderTitle(null);
-  };
-}, [detail, setHeaderTitle]);
+}, [detail, setHeader]);
   useEffect(() => {
     if (!fid) return;
     if (firedRef.current) return;

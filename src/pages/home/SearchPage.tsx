@@ -14,15 +14,11 @@ const DEFAULT_STATUSES = ['공연예정', '공연중'];
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get('keyword');
-  const { setHeaderToSearchMode, resetHeader } = useUIStore();
+  const { setHeader } = useUIStore();
 
   useLayoutEffect (() => {
-    setHeaderToSearchMode();
-
-    return () => {
-      resetHeader();
-    };
-  }, [setHeaderToSearchMode, resetHeader]); 
+    setHeader({ centerMode: 'searchBar', leftIcon: 'back' });
+  }, [setHeader]); 
 
   // ✅ 1) 렌더 전에 쿼리 정규화 (가드)
   const params = new URLSearchParams(location.search);

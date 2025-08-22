@@ -5,6 +5,7 @@ import '../styles/index.css'
 // main
 import MainPage from '@pages/home/MainPage'
 import CategoryPage from '@pages/home/CategoryPage'
+import CategoryListPage from '@/pages/home/CategoryListPage'
 import SearchPage from '@/pages/home/SearchPage'
 // import FestivalDetailPage from '@pages/festival-detail/FestivalDetailPage'
 
@@ -38,11 +39,13 @@ import TicketDetailPage from '@/pages/my/ticket/TicketDetailPage'
 import TransferTicketPage from '@/pages/my/ticket/TransferTicketPage'
 import EntranceCheckPage from '@/pages/my/ticket/EntranceCheckPage'
 
+
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/auth/signup', element: <SignupPage /> },
-  { path: '/category', element: <CategoryPage /> },
+  { path: '/category/:name', element: <CategoryPage /> },
+  { path: '/category', element: <CategoryListPage /> },
   { path: '/search', element: <SearchPage /> },
   { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {

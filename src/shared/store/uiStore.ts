@@ -1,20 +1,33 @@
 import { create } from 'zustand';
 
-type HeaderMode = 'default' | 'search';
+type LeftIcon = 'logo' | 'back';
+type CenterMode = 'title' | 'searchBar' | 'empty';
 
 interface UIState {
-  headerMode: HeaderMode;
+  leftIcon: LeftIcon;
+  centerMode: CenterMode;
   headerTitle: string | null;
-  setHeaderTitle: (title: string) => void;
-  setHeaderToSearchMode: () => void;
-  resetHeader: () => void;
+  setHeader: (config: {
+    leftIcon?: LeftIcon;
+    centerMode?: CenterMode;
+    title?: string | null;
+  }) => void;
+  setBaseHeader: () => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  headerMode: 'default', // 기본 모드
+const initialState = {
+  leftIcon: 'logo' as LeftIcon,
+  centerMode: 'empty' as CenterMode,
   headerTitle: null,
-  
-  setHeaderTitle: (title) => set({ headerMode: 'default', headerTitle: title }),
-  setHeaderToSearchMode: () => set({ headerMode: 'search', headerTitle: null }),
-  resetHeader: () => set({ headerMode: 'default', headerTitle: null }),
+};
+
+export const useUIStore = create<UIState>((set) => ({
+  ...initialState,
+  setHeader: (config) => 
+    set((state) => ({
+      leftIcon: config.leftIcon ?? state.leftIcon,
+      centerMode: config.centerMode ?? state.centerMode,
+      headerTitle:  config.title === undefined ? state.headerTitle : config.title,
+    })),
+  setBaseHeader: () => set(initialState), 
 }));
