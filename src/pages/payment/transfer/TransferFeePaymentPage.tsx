@@ -44,8 +44,8 @@ const TransferFeePaymentPage: React.FC = () => {
   const routeToResult = useCallback(
     (ok: boolean, extra?: Record<string, string | undefined>) => {
       const params = new URLSearchParams({
-        type: 'transfer-fee',              // 결과 페이지에서 구분용 멍
-        status: ok ? 'success' : 'fail',   // 성공/실패 멍
+        type: 'transfer-fee', // 결과 페이지에서 구분용 멍
+        status: ok ? 'success' : 'fail', // 성공/실패 멍
         ...(extra ?? {}),
       })
       navigate(`/payment/result?${params.toString()}`)
@@ -92,7 +92,7 @@ const TransferFeePaymentPage: React.FC = () => {
       <PageHeader title="양도 수수료 결제" showBack showClose />
 
       {/* ✅ 본문: 푸터 고정 높이만큼 여백 확보(hasFixedFooter) 멍 */}
-      <div className={`${styles.container} ${footerStyles.hasFixedFooter}`}>
+      <main className={styles.container}>
         {/* ✅ 티켓/양도 정보 멍 */}
         <TransferTicketInfo
           title={bookingTransfer.product.title}
@@ -101,27 +101,24 @@ const TransferFeePaymentPage: React.FC = () => {
           sender={bookingTransfer.sender}
           receiver={bookingTransfer.receiver}
         />
-
         {/* ✅ 결제 수단(전자지갑 단일) 멍 */}
         <section className={styles.section} aria-labelledby="pay-method">
-          <h2 id="pay-method" className={styles.sectionTitle}>결제 수단</h2>
+          <h2 id="pay-method" className={styles.sectionTitle}>
+            결제 수단
+          </h2>
 
           <div className={styles.paymentMethodWrapper}>
             {/* 👉 전자지갑: 열기/닫기 토글 멍 */}
             <WalletPayment
               isOpen={selectedMethod === 'wallet'}
-              onToggle={() =>
-                setSelectedMethod((prev) => (prev === 'wallet' ? '' : 'wallet'))
-              }
+              onToggle={() => setSelectedMethod((prev) => (prev === 'wallet' ? '' : 'wallet'))}
             />
           </div>
         </section>
-
         {/* ✅ 수수료 정보 멍 */}
         <section className={styles.feeSection} aria-labelledby="fee-info">
           <TransferFeeInfo perFee={transferFee.perFee} totalFee={transferFee.totalFee} />
         </section>
-
         {/* ✅ 약관 동의 멍 */}
         <section className={styles.termsSection}>
           <label className={styles.checkboxWrapper}>
@@ -134,7 +131,6 @@ const TransferFeePaymentPage: React.FC = () => {
             <span>(필수) 양도 서비스 이용약관 및 개인정보 수집 및 이용에 동의합니다.</span>
           </label>
         </section>
-
         {/* ✅ 데스크톱 전용 상단 버튼(모바일은 하단 푸터 사용) 멍 */}
         <div className={styles.buttonWrapper}>
           <Button
@@ -145,26 +141,23 @@ const TransferFeePaymentPage: React.FC = () => {
             {isPaying ? '결제 중...' : '수수료 결제하기'}
           </Button>
         </div>
-      </div>
+      </main>
 
       {/* ✅ 공용 하단 고정 푸터(전자지갑 전용 로직 반영) 멍 */}
       <Footer
-        prefix="총 수수료"                           // 좌측 라벨 멍
-        amount={transferFee.totalFee}               // 금액(원화 포맷은 Footer 내부 처리) 멍
-        actionLabel={isPaying ? '결제 중...' : '결제하기'} // 버튼 라벨 멍
-        onAction={handlePayment}                    // 클릭 핸들러 멍
-        disabled={selectedMethod !== 'wallet' || !isAgreed || isPaying} // 활성 조건 멍
-        ariaLabel="결제 작업 바"                    // 접근성 라벨 멍
+        prefix="총 수수료"
+        amount={transferFee.totalFee}
+        actionLabel={isPaying ? '결제 중...' : '결제하기'}
+        onAction={handlePayment}
+        disabled={selectedMethod !== 'wallet' || !isAgreed || isPaying}
+        ariaLabel="결제 작업 바"
       />
 
-      {/* ✅ 확인 모달 멍 */}
       {isConfirmModalOpen && (
         <ConfirmModal onConfirm={handleConfirm} onCancel={handleCancel}>
           양도 수수료 결제를 진행하시겠습니까?
         </ConfirmModal>
       )}
-
-      {/* ✅ 비밀번호 입력 모달 멍 */}
       {isPasswordModalOpen && (
         <PasswordInputModal
           onComplete={handlePasswordComplete}

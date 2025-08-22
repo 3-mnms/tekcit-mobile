@@ -47,7 +47,6 @@ const PasswordInputPage: React.FC<PasswordInputModalProps> = ({ onComplete, onCl
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        {/* 닫기 버튼을 맨 위에 배치 */}
         <button className={styles.closeButton} onClick={onClose}>
           ✕
         </button>

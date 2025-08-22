@@ -1,82 +1,169 @@
-/* WalletChargePage.module.css */
+/* src/pages/payment/wallet/WalletChargePage.module.css */
+
+/* ===== 기본 색/치수 토큰 ===== */
+:root {
+  --primary: #4D9AFD;
+  --text: #111827;
+  --muted: #6b7280;
+  --line: #e9edf3;
+  --card: #fff;
+  --bg: #f6f7fb;
+  --radius: 14px;
+}
+
+/* 화면 꽉 채우기 */
 .container {
-  min-height: 100vh;
+  min-height: 100svh;
+  background: #fff;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+}
+
+/* ===== 상단 고정 헤더 ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--line);
   background: #fff;
 }
 
-.wrapper {
-  margin-top: 60px;
-  width: 500px; /* ← 420px → 500~600px 정도로 넓혀줘 */
-  max-width: 90vw;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 6px 32px rgba(0,0,0,0.08);
-  padding: 40px 36px 32px 36px;
+.backBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.backBtn:hover {
+  background: #eaf2ff;
+  border-color: #d6e6ff;
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.2px;
+  color: var(--text);
+  margin: 0;
   text-align: center;
-  margin-bottom: 12px;
 }
 
+.topbarSpacer {
+  width: 36px;
+  height: 36px;
+}
+
+/* 우측 균형용 */
+
+.wrapper {
+  width: 100%;
+  padding: 16px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 섹션 카드 */
 .section {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #f8f9fb;
+  background: var(--bg);
   border-radius: 12px;
-  padding: 24px 20px;
-  margin-bottom: 0;
+  border: 1px solid var(--line);
+  padding: 16px;
+}
+
+/* 라벨 + 금액 미리보기 */
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .label {
-  font-size: 1.04rem;
-  font-weight: 600;
-  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
 }
 
-.chargeBtn {
-  width: 100%;
-  height: 48px;
-  margin-top: 16px;
-  font-size: 1.13rem;
-  font-weight: bold;
-  border-radius: 10px;
+.helper {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
 }
 
-.inputWithPresets {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* 프리셋: auto-fit 그리드로 꽉 채움 */
 .presetGroup {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 8px;
-  margin-top: 4px;
-  justify-content: flex-start;
 }
+
 .presetBtn {
-  min-width: 60px;
-  font-size: 1rem;
-  height: 38px;
-  border-radius: 7px;
-  background: #f5f6fa;
+  height: 44px;
+  width: 100%;
+  border-radius: 10px;
+  background: #fff;
   border: 1px solid #d5d7dd;
-  color: #222;
+  color: #111;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
   cursor: pointer;
 }
 
 .presetBtn:hover {
-  border-color: #4d9afd;
+  border-color: var(--primary);
   background: #e9f3ff;
   color: #2c77e6;
 }
 
+/* 하단 CTA */
+.chargeBtn {
+  width: 100%;
+  height: 52px;
+  font-size: 17px;
+  font-weight: 800;
+  border-radius: 12px;
+}
+
+.chargeBtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* 태블릿+ */
+@media (min-width:768px) {
+  .wrapper {
+    padding: 20px 24px 32px;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .section {
+    padding: 20px;
+  }
+
+  .presetBtn {
+    height: 46px;
+  }
+}

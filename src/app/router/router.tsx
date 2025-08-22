@@ -53,6 +53,11 @@ import ResultPage from '@/pages/payment/result/ResultPage'
 import QrScannerPage from '@/pages/qr-cord/QrScannerPage'
 import HostHeader from '@/components/host/hostHeader/hostHeader'
 
+// reservation
+import QueuePage from '@pages/reservation/TicketQueuePage'
+import OrderPage from '@pages/reservation/TicketOrderPage'
+import OrderInfoPage from '@pages/reservation/TicketOrderInfoPage'
+
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
   { path: '/login', element: <LoginPage /> },
@@ -149,12 +154,19 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: '/reservation',
+    children: [
+      { path: ':fid/queue', element: <QueuePage /> },
+      { path: ':fid', element: <OrderPage /> },
+      { path: ':fid/order-info', element: <OrderInfoPage /> },
+    ],
+  },
+  {
     path: '/host',
     element: <HostHeader title="관리자모드" />,
     children: [
       { index: true, element: <EntranceCheckPage /> }, 
       { path: 'qr-scanner', element: <QrScannerPage/>},
-     
     ],
   },
 ])

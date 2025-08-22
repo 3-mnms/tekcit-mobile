@@ -16,7 +16,7 @@ interface BookingPaymentHeaderProps {
 const BookingPaymentHeader: React.FC<BookingPaymentHeaderProps> = ({
   timeString,
   expired = false,
-  title = '티켓 결제',
+  title = '예매',
   onBack,
   onClose,
 }) => {
