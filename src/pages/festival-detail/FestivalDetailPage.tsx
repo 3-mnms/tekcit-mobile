@@ -10,11 +10,12 @@ import { useFestivalDetail, useIncreaseViews } from '@/models/festival/tanstack-
 import { useUIStore } from '@/shared/store/uiStore';
 import styles from './FestivalDetailPage.module.css';
 import Header from '@/components/common/header/Header';
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav';
 
 const FestivalDetailPage: React.FC = () => {
   const { fid } = useParams<{ fid: string }>();
   
-  const { setHeaderTitle } = useUIStore();
+  const { setHeader  } = useUIStore();
 
   const { data: detail, isLoading, isError } = useFestivalDetail(fid ?? '');
 
@@ -23,12 +24,9 @@ const FestivalDetailPage: React.FC = () => {
   
 useEffect(() => {
   if (detail) {
-    setHeaderTitle(detail.prfnm); 
+    setHeader({ centerMode: 'title', leftIcon: 'back', title: detail.prfnm });
   }
-  return () => {
-    setHeaderTitle(null);
-  };
-}, [detail, setHeaderTitle]);
+}, [detail, setHeader]);
   useEffect(() => {
     if (!fid) return;
     if (firedRef.current) return;
@@ -61,45 +59,38 @@ useEffect(() => {
   return (
     <div className={styles.pageWrapper}>
       <Header/>
-      {/* ✅ 하나의 2컬럼 그리드로 페이지 본문을 전부 감쌈 */}
       <div className={styles.layout}>
-        {/* 좌측 메인 컬럼: Info + 탭 전체 */}
-        <div className={styles.mainColumn}>
-          <Info detail={detail} loading={isLoading} />
+        <Info detail={detail} loading={isLoading} />
 
-          <div className={styles.tabWrapper}>
-            <div className={styles.tabMenu}>
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setActiveTab('info')}
-                className={`${styles.tab} ${activeTab === 'info' ? styles.active : ''}`}
-              >
-                공연정보
-              </div>
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setActiveTab('sale')}
-                className={`${styles.tab} ${activeTab === 'sale' ? styles.active : ''}`}
-              >
-                예매자통계
-              </div>
+        <div className={styles.tabWrapper}>
+          <div className={styles.tabMenu}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setActiveTab('info')}
+              className={`${styles.tab} ${activeTab === 'info' ? styles.active : ''}`}
+            >
+              공연정보
             </div>
-
-            <div className={styles.tabContent}>
-              {activeTab === 'info' ? <InfoDetail /> : <Statistics fid={fid} />}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setActiveTab('sale')}
+              className={`${styles.tab} ${activeTab === 'sale' ? styles.active : ''}`}
+            >
+              예매자통계
             </div>
           </div>
-        </div>
 
-        {/* 우측 사이드 컬럼: 예매 달력 (스크롤 따라 sticky) */}
-        <aside className={styles.sideColumn}>
-          <div className={styles.schedulerSticky}>
+          <div className={styles.tabContent}>
+            {activeTab === 'info' ? <InfoDetail /> : <Statistics fid={fid} />}
+          </div>
+          <div className={styles.Scheduler}>
             <Scheduler />
           </div>
-        </aside>
+        </div>
       </div>
+      <BottomNav/>
     </div>
   );
 };

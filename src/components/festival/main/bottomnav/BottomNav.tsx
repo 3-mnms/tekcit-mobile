@@ -16,7 +16,7 @@ const BottomNav: React.FC = () => {
         <i className="fa-solid fa-magnifying-glass" />
         <span>검색</span>
       </button>
-      <button type="button" onClick={() => navigate('/categories')} className={styles.navItem}>
+      <button type="button" onClick={() => navigate('/category')} className={styles.navItem}>
         <i className="fa-solid fa-bars" />
         <span>카테고리</span>
       </button>

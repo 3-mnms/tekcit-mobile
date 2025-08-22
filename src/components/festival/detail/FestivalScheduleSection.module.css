@@ -1,20 +1,17 @@
 /* ====== 컨테이너 기본 레이아웃 ====== */
 .container {
-  display: flex;
-  flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 300px;
   background: #fff;
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0.8rem 4%;
   border: 1px solid #ddd;
   align-items: stretch;
 }
 
 .title {
   font-weight: bold;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
   font-size: 0.95rem;
 }
 
@@ -25,6 +22,7 @@
   gap: 0.5rem;
   align-items: flex-start;
   width: 100%;
+  margin-top: 0.8rem;
 }
 
 .label {
@@ -60,7 +58,6 @@
 .actionsRow {
   margin-top: 1rem;
   width: 100%;
-  max-width: 300px;
   display: flex;
   justify-content: center;
 }
@@ -70,9 +67,10 @@
   color: #fff;
   border: none;
   border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   cursor: pointer;
   font-weight: 600;
+  font-size: 1.1rem;
   width: 100%;
   transition: opacity 0.2s ease;
 }
@@ -88,17 +86,36 @@
   justify-content: center; /* 달력을 가운데 정렬 */
 }
 
-/* ====== 날짜 셀 커스텀 (기본 버튼 유지) ====== */
-/* 공통: 날짜 버튼 크기 / 정렬 */
+:global(.react-datepicker__month-container) {
+  width: 100%;
+}
+:global(.react-datepicker__header) {
+  background-color: #f8f8f8;
+}
+:global(.react-datepicker__current-month) {
+  font-size: 0.9rem;
+}
+:global(.react-datepicker__day-name) {
+  font-size: 0.85rem;
+  /* 👇 여기서 크기를 조절했어! 삐약! */
+  width: 2rem;
+  line-height: 1.5rem;
+}
+
 .custom-day,
-.react-datepicker__day {
-  display: flex;
+:global(.react-datepicker__day) {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  
+  /* 👇 여기서 크기를 조절했어! 삐약! */
   width: 2rem;
-  height: 2rem;
-  border-radius: 60%;
-  transition: 0.2s;
+  height: 1.8rem;
+  font-size: 0.85rem; /* 숫자 글자 크기 */
+
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  margin: 0.15rem;
 }
 
 /* 선택 가능/불가 시각화 */

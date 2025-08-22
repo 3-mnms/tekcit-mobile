@@ -29,7 +29,6 @@ html, body, #root {
   min-width: 0; /* 내부 그리드가 제대로 줄도록 */
 }
 
-/* 모바일: 필터 숨기고 결과만 1열 */
 @media (max-width: 1010px) {
   .page {
     grid-template-columns: 1fr;

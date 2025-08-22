@@ -7,7 +7,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { headerMode, headerTitle, resetHeader } = useUIStore();
+  const { leftIcon, centerMode, headerTitle, resetHeader } = useUIStore();
   const [keyword, setKeyword] = useState('');
 
   const handleSearch = () => {
@@ -21,42 +21,50 @@ const Header: React.FC = () => {
     navigate(`/search?keyword=${encodeURIComponent(q)}&page=1`);
   };
 
-  if (headerMode === 'search') {
-    return (
-      <header className={`${styles.header} ${styles.searchHeader}`}>
-        <button type="button" onClick={() => navigate(-1)} className={styles.iconButton}>
-          <i className="fa-solid fa-arrow-left" />
-        </button>
-        <div className={styles.searchWrapper}>
-          <input
-            type="text"
-            placeholder="검색어를 입력해주세요."
-            className={styles.searchInput}
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            autoFocus
-          />
-          <button type="button" onClick={handleSearch} className={styles.searchButton}>
-            <i className="fa-solid fa-magnifying-glass" />
-          </button>
-        </div>
-      </header>
-    );
-  }
-
   return (
     <header className={styles.header}>
+      {/* 왼쪽 영역 */}
       <div className={styles.left}>
-        <img src={logo} alt="logo" className={styles.logo} onClick={() => navigate('/')} />
+        {leftIcon === 'back' ? (
+          <button type="button" onClick={() => navigate(-1)} className={styles.iconButton}>
+            <i className="fa-solid fa-arrow-left" />
+          </button>
+        ) : (
+          <img src={logo} alt="logo" className={styles.logo} onClick={() => navigate('/')} />
+        )}
       </div>
+
+      {/* 가운데 영역 */}
       <div className={styles.center}>
-        {headerTitle && <h1 className={styles.title}>{headerTitle}</h1>}
+        {centerMode === 'searchBar' && (
+          <div className={styles.searchWrapper}>
+            <input
+              type="text"
+              placeholder="검색어를 입력하세요"
+              className={styles.searchInput}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              autoFocus
+            />
+            <button type="button" onClick={handleSearch} className={styles.searchButton}>
+              <i className="fa-solid fa-magnifying-glass" />
+            </button>
+          </div>
+        )}
+        {centerMode === 'title' && headerTitle && (
+          <h1 className={styles.title}>{headerTitle}</h1>
+        )}
       </div>
+
+      {/* 오른쪽 영역 */}
       <div className={styles.right}>
-        <button type="button" onClick={() => navigate('/search')} className={styles.iconButton}>
-          <i className="fa-solid fa-magnifying-glass" />
-        </button>
+        {/* 검색 페이지가 아닐 때만 검색 아이콘을 보여줘서 중복을 피함 */}
+        {centerMode !== 'searchBar' && (
+          <button type="button" onClick={() => navigate('/search')} className={styles.iconButton}>
+            <i className="fa-solid fa-magnifying-glass" />
+          </button>
+        )}
       </div>
     </header>
   );
