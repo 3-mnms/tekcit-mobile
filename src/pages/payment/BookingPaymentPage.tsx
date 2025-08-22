@@ -15,6 +15,7 @@ import TossPayment, { type TossPaymentHandle } from '@/components/payment/pay/To
 import PaymentTotal from '@/components/payment/pay/paymentTotal'
 import PaymentFooter from '@/components/payment/pay/BookingPaymentFooter'
 import AlertModal from '@/components/common/modal/AlertModal'
+import orderStyles from '@/pages/reservation/TicketOrderPage.module.css';
 
 import styles from './BookingPaymentPage.module.css'
 
@@ -149,13 +150,29 @@ const BookingPaymentPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* 상단 타이머/헤더 */}
+      <header className={orderStyles.progressBar} aria-label="예매 단계">
+        <ol className={orderStyles.stepper}>
+          <li className={orderStyles.step}>
+            <span className={orderStyles.bullet} aria-hidden="true" />
+            <span className={orderStyles.label}>날짜/시간/매수</span>
+          </li>
+          <li className={orderStyles.step}>
+            <span className={orderStyles.bullet} aria-hidden="true" />
+            <span className={orderStyles.label}>수령방법/주문자 확인</span>
+          </li>
+          <li className={`${orderStyles.step} ${orderStyles.active}`}>
+            <span className={orderStyles.bullet} aria-hidden="true" />
+            <span className={orderStyles.label}>결제</span>
+          </li>
+        </ol>
+      </header>
+      {/* 상단 타이머/헤더
       <BookingPaymentHeader
         timeString={timeString}
         expired={remainingSeconds <= 0}
         onBack={() => navigate(-1)}
         onClose={handleRequestClose}
-      />
+      /> */}
 
       {/* 본문: 카드 4장 */}
       <div className={styles.container} role="main" aria-labelledby={PAGE_TITLE_ID}>

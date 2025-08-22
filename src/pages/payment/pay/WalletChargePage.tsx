@@ -1,5 +1,4 @@
-// src/pages/payment/wallet/WalletChargePage.tsx
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import styles from './WalletChargePage.module.css'
@@ -12,11 +11,30 @@ const AMOUNT_PRESETS = [10000, 50000, 100000, 1000000] // 단위: 원
 
 const WalletChargePage: React.FC = () => {
   const [amount, setAmount] = useState('')
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
+
   const navigate = useNavigate()
   const tossRef = useRef<TossPaymentHandle>(null)
 
-  const amountNumber = parseInt((amount || '').replace(/[^0-9]/g, ''), 10) || 0
+  const amountNumber = useMemo(
+    () => parseInt((amount || '').replace(/[^0-9]/g, ''), 10) || 0,
+    [amount],
+  )
   const orderName = '지갑 포인트 충전'
+
+  const formattedAmount = useMemo(() => {
+    if (!amountNumber) return '0원'
+    return new Intl.NumberFormat('ko-KR').format(amountNumber) + '원'
+  }, [amountNumber])
+
+  const AMOUNT_PRESETS = [
+    { value: 5000, label: '5천원' },
+    { value: 10000, label: '1만원' },
+    { value: 50000, label: '5만원' },
+    { value: 100000, label: '10만원' },
+    { value: 500000, label: '50만원' },
+    { value: 1000000, label: '100만원' },
+  ]
 
   const handlePresetClick = (preset: number) => {
     const prev = parseInt((amount || '').replace(/[^0-9]/g, ''), 10) || 0
@@ -27,45 +45,64 @@ const WalletChargePage: React.FC = () => {
     if (e.target instanceof HTMLInputElement) {
       const val = e.target.value.replace(/[^0-9]/g, '')
       setAmount(val)
+      setSelectedPreset(null) // 입력시 프리셋 선택 해제
     }
   }
 
   const handleCharge = async () => {
-    if (!amountNumber) {
-      alert('충전 금액을 입력해 주세요.')
+    if (!amountNumber || amountNumber < 1000) {
+      alert('1,000원 이상부터 충전할 수 있습니다.')
       return
     }
-
-    // 결제 요청(리다이렉트 발생)
     await tossRef.current?.requestPay()
-    // 리다이렉트가 일어나므로 아래 navigate는 실행되지 않을 수 있음(보호용)
     navigate('/payment/wallet-point/charge-success', { replace: true })
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.wrapper}>
+      <header className={styles.topbar} aria-label="상단 탐색 바">
+        <button
+          type="button"
+          className={styles.backBtn}
+          onClick={() => navigate(-1)}
+          aria-label="뒤로가기"
+        >
+          ←
+        </button>
         <h1 className={styles.title}>포인트 충전하기</h1>
+        <span className={styles.topbarSpacer} />
+      </header>
 
+      <div className={styles.wrapper}>
         <section className={styles.section}>
-          <div className={styles.label}>포인트 충전 금액</div>
-          <Input type="text" placeholder="금액 입력" value={amount} onChange={handleInputChange} />
+          <div className={styles.labelRow}>
+            <div className={styles.label}>포인트 충전 금액</div>
+            <div className={styles.helper}>{formattedAmount}</div>
+          </div>
+
+          <div className={styles.inputWrapper}>
+            <Input
+              type="text"
+              placeholder="금액 입력"
+              value={amount}
+              onChange={handleInputChange}
+            />
+          </div>
+
           <div className={styles.presetGroup}>
             {AMOUNT_PRESETS.map((preset) => (
               <button
-                key={preset}
+                key={preset.value}
                 type="button"
                 className={styles.presetBtn}
-                onClick={() => handlePresetClick(preset)}
+                onClick={() => handlePresetClick(preset.value)}
               >
-                +{preset >= 10000 ? `${preset / 10000}${preset % 10000 === 0 ? '만' : ''}` : preset}
-                원
+                +{preset.label}
               </button>
             ))}
           </div>
         </section>
 
-        {/* 토스 페이먼츠(PortOne) 결제 수단 — 단일 수단이라 항상 open */}
         <section className={styles.section}>
           <TossPayment
             ref={tossRef}
@@ -74,7 +111,7 @@ const WalletChargePage: React.FC = () => {
             amount={amountNumber}
             orderName={orderName}
             redirectUrl={`${window.location.origin}/payment/wallet-point/charge-success?amount=${encodeURIComponent(
-              String(amountNumber)
+              String(amountNumber),
             )}`}
           />
         </section>
