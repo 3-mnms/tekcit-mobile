@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/auth/signup', element: <SignupPage /> },
-  { path: '/category/:name', element: <CategoryPage /> },
+  { path: '/category', element: <CategoryPage /> },
   { path: '/search', element: <SearchPage /> },
   { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {
