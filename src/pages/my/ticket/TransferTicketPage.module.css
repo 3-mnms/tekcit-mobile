@@ -1,78 +1,146 @@
 .page {
   width: 100%;
-  padding: 1.5rem;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
+.body {
+  padding: 25px;
 }
 
 .list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  gap: 12px;
 }
 
 .card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  grid-template-areas:
+    "left center"
+    "right right";
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+@media (min-width: 480px) {
+  .card {
+    grid-template-columns: 84px 1fr auto;
+    grid-template-areas: "left center right";
+    align-items: center;
+  }
+}
+
+.left {
+  grid-area: left;
+}
+
+.center {
+  grid-area: center;
+  display: grid;
+  gap: 6px;
+}
+
+.right {
+  grid-area: right;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+  justify-content: flex-end;
 }
 
 .poster {
-  width: 100px;
-  height: 140px;
+  width: 84px;
+  height: 112px;
+  border-radius: 8px;
   object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
+  display: block;
 }
 
-.info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.95rem;
+.row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  word-break: keep-all;
+}
+
+.k {
+  color: #6b7280;
+}
+
+.v {
+  color: #111827;
 }
 
 .transferBtn {
-  padding: 0.5rem 1.2rem;
-  background-color: #4D9AFD;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  width: 100%;
+  min-width: 120px;
+  height: 44px;
+  padding: 0 14px;
+  background-color: #4d9afd;
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
+}
+
+@media (min-width: 480px) {
+  .transferBtn {
+    width: auto;
+  }
 }
 
 .transferBtn:hover {
   background-color: #3579cc;
 }
 
-.disabledBtn {
-  padding: 0.5rem 1.2rem;
-  background-color: #ccc;
-  color: #666;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: not-allowed;
+.transferBtn:active {
+  transform: translateY(1px);
 }
 
 .transferredBadge {
-  padding: 0.4rem 0.9rem;
-  background-color: #e0e7ff;
-  color: #3b47a2;
-  border: 1px solid #b8c2ff;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  font-weight: 700;
+  font-size: 15px;
   white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    border-color: #374151;
+    background: #111827;
+  }
+
+  .k {
+    color: #9ca3af;
+  }
+
+  .v {
+    color: #e5e7eb;
+  }
+
+  .transferredBadge {
+    background: #1f2349;
+    border-color: #3b47a2;
+    color: #c7d2fe;
+  }
 }
