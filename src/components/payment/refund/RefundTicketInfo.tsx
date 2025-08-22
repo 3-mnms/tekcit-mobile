@@ -18,29 +18,25 @@ const TransferTicketInfo: React.FC<TransferTicketInfoProps> = ({
   return (
     <div className={styles.ticketBox}>
       <div className={styles.thumbnail}>
-        <img
-          src={posterUrl || '/assets/no-poster.png'}
-          alt="포스터"
-          className={styles.posterImg}
-        />
+        <img src={posterUrl || '/assets/no-poster.png'} alt="포스터" className={styles.posterImg} />
       </div>
 
       <div className={styles.ticketDetail}>
         <div className={styles.infoRow}>
           <span className={styles.label}>페스티벌 제목</span>
-          <span className={styles.value}>{title}</span>
+          <span className={`${styles.value} ${styles.valueEm}`}>{title}</span>
         </div>
         <div className={styles.infoRow}>
           <span className={styles.label}>페스티벌 날짜</span>
-          <span className={styles.value}>{date}</span>
+          <span className={`${styles.value} ${styles.valueEm}`}>{date}</span>
         </div>
         <div className={styles.infoRow}>
           <span className={styles.label}>티켓 매수</span>
-          <span className={styles.value}>{ticket}</span>
+          <span className={`${styles.value} ${styles.valueNum}`}>{ticket}</span>
         </div>
         <div className={styles.infoRow}>
           <span className={styles.label}>티켓 가격</span>
-          <span className={styles.value}>{price}</span>
+          <span className={`${styles.value} ${styles.valueNum}`}>{price}</span>
         </div>
       </div>
     </div>
