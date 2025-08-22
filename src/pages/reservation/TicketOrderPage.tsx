@@ -20,7 +20,6 @@ const TicketOrderPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
-      {/* ✅ 새 스텝퍼 */}
       <header className={styles.progressBar} aria-label="예매 단계">
         <ol className={styles.stepper}>
           <li className={`${styles.step} ${styles.active}`}>
@@ -29,7 +28,7 @@ const TicketOrderPage: React.FC = () => {
           </li>
           <li className={styles.step}>
             <span className={styles.bullet} aria-hidden="true" />
-            <span className={styles.label}>좌석/옵션</span>
+            <span className={styles.label}>수령방법/주문자 확인</span>
           </li>
           <li className={styles.step}>
             <span className={styles.bullet} aria-hidden="true" />
