@@ -1,16 +1,18 @@
-import React from 'react'
-import styles from './TransferTicketPage.module.css'
+// src/pages/transfer/TransferTicketPage.tsx
+import React from 'react';
+import styles from './TransferTicketPage.module.css';
+import MyHeader from '@/components/my/hedaer/MyHeader';
 
 interface Ticket {
-  id: number
-  date: string
-  number: string
-  title: string
-  time: string
-  count: number
-  status: '결제 완료' | '결제 대기' | '취소 완료'
-  imageUrl: string
-  isTransferred: boolean
+  id: number;
+  date: string;
+  number: string;
+  title: string;
+  time: string;
+  count: number;
+  status: '결제 완료' | '결제 대기' | '취소 완료';
+  imageUrl: string;
+  isTransferred: boolean;
 }
 
 const dummyTickets: Ticket[] = [
@@ -22,7 +24,7 @@ const dummyTickets: Ticket[] = [
     time: '2025.10.18 17:00',
     count: 2,
     status: '결제 완료',
-    imageUrl: '/images/poster-1.jpg',
+    imageUrl: 'https://picsum.photos/id/1011/600/900',
     isTransferred: false,
   },
   {
@@ -33,54 +35,80 @@ const dummyTickets: Ticket[] = [
     time: '2025.11.10 19:30',
     count: 1,
     status: '결제 완료',
-    imageUrl: '/images/poster-2.jpg',
+    imageUrl: 'https://picsum.photos/id/1029/600/900',
     isTransferred: true,
   },
-]
+];
 
 const TransferTicketPage: React.FC = () => {
   const handleTransfer = (id: number) => {
-    alert(`티켓 ${id} 양도하기`)
-  }
+    alert(`티켓 ${id} 양도하기`);
+  };
 
-  const visibleTickets = dummyTickets.filter((ticket) => ticket.status === '결제 완료')
+  const visibleTickets = dummyTickets.filter((t) => t.status === '결제 완료');
 
   return (
-    <div className={styles.page}>
-      <h2 className={styles.title}>티켓 양도</h2>
-      <div className={styles.list}>
-        {visibleTickets.map((ticket) => (
-          <div key={ticket.id} className={styles.card}>
-            <img src={ticket.imageUrl} alt={`${ticket.title} 포스터`} className={styles.poster} />
-            <div className={styles.info}>
-              <p>
-                <strong>예매일</strong>: {ticket.date}
-              </p>
-              <p>
-                <strong>예매번호</strong>: {ticket.number}
-              </p>
-              <p>
-                <strong>공연명</strong>: {ticket.title}
-              </p>
-              <p>
-                <strong>일시</strong>: {ticket.time}
-              </p>
-              <p>
-                <strong>매수</strong>: {ticket.count}
-              </p>
-            </div>
-            {ticket.isTransferred ? (
-              <span className={styles.transferredBadge}>양도 완료됨</span>
-            ) : (
-              <button className={styles.transferBtn} onClick={() => handleTransfer(ticket.id)}>
-                양도하기
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
+    <section className={styles.page}>
+      <MyHeader title="티켓 양도" />
 
-export default TransferTicketPage
+      <div className={styles.body}>
+        <div className={styles.list}>
+          {visibleTickets.map((ticket) => (
+            <article key={ticket.id} className={styles.card} aria-label={`${ticket.title} 티켓`}>
+              <div className={styles.left}>
+                <img
+                  src={ticket.imageUrl}
+                  alt={`${ticket.title} 포스터`}
+                  className={styles.poster}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+
+              <div className={styles.center}>
+                <div className={styles.row}>
+                  <span className={styles.k}>예매일</span>
+                  <span className={styles.v}>{ticket.date}</span>
+                </div>
+                <div className={styles.row}>
+                  <span className={styles.k}>예매번호</span>
+                  <span className={styles.v}>{ticket.number}</span>
+                </div>
+                <div className={styles.row}>
+                  <span className={styles.k}>공연명</span>
+                  <span className={styles.v}>{ticket.title}</span>
+                </div>
+                <div className={styles.row}>
+                  <span className={styles.k}>일시</span>
+                  <span className={styles.v}>{ticket.time}</span>
+                </div>
+                <div className={styles.row}>
+                  <span className={styles.k}>매수</span>
+                  <span className={styles.v}>{ticket.count}</span>
+                </div>
+              </div>
+
+              <div className={styles.right}>
+                {ticket.isTransferred ? (
+                  <span className={styles.transferredBadge} aria-label="양도 완료됨">
+                    양도 완료됨
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.transferBtn}
+                    onClick={() => handleTransfer(ticket.id)}
+                  >
+                    양도하기
+                  </button>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default TransferTicketPage;

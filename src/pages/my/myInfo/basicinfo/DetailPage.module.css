@@ -1,51 +1,46 @@
-.container {
-  padding: 1rem 1.5rem 4rem;
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 640px;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 0.5rem;
-}
-
-.title2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #111;
-  margin-bottom: 0.5rem;
+.body {
+  padding: 12px 25px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .card {
   background-color: #fff;
   border: 1px solid #b4b4b4;
-  border-radius: 0.75rem;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.notice {
-  font-size: 0.85rem;
-  color: #6b7280;
-  line-height: 1.5;
-  margin-top: 0.5rem;
-  white-space: pre-line;
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
 }
 
 .buttonWrapper {
-  margin-top: 1.25rem;
+  margin-top: 16px;
 }
 
 .button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 12px;
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 8px;
 }

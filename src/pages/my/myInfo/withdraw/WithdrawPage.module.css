@@ -1,22 +1,24 @@
-.container {
-  padding: 1.5rem;
-  background-color: white;
-  text-align: left;
-  max-width: 730px;
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+.body {
+  padding: 25px;
 }
 
 .noticeBox {
   border: 1px solid #ccc;
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 16px;
   background-color: #f9f9f9;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .notice {
@@ -28,10 +30,9 @@
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 8px;
+  margin-bottom: 16px;
   font-size: 0.95rem;
-  justify-content: flex-start;
   width: 100%;
 }
 

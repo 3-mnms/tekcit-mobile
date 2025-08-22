@@ -1,20 +1,27 @@
-// TicketDetailPage.tsx
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import TicketInfoCard from '@/components/my/ticket/TicketInfoCard';
-import PaymentInfoSection from '@/components/my/ticket/PaymentInfoSection';
+import React from 'react'
+import styles from './TicketDetailPage.module.css'
+import { useParams } from 'react-router-dom'
+import MyHeader from '@/components/my/hedaer/MyHeader'
+import TicketInfoCard from '@/components/my/ticket/TicketInfoCard'
+import PaymentInfoSection from '@/components/my/ticket/PaymentInfoSection'
 
 const TicketDetailPage: React.FC = () => {
-  const { id } = useParams(); // 예매 ID
-  // 👉 API 요청으로 상세 정보 fetch 해오면 돼!
+  const { id } = useParams() 
 
   return (
-    <div className="w-full p-8">
-      <h2 className="text-xl font-bold mb-6">예매내역 확인 · 취소</h2>
-      <TicketInfoCard />
-      <PaymentInfoSection />
-    </div>
-  );
-};
+    <section className={styles.page}>
+      <div className={styles.top}>
+        <MyHeader title="예매 / 취소 내역" />
+      </div>
 
-export default TicketDetailPage;
+      <div className={styles.content}>
+        <h2 className="text-lg font-bold">예매내역 확인 · 취소</h2>
+        <TicketInfoCard />
+        <h2 className="text-lg font-bold">결제내역</h2>
+        <PaymentInfoSection />
+      </div>
+    </section>
+  )
+}
+
+export default TicketDetailPage
