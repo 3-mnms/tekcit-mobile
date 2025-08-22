@@ -67,7 +67,6 @@ const IdSearchPicker: React.FC<Props> = ({
 
   return (
     <>
-      {/* 메인: readOnly 인풋 + 팝업 버튼 */}
       <label className={`${styles.label} ${className}`}>
         {label}
         <div className={styles.row}>
@@ -75,9 +74,9 @@ const IdSearchPicker: React.FC<Props> = ({
             className={`${styles.input} ${styles.inputAttached}`}
             value={idValue}
             placeholder={placeholder}
-            readOnly                // ✅ 항상 읽기 전용
+            readOnly                
             aria-readonly="true"
-            onKeyDown={(e) => e.preventDefault()} // 타이핑 방지 보강
+            onKeyDown={(e) => e.preventDefault()} 
           />
           <Button
             type="button"
@@ -90,7 +89,6 @@ const IdSearchPicker: React.FC<Props> = ({
         </div>
       </label>
 
-      {/* 모달 */}
       {open && (
         <div className={styles.backdrop} role="dialog" aria-modal="true" onClick={() => setOpen(false)}>
           <div className={styles.card} onClick={(e) => e.stopPropagation()}>

@@ -69,15 +69,18 @@ const TransferPage: React.FC = () => {
       <MyHeader title="티켓 양도" />
 
       <div className={styles.body}>
-        <section className={`${styles.col} ${styles.info}`}>
+        <h2 id="ticket-info-title" className={styles.title}>양도 · 티켓 정보</h2>
+        <section>
           <TransferTicketInfo ticket={ticketForInfo} />
         </section>
 
-        <section className={`${styles.col} ${styles.guide}`}>
+        <h2 id="ticket-info-title" className={styles.title}>양도/환불 안내</h2>
+        <section>
           <TransferRefundGuide />
         </section>
 
-        <section className={`${styles.col} ${styles.form}`}>
+        <h2 id="ticket-info-title" className={styles.title}>양도자 선택</h2>
+        <section>
           <TransferRecipientForm />
         </section>
       </div>

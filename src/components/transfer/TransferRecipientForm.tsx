@@ -68,8 +68,6 @@ const TransferRecipientForm: React.FC = () => {
         alert(relation === 'FAMILY' ? 'UI 데모: 가족 양도 완료!' : 'UI 데모: 결제 단계로 이동!');
       }}
     >
-      <h2 className={styles.title}>양도자 선택</h2>
-
       <div className={styles.radioRow}>
         <label className={styles.radio}>
           <input

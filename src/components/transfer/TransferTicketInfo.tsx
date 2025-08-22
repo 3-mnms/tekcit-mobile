@@ -25,8 +25,6 @@ const TransferTicketInfo: React.FC<Props> = ({ ticket, extra }) => {
 
   return (
     <section className={styles.card} aria-labelledby="ticket-info-title">
-      <h2 id="ticket-info-title" className={styles.title}>양도 · 티켓 정보</h2>
-
       <div className={styles.headerRow}>
         <div className={styles.thumbWrap}>
           {ticket.posterUrl ? (
