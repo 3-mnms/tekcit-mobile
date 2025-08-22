@@ -5,9 +5,7 @@ import Button from '@/components/common/Button';
 export type AccountMini = { id: string; name: string };
 
 type Props = {
-  /** 표시할 ID 값 (부모가 관리) */
   idValue: string;
-  /** 모달에서 계정 선택 시 호출 (부모에서 ID/이름 채움) */
   onSelect: (acc: AccountMini) => void;
   label?: string;
   placeholder?: string;
@@ -32,7 +30,6 @@ const IdSearchPicker: React.FC<Props> = ({
   const [results, setResults] = useState<AccountMini[]>([]);
   const [sel, setSel] = useState<number>(-1);
 
-  // 포커스/스크롤 관리
   const emailRef = useRef<HTMLInputElement>(null);
   const prevFocusRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -48,7 +45,6 @@ const IdSearchPicker: React.FC<Props> = ({
   }, [open]);
 
   const doSearch = () => {
-    // 데모 매칭
     if (q.trim().toLowerCase() === 'demo@tekcit.com') {
       setResults([{ id: 'demo@tekcit.com', name: '이*별' }]);
       setSel(0);

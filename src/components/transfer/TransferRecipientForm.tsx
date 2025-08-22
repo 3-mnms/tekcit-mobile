@@ -119,7 +119,6 @@ const TransferRecipientForm: React.FC = () => {
           <div className={styles.proofWrap}>
             <span className={styles.proofLabel}>가족증명서</span>
 
-            {/* 숨겨진 input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -159,7 +158,6 @@ const TransferRecipientForm: React.FC = () => {
         다음
       </Button>
 
-      {/* ===== 모달 ===== */}
       {modalOpen && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modalCard}>
