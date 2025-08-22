@@ -2,6 +2,8 @@
 import React, { useState } from 'react'
 import styles from './EntranceCheckPage.module.css'
 import EntranceCheckModal from '@/components/my/ticket/EntranceCheckModal'
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
+import Header from '@/components/common/header/Header'
 
 interface TicketInfo {
   id: number
@@ -46,49 +48,54 @@ const EntranceCheckPage: React.FC = () => {
   const selectedTicket = dummyTickets.find((t) => t.id === selectedId)
 
   return (
-    <div className={styles.page}>
-      <h2 className={styles.title}>입장 인원 수 조회</h2>
-      <div className={styles.ticketList}>
-        {dummyTickets.map((ticket) => (
-          <div
-            key={ticket.id}
-            className={`${styles.ticketCard} ${selectedId === ticket.id ? styles.selected : ''}`}
-            onClick={() => handleSelect(ticket.id)}
-          >
-            <div className={styles.cardContent}>
-              <p>
-                <strong>예매일:</strong> {ticket.date}
-              </p>
-              <p>
-                <strong>예매번호:</strong> {ticket.number}
-              </p>
-              <p>
-                <strong>공연명:</strong> {ticket.title}
-              </p>
-              <p>
-                <strong>일시:</strong> {ticket.time}
-              </p>
-              <p>
-                <strong>매수:</strong> {ticket.count}
-              </p>
+    <div className={styles.container}>
+      {/* <Header/> */}
+      {/* <p className={styles.host}></p> */}
+      <div className={styles.page}>
+        <h2 className={styles.title}>입장 인원 수 조회</h2>
+        <div className={styles.ticketList}>
+          {dummyTickets.map((ticket) => (
+            <div
+              key={ticket.id}
+              className={`${styles.ticketCard} ${selectedId === ticket.id ? styles.selected : ''}`}
+              onClick={() => handleSelect(ticket.id)}
+            >
+              <div className={styles.cardContent}>
+                <p>
+                  <strong>예매일:</strong> {ticket.date}
+                </p>
+                <p>
+                  <strong>예매번호:</strong> {ticket.number}
+                </p>
+                <p>
+                  <strong>공연명:</strong> {ticket.title}
+                </p>
+                <p>
+                  <strong>일시:</strong> {ticket.time}
+                </p>
+                <p>
+                  <strong>매수:</strong> {ticket.count}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <button className={styles.checkBtn} disabled={selectedId === null} onClick={handleCheck}>
+          입장 인원 수 조회하기
+        </button>
+
+        <EntranceCheckModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          count={selectedTicket?.count ?? 0} // 👈 count 값 전달
+          totalCount={10} // 👈 예시로 10명으로 고정. 나중에 서버에서 받아오면 바꿔
+          title={selectedTicket?.title ?? ''}
+          date={selectedTicket?.date ?? ''}
+          time={selectedTicket?.time ?? ''}
+        />
+        <BottomNav/>
       </div>
-
-      <button className={styles.checkBtn} disabled={selectedId === null} onClick={handleCheck}>
-        입장 인원 수 조회하기
-      </button>
-
-      <EntranceCheckModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        count={selectedTicket?.count ?? 0} // 👈 count 값 전달
-        totalCount={10} // 👈 예시로 10명으로 고정. 나중에 서버에서 받아오면 바꿔
-        title={selectedTicket?.title ?? ''}
-        date={selectedTicket?.date ?? ''}
-        time={selectedTicket?.time ?? ''}
-      />
     </div>
   )
 }

@@ -15,6 +15,7 @@ import { useLoginMutation } from '@/models/auth/tanstack-query/useLogin'
 
 import { useAuthStore } from '@/shared/storage/useAuthStore'
 import { parseJwt, type JwtRole, type JwtPayloadBase } from '@/shared/storage/jwt'
+import { useQueryClient } from '@tanstack/react-query'
 
 type JwtPayload = JwtPayloadBase & {
   userId: number
@@ -25,6 +26,7 @@ type JwtPayload = JwtPayloadBase & {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
+  const queryClient = useQueryClient();
   const isPopup = !!window.opener;
 
   const {
@@ -41,6 +43,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = (form: LoginForm) => {
     loginMut.mutate(form, {
       onSuccess: (data) => {
+        let userRole: JwtRole = 'USER';
         if (data.accessToken) {
           const decoded = parseJwt<JwtPayload>(data.accessToken)
           if (decoded) {
@@ -49,11 +52,17 @@ const LoginPage: React.FC = () => {
               role: decoded.role,
               name: decoded.name,
               loginId: decoded.sub,
-            })
+            });
+            userRole = decoded.role;
           }
         }
+        queryClient.invalidateQueries({ queryKey: ['tokenInfo'] });
         alert('로그인이 완료되었습니다!')
-        navigate('/')
+          if (userRole === 'HOST') {
+          navigate('/host');
+        } else {
+          navigate('/');
+        }
       },
       onError: (e) => {
         const msg =

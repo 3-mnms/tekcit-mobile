@@ -7,7 +7,7 @@ import MainPage from '@pages/home/MainPage'
 import CategoryPage from '@pages/home/CategoryPage'
 import CategoryListPage from '@/pages/home/CategoryListPage'
 import SearchPage from '@/pages/home/SearchPage'
-// import FestivalDetailPage from '@pages/festival-detail/FestivalDetailPage'
+import FestivalDetailPage from '@pages/festival-detail/FestivalDetailPage'
 
 //auth
 import LoginPage from '@/pages/auth/LoginPage'
@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
   { path: '/category/:name', element: <CategoryPage /> },
   { path: '/category', element: <CategoryListPage /> },
   { path: '/search', element: <SearchPage /> },
-  // { path: "/festival/:fid", element: <FestivalDetailPage /> },
+  { path: "/festival/:fid", element: <FestivalDetailPage /> },
   {
     path: '/auth/signup/kakao',
     element: <KakaoAuthorizeGate />,
@@ -100,6 +100,13 @@ export const router = createBrowserRouter([
           // },
         ],
       },
+    ],
+  },
+  {
+    path: '/host',
+    children: [
+      { path: '', element: <EntranceCheckPage/>},
+     
     ],
   },
 ])
