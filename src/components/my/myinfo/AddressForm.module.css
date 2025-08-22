@@ -1,80 +1,64 @@
 .form {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.addressGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+.field {
+  display: grid;
+  gap: 8px;
 }
 
-.addressRow {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
+.fieldLabel {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111827;
 }
 
-.addressInput {
-  flex: 1;
-  min-width: 100vh;
-  margin-top: -1rem; 
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: stretch;
 }
 
+.zonecode,
+.addressInput,
 .detailInput {
-  margin-top: -1rem; 
+  width: 100%;
+  margin-bottom: -15px;
 }
 
-.searchButtonWrapper {
-  /* padding-top: 1.8rem;  */
-}
-
-.searchButton {
+.searchBtn {
+  height: 49px;
+  border-radius: 10px;
   white-space: nowrap;
-  padding: 0.6rem 1rem;
 }
 
+.checkboxWrapper {
+  margin-top: 4px;
+}
 .checkboxLabel {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
+  gap: 8px;
+  font-size: 14px;
   color: #333;
+}
+.checkboxLabel input[type="checkbox"] {
+  accent-color: #4D9AFD;
+  width: 16px;
+  height: 16px;
 }
 
 .submitButton {
   width: 100%;
-  margin-top: 1rem;
+  height: 48px;
+  border-radius: 12px;
+  margin-top: 4px;
+  margin-bottom: calc(env(safe-area-inset-bottom, 0px));
 }
-
-.checkboxWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.checkboxLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.checkboxLabel input[type="checkbox"] {
-  accent-color: #4D9AFD;
-  width: 1rem;
-  height: 1rem;
-}
-
-/* .label {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #333;
-  margin-bottom: 0.25rem;
-} */

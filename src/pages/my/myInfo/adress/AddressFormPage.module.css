@@ -1,9 +1,23 @@
-.container {
-  padding: 1.5rem;
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr; /* 헤더, 본문 */
+  background: #fff;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #fff;
+}
+
+.body {
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
 }
