@@ -39,6 +39,17 @@ import TicketDetailPage from '@/pages/my/ticket/TicketDetailPage'
 import TransferTicketPage from '@/pages/my/ticket/TransferTicketPage'
 import EntranceCheckPage from '@/pages/my/ticket/EntranceCheckPage'
 
+// transfer
+import TransferPage from '@/pages/transfer/TransferPage'
+
+// payment
+import BookingPaymentPage from '@/pages/payment/BookingPaymentPage'
+import TransferPaymentPage from '@/pages/payment/transfer/TransferPaymentPage'
+import TransferFeePaymentPage from '@/pages/payment/transfer/TransferFeePaymentPage'
+import RefundPage from '@/pages/payment/refund/RefundPage'
+import WalletPointPage from '@/pages/payment/pay/WalletPointPage'
+import WalletChargePage from '@/pages/payment/pay/WalletChargePage'
+import ResultPage from '@/pages/payment/result/ResultPage'
 
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
@@ -62,7 +73,7 @@ export const router = createBrowserRouter([
     element: <MyPage />,
     children: [
       { index: true, element: <UserDropdown /> },
-      { path: 'notification', element: <NotificationDropdown/>},
+      { path: 'notification', element: <NotificationDropdown /> },
       {
         path: 'myinfo',
         children: [
@@ -89,7 +100,13 @@ export const router = createBrowserRouter([
           { path: '', element: <MyTicketPage /> },
           { path: 'history', element: <TicketHistoryPage /> },
           { path: 'detail/:id', element: <TicketDetailPage /> },
-          { path: 'transfer', element: <TransferTicketPage /> },
+          {
+            path: 'transfer',
+            children: [
+              { path: '', element: <TransferTicketPage /> },
+              { path: 'test', element: <TransferPage /> },
+            ],
+          },
           { path: 'entrancecheck', element: <EntranceCheckPage /> },
           // {
           //   path: 'address',
@@ -98,6 +115,33 @@ export const router = createBrowserRouter([
           //     { path: 'new', element: <AddressFormPage /> },
           //   ],
           // },
+        ],
+      },
+    ],
+  },
+
+  // payment
+  {
+    path: '/payment',
+    children: [
+      { path: '', element: <BookingPaymentPage /> },
+      { path: 'result', element: <ResultPage /> },
+      {
+        path: 'transfer',
+        children: [
+          { path: '', element: <TransferPaymentPage /> },
+          { path: 'transfer-fee', element: <TransferFeePaymentPage /> },
+        ],
+      },
+      {
+        path: 'refund',
+        children: [{ path: '', element: <RefundPage /> }],
+      },
+      {
+        path: 'wallet-point',
+        children: [
+          { path: '', element: <WalletPointPage /> },
+          { path: 'money-charge', element: <WalletChargePage /> },
         ],
       },
     ],
