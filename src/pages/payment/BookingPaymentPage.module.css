@@ -1,0 +1,131 @@
+.page {
+  min-height: 100dvh;
+  background: #f9fafc;
+  display: flex;
+  flex-direction: column;
+  padding-top: 50px; /* ✅ 헤더 높이와 일치시켜 겹침 방지 */
+}
+
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 8px 8px 76px; /* 푸터(결제바) 공간 확보 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;            /* 카드 간격 */
+}
+
+/* ===== 공통 카드 스타일 ===== */
+.card,
+.summaryCard {          /* summaryCard도 같은 톤으로 보이게 통일 */
+  background: #ffffff;
+  padding: 12px;                  /* ← 카드 내부 패딩(고정값) */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(17,24,39,.06);
+}
+
+/* 🏷 섹션 타이틀(컨테이너가 아닌 '제목'에만 사용) */
+.sectionTitle {
+  font-size: 0.95rem;
+  line-height: 1.25;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 10px 0;
+}
+
+/* ✅ 카드 좌우 패딩 상쇄: 내부 섹션을 가로로 꽉 채우고 싶을 때 사용 */
+.flush {
+  margin-left: -12px;   /* 카드 패딩만큼 음수 마진 */
+  margin-right: -12px;
+  padding-left: 12px;   /* 시각 정렬 유지용 보정 패딩 */
+  padding-right: 12px;
+  box-sizing: border-box;
+}
+
+/* ===== 결제 수단 래퍼 ===== */
+/* ⛔ 여분 패딩/보더가 컨텐츠 폭을 줄였던 원인 → 제거 */
+.paymentBox {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* ===== 아코디언(결제수단 항목) ===== */
+.methodCard {
+  width: 100%;                     /* ✅ 항상 가로 꽉 채움 */
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.methodHeader {
+  width: 100%;                     /* 버튼도 풀폭 */
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #111827;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.methodHeader:hover { background: #f9fafb; }
+
+/* 커스텀 라디오 */
+.radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #fff;
+}
+.radioOn {
+  border-color: #4D9AFD;                 /* ✅ 대표색 직접 사용 */
+  box-shadow: inset 0 0 0 4px #4D9AFD;   /* ✅ 대표색 직접 사용 */
+}
+
+/* 아코디언 바디 */
+.methodBody {
+  padding: 12px;
+  background: #f8fafc;
+  border-top: 1px solid #eef1f4;
+  font-size: 0.85rem;
+}
+
+/* ===== 결제 버튼(하단 결제 바 내부 버튼일 경우는 컴포넌트에서 관리) ===== */
+.payButton {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: #4D9AFD;   /* ✅ 대표색 직접 사용 */
+  cursor: pointer;
+}
+.payButton:hover { background: #377ee7; }
+.payButton:disabled {
+  background: #a7c9ff;
+  cursor: not-allowed;
+}
+
+/* ===== 에러 메시지 ===== */
+.errorMsg {
+  margin-top: 6px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
