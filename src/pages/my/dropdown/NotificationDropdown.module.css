@@ -1,34 +1,28 @@
-/* 화면 가로는 모바일 폭, 세로는 꽉 채우기 */
 .page {
   width: 100%;
-  max-width: 480px;          /* 필요 없으면 제거 가능 */
+  max-width: 480px;     
   margin: 0 auto;
-  min-height: 100vh;         /* 풀스크린 */
+  min-height: 100vh;     
   display: flex;
   flex-direction: column;
   background: #ffffff;
-
-  /* 하단 BottomNav가 고정이면 높이만큼 여유 주기 */
   padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-/* 상단 헤더 고정 */
 .header {
   position: sticky;
   top: 0;
   z-index: 10;
   display: grid;
-  grid-template-columns: 48px 1fr auto;  /* 뒤로가기 / 제목 / 전체읽음 */
+  grid-template-columns: 30px 1fr auto;  
   align-items: center;
-  gap: 8px;
-
   padding: 12px 16px;
   background: #ffffff;
   border-bottom: 1px solid #eee;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #111;
 }
@@ -41,7 +35,6 @@
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 
@@ -63,7 +56,6 @@
   cursor: default;
 }
 
-/* 리스트 영역이 남는 높이를 전부 차지하고 내부 스크롤 */
 .list {
   flex: 1;
   overflow-y: auto;

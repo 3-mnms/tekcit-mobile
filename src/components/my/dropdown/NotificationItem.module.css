@@ -1,14 +1,13 @@
 .item {
-  border: 1px solid #ddd;
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  background-color: white;
-  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fff;
 }
 
 .read {
-  color: #999;
+  opacity: 0.6;
 }
 
 .topRow {
@@ -18,38 +17,39 @@
 }
 
 .title {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .message {
-  margin-top: 0.25rem;
-}
-
-.bottom {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-top: 4px;
 }
 
 .bottomRight {
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.75rem;
+  margin-top: 8px;
 }
 
 .time {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: inherit;
 }
 
 .checkBtn {
   border: none;
-  font-size: 0.75rem;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  color: white;
 }
 
 .checkBtn:focus {
   outline: none;
+}
+
+.checkBtn:active {
+  background: #e5e7eb;
 }
