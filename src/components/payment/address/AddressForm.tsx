@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { createPortal } from 'react-dom'  
 
 import DeliveryManageModal from '@/components/payment/modal/DeliveryManageModal'
 
@@ -64,6 +65,18 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
     onValidChange?.(!!isValid)
   }, [watchAll, onValidChange])
 
+  useEffect(() => {
+  if (isModalOpen) {
+    const html = document.documentElement
+    html.style.overflow = 'hidden'
+    document.body.classList.add('modal-open')   // ⬅️ 클래스 토글
+    return () => {
+      html.style.overflow = ''
+      document.body.classList.remove('modal-open')
+    }
+  }
+}, [isModalOpen])
+
   // ✅ 모달에서 배송지 선택 시 address/zipCode만 세팅 멍
   const handleAddressSelect = (addr: SelectedAddressPayload) => {
     setValue('address', addr.address ?? '', { shouldValidate: true })
@@ -96,30 +109,32 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
       </div>
 
       {/* ───────── 전체화면 모달(시트) ───────── */}
-      {isModalOpen && (
-        <div className={styles['modal-overlay']} role="dialog" aria-modal="true">
-          <div className={styles['modal-sheet']}>
-            <div className={styles['modal-header']}>
-              <strong>배송지 관리</strong>
-              <button
-                type="button"
-                className={styles['modal-close']}
-                onClick={() => setIsModalOpen(false)}
-                aria-label="닫기"
-              >
-                ×
-              </button>
-            </div>
+      {isModalOpen &&
+        createPortal(
+          <div className={styles['modal-overlay']} role="dialog" aria-modal="true">
+            <div className={styles['modal-sheet']}>
+              <div className={styles['modal-header']}>
+                <strong>배송지 관리</strong>
+                <button
+                  type="button"
+                  className={styles['modal-close']}
+                  onClick={() => setIsModalOpen(false)}
+                  aria-label="닫기"
+                >
+                  ×
+                </button>
+              </div>
 
-            <div className={styles['modal-content']}>
-              <DeliveryManageModal
-                onClose={() => setIsModalOpen(false)}
-                onSelectAddress={handleAddressSelect}
-              />
+              <div className={styles['modal-content']}>
+                <DeliveryManageModal
+                  onClose={() => setIsModalOpen(false)}
+                  onSelectAddress={handleAddressSelect}
+                />
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body, // ✅ body 최상단으로!
+        )}
 
       {/* ───────── 폼: 단일 컬럼 ───────── */}
       <div className={styles['form-grid']}>
