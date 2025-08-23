@@ -85,9 +85,11 @@ const TransferPaymentPage: React.FC = () => {
         expired={false}     // ⛔ 만료 상태라면 true로
       />
 
+      <div className={styles.headerSpacer} aria-hidden />
+
       {/* ─ 예매 기본 안내사항 ─ */}
       <section className={styles.card}>
-        <h2 className={styles.cardTitle}>예매 기본 안내사항</h2>
+        {/* <h2 className={styles.cardTitle}>예매 기본 안내사항</h2> */}
         <BookingProductInfo {...product} />
       </section>
 
