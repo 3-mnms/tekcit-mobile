@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createPortal } from 'react-dom'  
+import { createPortal } from 'react-dom'
 
 import DeliveryManageModal from '@/components/payment/modal/DeliveryManageModal'
 
@@ -65,17 +65,30 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
     onValidChange?.(!!isValid)
   }, [watchAll, onValidChange])
 
+  // AddressForm.tsx
   useEffect(() => {
-  if (isModalOpen) {
+    if (!isModalOpen) return
+
+    // 페이지 스크롤 잠금
     const html = document.documentElement
+    const prevOverflow = html.style.overflow
     html.style.overflow = 'hidden'
-    document.body.classList.add('modal-open')   // ⬅️ 클래스 토글
+
+    // ✅ 푸터 높이 측정 → --sheet-offset 세팅
+    const footer = document.getElementById('payment-cta')
+    const footerH = footer?.getBoundingClientRect().height ?? 0
+
+    // 안전 여백 + 안전영역
+    const safe = 0 // env()는 JS에서 못 읽으니 CSS에서 처리
+    const offset = footerH + 8 + safe
+
+    document.documentElement.style.setProperty('--sheet-offset', `${offset}px`)
+
     return () => {
-      html.style.overflow = ''
-      document.body.classList.remove('modal-open')
+      html.style.overflow = prevOverflow
+      document.documentElement.style.removeProperty('--sheet-offset')
     }
-  }
-}, [isModalOpen])
+  }, [isModalOpen])
 
   // ✅ 모달에서 배송지 선택 시 address/zipCode만 세팅 멍
   const handleAddressSelect = (addr: SelectedAddressPayload) => {
@@ -107,35 +120,26 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
           배송지 관리
         </button>
       </div>
-
       {/* ───────── 전체화면 모달(시트) ───────── */}
+      // AddressForm.tsx (모달 부분만)
       {isModalOpen &&
         createPortal(
-          <div className={styles['modal-overlay']} role="dialog" aria-modal="true">
-            <div className={styles['modal-sheet']}>
-              <div className={styles['modal-header']}>
-                <strong>배송지 관리</strong>
-                <button
-                  type="button"
-                  className={styles['modal-close']}
-                  onClick={() => setIsModalOpen(false)}
-                  aria-label="닫기"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className={styles['modal-content']}>
-                <DeliveryManageModal
-                  onClose={() => setIsModalOpen(false)}
-                  onSelectAddress={handleAddressSelect}
-                />
-              </div>
+          <div
+            className={styles['modal-overlay']}
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <div className={styles['modal-sheet']} onClick={(e) => e.stopPropagation()}>
+              {/* ✅ 바깥 헤더/닫기 버튼 삭제, 내부 모달만 렌더 */}
+              <DeliveryManageModal
+                onClose={() => setIsModalOpen(false)}
+                onSelectAddress={handleAddressSelect}
+              />
             </div>
           </div>,
-          document.body, // ✅ body 최상단으로!
+          document.body,
         )}
-
       {/* ───────── 폼: 단일 컬럼 ───────── */}
       <div className={styles['form-grid']}>
         {/* 받는 사람 */}

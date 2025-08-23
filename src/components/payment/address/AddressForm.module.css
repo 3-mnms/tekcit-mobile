@@ -35,27 +35,29 @@
 }
 .tab-manage-btn:active { transform: translateY(1px); }
 
-/* ===== 모달: 전체화면 시트 ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-   z-index: 2147483647;
-  display: grid;
-  background-color: rgba(15,23,42,0.5);
+  z-index: 2147483647;
+  display: flex;              /* ✅ flex 컨테이너 */
+  justify-content: center;    /* 가로 중앙 */
+  align-items: center;        /* 세로 중앙 */
+  background-color: rgba(15,23,42,0.5); /* 딤 처리 */
 }
 
 .modal-sheet {
-  margin: auto 0 0;                    /* 하단 정렬 */
-  width: 100%;
-  max-width: 420px;
+  width: 90%;
+  max-width: 520px;
   background: #fff;
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   overflow: hidden;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0,0,0,.18); /* 위가 아니라 전체 그림자 */
   transform: translateZ(0);
+  animation: sheetUp .16s ease-out;
+
+  margin: 0;  
 }
+
 
 .modal-header {
   position: sticky;
@@ -82,7 +84,12 @@
   cursor: pointer;
 }
 
-.modal-content {
+@keyframes sheetUp{
+  from { transform: translateY(12px); opacity: .98; }
+  to   { transform: none;             opacity: 1; }
+}
+
+.modal-content{
   max-height: calc(80vh - env(safe-area-inset-bottom));
   padding: 12px 12px calc(16px + env(safe-area-inset-bottom));
   overflow-y: auto;
@@ -172,9 +179,11 @@ select:focus {
   margin-top: 2px;
 }
 
-/* 초소형 안전망 */
-@media (max-width: 360px) {
-  .address-container { padding: 10px; }
-  .phone-prefix { width: 72px; }
-  .phone-mid, .phone-end { width: 68px; }
+@media (min-width: 768px){
+  .modal-overlay{ align-items: center; }
+  .modal-sheet{
+    border-radius: 16px;
+    margin-bottom: 0;                /* 바텀 오프셋 제거 */
+    max-height: min(640px, 90vh);
+  }
 }
