@@ -1,46 +1,96 @@
 // src/components/my/ticket/TicketInfoCard.tsx
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styles from './TicketInfoCard.module.css'
 import Modal from './QRModal'
-import EntranceCheckModal from './EntranceCheckModal'
+import EntranceCheckModalLoader from '@/components/my/ticket/EntranceCheckModalLoader'
+import { format } from 'date-fns'
+import QRViewer from './QRViewer'
 
-const TicketInfoCard: React.FC = () => {
+type Props = {
+  festivalId: string
+  reservationNumber: string
+  title: string
+  place: string
+  performanceDateISO: string
+  deliveryMethod: 'MOBILE' | 'PAPER'
+  qrIds: string[]
+  address?: string
+  posterFile?: string
+  reserverName?: string
+  selectedTicketCount?: number
+  totalCountForGauge?: number
+}
+
+const deliveryLabel = (t: 'MOBILE' | 'PAPER') => (t === 'MOBILE' ? '모바일 티켓' : '지류 티켓')
+
+const TicketInfoCard: React.FC<Props> = ({
+  festivalId,
+  reservationNumber,
+  title,
+  place,
+  performanceDateISO,
+  deliveryMethod,
+  qrIds,
+  address,
+  posterFile,
+  reserverName,
+}) => {
   const [showQR, setShowQR] = useState(false)
   const [showEntrance, setShowEntrance] = useState(false)
-  const eventTitle = '공연 이름 1';
-  const eventDate = '2025.10.18';
-  const eventTime = '17:00';
-  const enteredCount = 4;
-  const totalCount = 10;
+
+  const ymd = useMemo(() => {
+    const d = new Date(performanceDateISO)
+    return isNaN(d.getTime()) ? performanceDateISO : format(d, 'yyyy.MM.dd')
+  }, [performanceDateISO])
+
+  const hm = useMemo(() => {
+    const d = new Date(performanceDateISO)
+    return isNaN(d.getTime()) ? '' : format(d, 'HH:mm')
+  }, [performanceDateISO])
+
+  const posterSrc = useMemo(() => {
+    const src = (posterFile ?? '').trim()
+    return src.length > 0 ? src : '/dummy-poster.jpg'
+  }, [posterFile])
 
   return (
     <>
       <article className={styles.card} aria-label="티켓 정보">
         <img
+          src={posterSrc}
+          alt={`포스터 - ${title}`}
           className={styles.poster}
-          src="https://picsum.photos/id/1069/600/900"
-          alt="공연 포스터"
           loading="lazy"
-          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            ;(e.currentTarget as HTMLImageElement).src = '/dummy-poster.jpg'
+          }}
         />
 
         <div className={styles.info}>
           <div className={styles.row}>
             <span className={styles.k}>예매자</span>
-            <span className={styles.v}>홍길동</span>
+            <span className={styles.v}>{reserverName ?? '-'}</span>
           </div>
           <div className={styles.row}>
             <span className={styles.k}>예약번호</span>
-            <span className={styles.v}>A123456789</span>
+            <span className={styles.v}>{reservationNumber}</span>
           </div>
           <div className={styles.row}>
             <span className={styles.k}>일시</span>
-            <span className={styles.v}>2025년 10월 18일 (토) 17:00</span>
+            <span className={styles.v}>
+              {ymd}{' '}
+              {hm && (
+                <>
+                  ({/* 요일 필요시 */}) {hm}
+                </>
+              )}
+            </span>
           </div>
           <div className={styles.row}>
             <span className={styles.k}>장소</span>
             <span className={styles.v}>
-              올림픽공원 88잔디마당
+              {place}
               <button className={styles.linkBtn} type="button">
                 지도보기
               </button>
@@ -49,12 +99,22 @@ const TicketInfoCard: React.FC = () => {
           <div className={styles.row}>
             <span className={styles.k}>티켓수령</span>
             <span className={styles.v}>
-              모바일 티켓
+              {deliveryLabel(deliveryMethod)}
+              {deliveryMethod === 'MOBILE' && (
               <button className={styles.linkBtn} type="button" onClick={() => setShowQR(true)}>
                 QR 보기
               </button>
+              )}
             </span>
           </div>
+
+          {deliveryMethod === 'PAPER' && (
+            <div className={styles.row}>
+              <span className={styles.k}>배송지</span>
+              <span className={styles.v}>{address ?? '-'}</span>
+            </div>
+          )}
+
           <div className={styles.row}>
             <span className={styles.k}>입장 인원수</span>
             <span className={styles.v}>
@@ -70,22 +130,16 @@ const TicketInfoCard: React.FC = () => {
         </div>
       </article>
 
-      <Modal isOpen={showQR} onClose={() => setShowQR(false)} title="티켓 QR 코드">
-        <img
-          src="https://picsum.photos/seed/qr/180/180"
-          alt="QR 코드"
-          style={{ width: 180, height: 180 }}
-        />
+      <Modal isOpen={showQR} onClose={() => setShowQR(false)} title="티켓 QR">
+        <QRViewer ids={qrIds} size={180} />
       </Modal>
 
-      <EntranceCheckModal
+      <EntranceCheckModalLoader
         isOpen={showEntrance}
         onClose={() => setShowEntrance(false)}
-        count={enteredCount}
-        totalCount={totalCount}
-        title={eventTitle}
-        date={eventDate}
-        time={eventTime}
+        festivalId={festivalId}
+        performanceDateISO={performanceDateISO}
+        title={title}
       />
     </>
   )
