@@ -110,7 +110,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '', element: <MyTicketPage /> },
           { path: 'history', element: <TicketHistoryPage /> },
-          { path: 'detail/:id', element: <TicketDetailPage /> },
+          { path: 'detail/:reservationNumber', element: <TicketDetailPage /> },
           {
             path: 'transfer',
             children: [
