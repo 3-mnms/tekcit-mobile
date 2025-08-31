@@ -17,6 +17,7 @@
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
     "axios": "^1.11.0",
+    "firebase": "^12.2.1",
     "react": "^19.1.0",
     "react-datepicker": "^8.7.0",
     "react-daum-postcode": "^3.2.0",

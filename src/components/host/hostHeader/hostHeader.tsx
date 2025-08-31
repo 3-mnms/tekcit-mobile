@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate, Outlet  } from 'react-router-dom';
-import styles from './hostHeader.module.css';
+import React, { useState } from 'react'
+import { useNavigate, Outlet } from 'react-router-dom'
+import styles from './hostHeader.module.css'
 
 import { logout as logoutApi } from '@/shared/api/auth/login'
-import { useAuthStore } from '@/shared/storage/useAuthStore';
-
-import { tokenStore } from '@/shared/storage/tokenStore';
+import { useAuthStore } from '@/shared/storage/useAuthStore'
 
 type Props = {
-  title: string;
-  sticky?: boolean;
-  withDivider?: boolean;
-  className?: string;
-};
+  title: string
+  sticky?: boolean
+  withDivider?: boolean
+  className?: string
+}
 
 const HostHeader: React.FC<Props> = ({
   title,
@@ -20,57 +18,57 @@ const HostHeader: React.FC<Props> = ({
   withDivider = true,
   className = '',
 }) => {
-  const navigate = useNavigate();
-  const clearUser = useAuthStore((s) => s.clearUser)
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  
+  const logout = useAuthStore((s) => s.logout)
 
   const handleLogout = async () => {
-      if (loading) return
-      setLoading(true)
-      try {
-        await logoutApi()
-      } catch (e) {
-        console.error('logout failed (server):', e)
-      } finally {
-        tokenStore.clear()
-        clearUser()
-        setLoading(false)
-        alert('로그아웃!')
-        navigate('/')
-      }
+    if (loading) return
+    setLoading(true)
+    try {
+      await logoutApi()
+    } catch (e) {
+      console.error('logout failed (server):', e)
+    } finally {
+      logout()
+      setLoading(false)
+      alert('로그아웃!')
+      navigate('/')
     }
+  }
 
-return (
-  <div className={styles.layoutContainer}> 
-    <header
-      className={[
-        styles.header,
-        sticky ? styles.sticky : '',
-        withDivider ? styles.withDivider : '',
-        className,
-      ].join(' ').trim()}
-    >
-      <h1 className={styles.title}>{title}</h1>
+  return (
+    <div className={styles.layoutContainer}>
+      <header
+        className={[
+          styles.header,
+          sticky ? styles.sticky : '',
+          withDivider ? styles.withDivider : '',
+          className,
+        ]
+          .join(' ')
+          .trim()}
+      >
+        <h1 className={styles.title}>{title}</h1>
 
-      {/* 오른쪽 로그아웃 버튼 */}
-      <div className={styles.right}>
-        <button
-          type="button"
-          className={styles.logoutBtn}
-          onClick={handleLogout}
-          aria-label="로그아웃"
-        >
-          {/* ✅ '로그아웃' 글자 대신 아이콘을 쏙! */}
-          <i className="fa-solid fa-right-from-bracket" />
-        </button>
-      </div>
-    </header>
-    <main className={styles.mainContent}>
+        {/* 오른쪽 로그아웃 버튼 */}
+        <div className={styles.right}>
+          <button
+            type="button"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            aria-label="로그아웃"
+          >
+            {/* ✅ '로그아웃' 글자 대신 아이콘을 쏙! */}
+            <i className="fa-solid fa-right-from-bracket" />
+          </button>
+        </div>
+      </header>
+      <main className={styles.mainContent}>
         <Outlet />
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default HostHeader;
+export default HostHeader

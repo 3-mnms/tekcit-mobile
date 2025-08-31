@@ -7,14 +7,13 @@ import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 
 import { logout as logoutApi } from '@/shared/api/auth/login'
-import { tokenStore } from '@/shared/storage/tokenStore'
 import { useAuthStore } from '@/shared/storage/useAuthStore'
 
 import { sidebarItems } from '@/components/my/sidebar/Sidebar'
 
 const UserDropdown: React.FC = () => {
   const navigate = useNavigate()
-  const clearUser = useAuthStore((s) => s.clearUser)
+  const logout = useAuthStore((s) => s.logout)
   const [loading, setLoading] = useState(false)
 
   const handleAlarmClick = () => {
@@ -29,8 +28,7 @@ const UserDropdown: React.FC = () => {
     } catch (e) {
       console.error('logout failed (server):', e)
     } finally {
-      tokenStore.clear()
-      clearUser()
+      logout()
       setLoading(false)
       alert('로그아웃!')
       navigate('/login')
