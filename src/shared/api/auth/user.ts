@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { api } from '@/shared/api/axios';
+import { api } from '@/shared/config/axios';
 
 export const signupUser = async (data: any) => {
   const res = await axios.post('/api/users/signupUser', data);
