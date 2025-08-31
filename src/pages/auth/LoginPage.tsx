@@ -12,22 +12,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginForm } from '@/models/auth/schema/loginSchema'
 import { useLoginMutation } from '@/models/auth/tanstack-query/useLogin'
-
 import { useAuthStore } from '@/shared/storage/useAuthStore'
-import { parseJwt, type JwtRole, type JwtPayloadBase } from '@/shared/storage/jwt'
-import { useQueryClient } from '@tanstack/react-query'
-
-type JwtPayload = JwtPayloadBase & {
-  userId: number
-  role: JwtRole
-  name: string
-}
+import { getAndSaveFcmToken } from '@/shared/api/auth/fcrmToken'
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate()
-  const { setUser } = useAuthStore()
-  const queryClient = useQueryClient();
-  const isPopup = !!window.opener;
+  const isPopup = !!window.opener
+  const { setAccessToken } = useAuthStore.getState()
 
   const {
     register,
@@ -42,27 +33,14 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = (form: LoginForm) => {
     loginMut.mutate(form, {
-      onSuccess: (data) => {
-        let userRole: JwtRole = 'USER';
+      onSuccess: async (data) => {
         if (data.accessToken) {
-          const decoded = parseJwt<JwtPayload>(data.accessToken)
-          if (decoded) {
-            setUser({
-              userId: decoded.userId,
-              role: decoded.role,
-              name: decoded.name,
-              loginId: decoded.sub,
-            });
-            userRole = decoded.role;
-          }
+          setAccessToken(data.accessToken)
         }
-        queryClient.invalidateQueries({ queryKey: ['tokenInfo'] });
+        void getAndSaveFcmToken()
+
         alert('로그인이 완료되었습니다!')
-          if (userRole === 'HOST') {
-          navigate('/host');
-        } else {
-          navigate('/');
-        }
+        navigate('/')
       },
       onError: (e) => {
         const msg =
@@ -78,7 +56,7 @@ const LoginPage: React.FC = () => {
     <div className={styles.page}>
       {isPopup && <KakaoPopupBridge status="existing" />}
       <div className={styles.card}>
-        <img src={Logo} alt="tekcit logo" className={styles.logo} onClick={() => navigate('/')}/>
+        <img src={Logo} alt="tekcit logo" className={styles.logo} onClick={() => navigate('/')} />
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           <LoginInput

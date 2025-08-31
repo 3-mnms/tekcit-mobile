@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.css';
 import logo from '@shared/assets/logo.png';
 import { useUIStore } from '@/shared/store/uiStore';
+import { useAuthStore } from '@/shared/storage/useAuthStore' 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { leftIcon, centerMode, headerTitle } = useUIStore();
   const [keyword, setKeyword] = useState('');
+  const accessToken = useAuthStore((s) => s.accessToken)
 
   const handleSearch = () => {
     const q = keyword.trim();

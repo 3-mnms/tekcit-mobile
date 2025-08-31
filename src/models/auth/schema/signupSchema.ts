@@ -29,8 +29,8 @@ export const signupStep2 = z.object({
   name: z.string().min(2, '이름은 2자 이상 입력하세요.'),
   phone: z
     .string()
-    .regex(/^01[016789]-?\d{4}-?\d{4}$/, '전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678'),
-  rrnFront: z.string().regex(/^\d{6}$/, '주민번호 앞 6자리를 입력하세요.'),
+    .regex(/^01[016789]-?\d{4}-?\d{4}$/, '전화번호 형식이 올바르지 않습니다.'),
+  rrnFront: z.string().regex(/^\d{6}$/, '주민번호를\n 입력하세요.'),
   rrnBackFirst: z.string().min(1, '주민번호를 입력하세요.').regex(/^[1-4]$/, '주민등록번호 뒷자리 첫 글자는 1~4만 가능합니다.'),
 });
 
