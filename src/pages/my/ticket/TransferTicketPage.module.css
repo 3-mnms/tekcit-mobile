@@ -77,7 +77,12 @@
 }
 
 .v {
-  color: #111827;
+  display: inline-block;       
+  max-width: 100%;           
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;     
 }
 
 .transferBtn {
