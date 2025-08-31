@@ -1,43 +1,133 @@
-.container {
-  padding: 1.5rem;
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.25rem;
+.body {
+  padding: 12px 25px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.field {
-  margin-bottom: 1.25rem;
-}
-
-.label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+.card {
+  background-color: #fff;
+  border: 1px solid #b4b4b4;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .input {
-  width: 100%;
-  padding: 0.75rem;
+  padding: 12px 14px;
+  font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 0.5rem;
-}
-
-.emailRow {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.emailButton {
-  white-space: nowrap;
-}
-
-.submitButton {
+  border-radius: 8px;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.formGrid {
+  display: grid;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .row2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.compact {
+  --v-gap: 0.5rem;
+}
+
+.formGrid.compact {
+  gap: var(--v-gap);
+  margin-top: -10px;
+}
+
+.row2.compact {
+  gap: var(--v-gap);
+}
+
+.formGrid.compact>* {
+  margin: 0 !important;
+}
+
+.row2.compact>* {
+  margin: 0 !important;
+}
+
+.formGrid.compact :where(label),
+.row2.compact :where(label) {
+  margin-bottom: 0.25rem !important;
 }
 
 .authCodeRow {
-  margin-top: -1rem;
+  margin-top: -0.25rem;
+}
+
+.help {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.actionsCard {
+  padding: 0;
+  border-color: transparent;
+  margin-top: 10px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.actions>button {
+  flex: 1;
+}
+
+@media (min-width: 480px) {
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.btnPrimary,
+.btnGhost {
+  height: 44px;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.btnGhost {
+  background: #f5f6f7 !important;
 }

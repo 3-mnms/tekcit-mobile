@@ -15,6 +15,7 @@ const UserDropdown: React.FC = () => {
   const navigate = useNavigate()
   const logout = useAuthStore((s) => s.logout)
   const [loading, setLoading] = useState(false)
+  const userName = useAuthStore((s) => s.user?.name) || '사용자명'
 
   const handleAlarmClick = () => {
     navigate('./notification');
@@ -47,7 +48,7 @@ const UserDropdown: React.FC = () => {
     <div className={styles.dropdown}>
       <div className={styles.header}>
         <div className={styles.usernameWrap}>
-          <span className={styles.username}>사용자명</span>
+          <span className={styles.username}>{userName}</span>
         </div>
         <button className={styles.alarmButton} onClick={handleAlarmClick} aria-label="알림">
           <HiOutlineSpeakerphone className={styles.alarmIcon} />

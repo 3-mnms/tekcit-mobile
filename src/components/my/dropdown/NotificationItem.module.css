@@ -1,55 +1,61 @@
+/* NotificationItem.module.css */
 .item {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 12px;
-  background-color: #fff;
-}
-
-.read {
-  opacity: 0.6;
-}
-
-.topRow {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.item:hover {
+  background: #f9fafb;
+}
+
+.unread {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, .2);
+}
+
+.main {
+  flex: 1;
+  text-align: left;
 }
 
 .title {
-  font-weight: 700;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
 }
 
-.message {
-  margin-top: 4px;
-}
-
-.bottomRight {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
-.time {
+.meta {
   font-size: 12px;
-  color: inherit;
-}
-
-.checkBtn {
-  border: none;
-  border-radius: 10px;
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
+  color: #6b7280;
+  display: flex;
+  gap: 6px;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
 }
 
-.checkBtn:focus {
-  outline: none;
+.badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: #3b82f6;
 }
 
-.checkBtn:active {
-  background: #e5e7eb;
+/* NotificationItem.module.css */
+.read {
+  background: #f3f4f6; /* 밝은 회색 배경 */
+  border-color: #d1d5db; /* 연한 회색 테두리 */
+  color: #9ca3af; /* 텍스트 색도 살짝 흐리게 */
+}
+
+.read .title {
+  color: #6b7280; /* 제목도 회색톤 */
+}
+
+.read .meta {
+  color: #9ca3af; /* 메타 정보도 더 연하게 */
 }
