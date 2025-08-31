@@ -1,10 +1,7 @@
 import { defineConfig } from 'vite'
 import path from 'path';
-import { fileURLToPath } from 'url'
-import react from '@vitejs/plugin-react'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -33,6 +30,14 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'src/pages/home'),
       },
       {
+        find: '@components',
+        replacement: path.resolve(__dirname, 'src/components'),
+      },
+      {
+        find: '@models',
+        replacement: path.resolve(__dirname, 'src/models'),
+      },
+      {
         find: '@shared',
         replacement: path.resolve(__dirname, 'src/shared'),
       },
@@ -49,28 +54,5 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'src/shared/storage'),
       },
     ],
-  },
-  server: {
-    proxy: {
-      '/api/users': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/api/mail': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/api/auth/kakao': {
-        target: 'http://localhost:8080',
-      },
-      '/api/festival': {
-        //target: 'http://localhost:10000',
-        target: 'http://localhost:8083',
-        changeOrigin: true,
-      },
-      '/api/booking': {
-        target: 'http://localhost:8082',
-      },
-    },
   },
 })

@@ -2,15 +2,25 @@
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
   background: #fff;
-  padding-bottom: var(--bottom-nav-height, 64px);
 }
 
 .body {
-  padding: 25px;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #fff;
+  margin-bottom: 16px;
 }
 
 .noticeBox {
@@ -27,22 +37,25 @@
   line-height: 1.6;
 }
 
-.checkboxLabel {
-  display: flex;
+.checkboxRow {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 0.5rem;
+  margin-bottom: 12px;
   font-size: 0.95rem;
-  width: 100%;
+  color: #111827; 
+  margin-left: 5px;
 }
-
-.checkboxLabel input[type='checkbox'] {
+.checkboxRow input[type="checkbox"] {
+  accent-color: #4D9AFD;
   width: 1rem;
   height: 1rem;
-  cursor: pointer;
-  accent-color: #4D9AFD;
 }
 
 .withdrawButton {
   width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
 }

@@ -1,0 +1,68 @@
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #b4b4b4;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 15px;
+}
+.item:last-child { margin-bottom: 0; }
+.item:hover { background-color: #f9fafb; }
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem; /* 살짝 더 촘촘하게 */
+}
+
+/* 이름 + 배지 한 줄 */
+.topRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #111827;
+}
+
+/* 전화번호는 별도 줄 */
+.phoneRow {
+  line-height: 1;
+}
+
+.phone {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.badge {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.address {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #cbd5e1;
+  margin-left: 1rem;
+  padding-bottom: 0.25rem;
+  line-height: 1;
+  align-self: center;
+  display: flex;
+}

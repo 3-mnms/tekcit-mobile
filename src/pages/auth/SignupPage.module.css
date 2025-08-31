@@ -32,11 +32,16 @@
 }
 
 .rrnRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
+  display: grid;
+  grid-template-columns: 56% auto; 
+  column-gap: 5px;
+  row-gap: 6px;
   margin-bottom: 1rem;
+  align-items: start;
+}
+
+.rrnRow .inputWrapper {
+  flex: 1;
 }
 
 .rrnFrontWrap {
@@ -44,17 +49,13 @@
   min-width: 0;
 }
 
-.rrnFrontWrap>* {
+/* .rrnFrontWrap>* {
   margin-bottom: 0 !important;
   width: 100%;
-}
+} */
 
 .hyphen {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1px;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #aaa;
 }
 
@@ -89,19 +90,17 @@
 
 .rrnBackGroup {
   display: grid;
-  grid-template-columns: 40px auto;
-  align-items: center;
-  column-gap: 8px;
-  min-width: 0;
+  grid-template-columns: 15px 36px auto;
+  /* column-gap: 5px; */
 }
 
 .rrnOneDigit {
-  width: 40px;
+  width: 33px;
   text-align: center;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   height: 44px;
-  font-size: 15px;
+  font-size: 14px;
   outline: none;
 }
 
@@ -110,20 +109,20 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, .25);
 }
 
-
 .inputInvalid {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, .12);
+  border-color: #ef4444 !important ;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
 }
 
 .inputValid {
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, .12);
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important;
 }
 
 .dots {
   font-size: 10px;
   color: #9ca3af;
+  margin-top: 15px;
 }
 
 .skipButton {
@@ -153,4 +152,13 @@
   line-height: 1.2;
   color: #ef4444;
   text-align: left;
+}
+
+.successMsg {
+  font-size: 12px;
+  line-height: 1.2;
+  color: #10b981;
+  padding-left: 36px;
+  margin-bottom: 16px;
+  margin-top: -9px;
 }

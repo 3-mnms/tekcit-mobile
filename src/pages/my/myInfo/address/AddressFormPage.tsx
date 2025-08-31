@@ -1,6 +1,6 @@
 // src/pages/my/myinfo/AddressFormPage.tsx
 import React from 'react';
-import AddressForm from '@/components/my/myinfo/AddressForm';
+import AddressForm from '@/components/my/myinfo/address/AddressForm';
 import styles from './AddressFormPage.module.css';
 import MyHeader from '@/components/my/hedaer/MyHeader';
 

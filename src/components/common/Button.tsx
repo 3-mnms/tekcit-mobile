@@ -1,44 +1,32 @@
 import React from 'react';
 import styles from './Button.module.css';
 
-// 버튼 스타일 옵션 타입 정의
-type ButtonVariant = 'primary' | 'secondary' | 'cancel' | 'danger';
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   children: React.ReactNode;
-  variant?: ButtonVariant;   
+  onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
   className?: string; // 너비/높이 tailwind로 조정 가능
   disabled?: boolean;
-  type?: 'button';
 }
 
 const Button: React.FC<ButtonProps> = ({
   children,
-  variant = 'primary',
-  className = '',
-  disabled,
+  onClick,
   type = 'button',
-  ...props
+  className = '',
+  disabled = false,
 }) => {
- const variantClassMap = {
-    primary: styles.primary,
-    secondary: styles.secondary,
-    cancel: styles.cancel,
-    danger: styles.danger,
-  };
-
   return (
     <button
-      className={`${styles.base} ${variantClassMap[variant]} ${className}`}
-      disabled={disabled}
+      className={`${styles.button} ${className}`}
       type={type}
-      {...props}
+      onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
   );
 };
-
-// <Button variant="danger" className="w-full h-12">삭제 버튼</Button>
+// <Button className="w-full h-12">로그인</Button>
 
 export default Button;

@@ -1,10 +1,13 @@
-export interface BookmarkItem {
-  id: number;
+export type BookmarkItem = {
+  fid: string;   
   name: string;
-  isBookmarked: boolean; 
-}
+  thumbnailUrl?: string | null;
+};
 
-export interface BookmarkCardProps extends BookmarkItem {
-  onToggleBookmark: (id: number) => void;
-  muted?: boolean;
-}
+export type BookmarkCardProps = {
+  id: string;                
+  name: string;
+  isBookmarked: boolean;        
+  onToggleBookmark: (id: string) => void;
+  thumbnailUrl?: string | null;
+};

@@ -7,15 +7,15 @@ import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 
 import { logout as logoutApi } from '@/shared/api/auth/login'
-import { tokenStore } from '@/shared/storage/tokenStore'
 import { useAuthStore } from '@/shared/storage/useAuthStore'
 
 import { sidebarItems } from '@/components/my/sidebar/Sidebar'
 
 const UserDropdown: React.FC = () => {
   const navigate = useNavigate()
-  const clearUser = useAuthStore((s) => s.clearUser)
+  const logout = useAuthStore((s) => s.logout)
   const [loading, setLoading] = useState(false)
+  const userName = useAuthStore((s) => s.user?.name) || '사용자명'
 
   const handleAlarmClick = () => {
     navigate('./notification');
@@ -29,8 +29,7 @@ const UserDropdown: React.FC = () => {
     } catch (e) {
       console.error('logout failed (server):', e)
     } finally {
-      tokenStore.clear()
-      clearUser()
+      logout()
       setLoading(false)
       alert('로그아웃!')
       navigate('/login')
@@ -49,7 +48,7 @@ const UserDropdown: React.FC = () => {
     <div className={styles.dropdown}>
       <div className={styles.header}>
         <div className={styles.usernameWrap}>
-          <span className={styles.username}>사용자명</span>
+          <span className={styles.username}>{userName}</span>
         </div>
         <button className={styles.alarmButton} onClick={handleAlarmClick} aria-label="알림">
           <HiOutlineSpeakerphone className={styles.alarmIcon} />

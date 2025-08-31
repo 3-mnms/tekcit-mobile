@@ -71,11 +71,12 @@
   display: flex;
   align-items: center;
   color: #6b7280;
-  margin-right: 8px;
+  margin-right: -1px;
 }
 
 .bar {
   color: #e5e7eb;
+  margin-bottom: 2px;
 }
 
 .input {
@@ -86,11 +87,17 @@
   outline: 0;
   font-size: 14px;
   color: #111827;
-  padding-right: 5px;
+  padding-right: 2px;
+  /* background-color: white; */
 }
 
 .input::placeholder {
   color: #9ca3af;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .eyeIcon {
@@ -112,17 +119,22 @@
 
 .invalid {
   border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, .12);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
 }
 
 .valid {
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, .12);
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .12) !important;
 }
 
 .readonly {
   background: #f3f4f6;
   cursor: not-allowed;
+}
+
+.readonly:focus-within {
+  box-shadow: none;                  /* 포커스 링 제거 */
+  border-color: #e5e7eb;
 }
 
 .errorText {
@@ -131,4 +143,5 @@
   line-height: 1.2;
   color: #ef4444;
   padding-left: 36px;
+  white-space: pre-line;
 }
