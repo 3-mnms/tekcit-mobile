@@ -11,6 +11,7 @@ import { useUIStore } from '@/shared/store/uiStore';
 import styles from './FestivalDetailPage.module.css';
 import Header from '@/components/common/header/Header';
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav';
+import Review from '@/components/festival/review/FestivalReviewSection';
 
 const FestivalDetailPage: React.FC = () => {
   const { fid } = useParams<{ fid: string }>();
@@ -34,7 +35,7 @@ useEffect(() => {
     increaseViews(fid);
  }, [fid, increaseViews]);
 
-  const [activeTab, setActiveTab] = useState<'info' | 'sale'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'sale' | 'review'>('info');
 
   if (!fid) {
     return (
@@ -80,11 +81,21 @@ useEffect(() => {
             >
               예매자통계
             </div>
+            <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveTab('review')}
+                className={`${styles.tab} ${activeTab === 'review' ? styles.active : ''}`}
+              >
+                관람평
+              </div>
           </div>
 
           <div className={styles.tabContent}>
-            {activeTab === 'info' ? <InfoDetail /> : <Statistics fid={fid} />}
-          </div>
+              {activeTab === 'info' && <InfoDetail />}
+              {activeTab === 'sale' && <Statistics fid={fid} />}
+              {activeTab === 'review' && <Review fid={fid} />}
+            </div>
           <div className={styles.Scheduler}>
             <Scheduler />
           </div>
