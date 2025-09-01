@@ -1,18 +1,20 @@
 .header {
-  position: -webkit-sticky;  /* ✅ iOS/Safari 지원 멍 */
-  position: fixed;          /* ✅ 표준 멍 */
-  top: 0;                    /* 화면 상단 고정 멍 */
-  left: 0;                   /* (안전) 폭 계산 흔들림 방지 멍 */
-  right: 0;                  /* (안전) 폭 계산 흔들림 방지 멍 */
-  z-index: 100;
+  /* 고정 위치 */
+  position: fixed;
+  top: 0; left: 0; right: 0;
 
+  /* ✅ 헤더 높이 변수 (safe-area 포함) */
+  --tp-header-h: calc(56px + env(safe-area-inset-top));
+
+  height: var(--tp-header-h);
+  padding: 0 12px;                 /* top 패딩은 safe-area로 포함됐음 */
   display: grid;
   grid-template-columns: 48px 1fr auto;
   align-items: center;
 
-  min-height: 56px;          /* 헤더 높이(페이지 패딩과 일치) 멍 */
-  padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
   background: #fff;
+  z-index: 2000;                   /* 본문과 겹치지 않게 충분히 높게 */
+  box-shadow: 0 1px 0 rgba(2,6,23,.06);
 }
 
 

@@ -40,7 +40,7 @@ const TransferPaymentFooter: React.FC<TransferPaymentFooterProps> = ({
     n.toLocaleString('ko-KR')
 
   return (
-    <div className={styles.footer} role="region" aria-label={ariaLabel}>
+    <div id="payment-cta" className={styles.footer} role="region" aria-label={ariaLabel}>
       <button
         type="button"
         className={styles.payBtn}

@@ -34,6 +34,10 @@
   margin-bottom: 14px;
 }
 
+.headerSpacer {
+  height: var(--tp-header-h, calc(56px + env(safe-area-inset-top)));
+}
+
 .cardTitle {
   margin: 0 0 10px;
   font-size: 15px;

@@ -1,43 +1,59 @@
-/* ✅ 카드 리스트 래퍼: 스크롤바 정리 + 위아래 여백 멍 */
-.address-wrapper {
-  max-height: min(56vh, 540px);      /* 높이 제한으로 스크롤 발생 멍 */
-  overflow: auto;
-  padding-right: 4px;                /* 스크롤바 공간 보정 멍 */
-  margin-top: 8px;
-}
-
-/* ✅ 스크롤바 미세 스타일 (크로미움) 멍 */
-.address-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-.address-wrapper::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 8px;
-}
-.address-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;
-}
-
-/* ✅ 리스트 간격/아이템 패딩 정리 멍 */
-.address-list {
+.container {
   display: flex;
   flex-direction: column;
-  gap: 10px;                         /* 카드 간격 넉넉히 멍 */
-  padding: 8px 0 4px;
-  margin: 0;
-  list-style: none;
+  height: 100%;         /* 모달 높이 채움 */
 }
 
-.address-list-item {
-  cursor: pointer;
+
+.content {
+  flex: 1;              /* 남은 공간 채우기 */
+  overflow-y: auto;     /* 내용 많으면 스크롤 */
+  padding: 12px 16px;
 }
 
-/* ✅ 선택된 아이템에는 외곽선 비활성, 내부 카드가 강조되므로 얇게만 멍 */
-.address-list-item.selected {
-  outline: none;
+/* 상태 문구 */
+.info{
+  text-align:center;
+  color:#6b7280;
+  padding: 16px 8px;
+  font-size:14px;
+}
+.error{
+  text-align:center;
+  color:#ef4444;
+  padding: 16px 8px;
+  font-size:14px;
 }
 
-/* ✅ 하단 고정 버튼(있다면) 상단 그림자 멍 */
-.footerStickyShadow {
-  box-shadow: 0 -8px 24px rgba(0,0,0,.06);
+.address-wrapper{
+  max-height: min(56vh, 520px);
+  overflow:auto;
+  padding-right:4px;
+  margin-top:8px;
+}
+/* 스크롤바 스타일 (선택) */
+.address-wrapper::-webkit-scrollbar{ width:8px; }
+.address-wrapper::-webkit-scrollbar-thumb{ background:#e5e7eb; border-radius:8px; }
+.address-wrapper::-webkit-scrollbar-thumb:hover{ background:#d1d5db; }
+
+/* 리스트 */
+.address-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:8px 0 4px;
+  margin:0;
+  list-style:none;
+}
+.address-list-item{ cursor:pointer; }
+.address-list-item.selected{ outline:none; }
+
+/* (선택) 시트 상단 그랩바 */
+:global(.modal-sheet)::before{
+  content:"";
+  display:block;
+  width:36px; height:4px;
+  border-radius:999px;
+  background:#e5e7eb;
+  margin:8px auto 6px;
 }

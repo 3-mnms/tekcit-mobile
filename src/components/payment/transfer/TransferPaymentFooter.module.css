@@ -1,19 +1,10 @@
-/* 📄 BookingPaymentFooter.module.css 멍 */
-/* — 전폭 고정 하단 바 + 안전영역 대응 + 버튼 풀폭 멍 */
-/* — 대표색 #4D9AFD 사용 멍 */
-
-:root {
-  /* ⛳ 하단 바(버튼 포함) 대략 높이 — 페이지에 padding-bottom 계산용 멍 */
-  --footer-h: 72px;
-}
-
 /* ✅ 전폭 하단 고정 바 멍 */
 .footer {
   position: fixed;                             /* 뷰포트 기준 고정 멍 */
   left: 0;                                     /* 좌측 끝 고정 멍 */
   right: 0;                                    /* 우측 끝 고정 멍 */
   bottom: 0;                                   /* 하단 고정 멍 */
-  width: 100vw;                                /* 가로 전폭 멍 */
+  width: 100%;                                /* 가로 전폭 멍 */
   z-index: 1000;                               /* 내용 위로 멍 */
 
   background: #ffffff;                         /* 바 배경 멍 */

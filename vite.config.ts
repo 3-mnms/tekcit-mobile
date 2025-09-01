@@ -30,6 +30,14 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'src/pages/home'),
       },
       {
+        find: '@components',
+        replacement: path.resolve(__dirname, 'src/components'),
+      },
+      {
+        find: '@models',
+        replacement: path.resolve(__dirname, 'src/models'),
+      },
+      {
         find: '@shared',
         replacement: path.resolve(__dirname, 'src/shared'),
       },
@@ -46,33 +54,5 @@ export default defineConfig({
         replacement: path.resolve(__dirname, 'src/shared/storage'),
       },
     ],
-  },
-  server: {
-    proxy: {
-      '/api/users': {
-        target: 'http://localhost:10000',
-        changeOrigin: true,
-      },
-      '/api/mail': {
-        target: 'http://localhost:10000',
-        changeOrigin: true,
-      },
-      '/api/auth/kakao': {
-        target: 'http://localhost:10000',
-      },
-      '/api/festival': {
-        // target: 'http://localhost:10000',
-        target: 'http://localhost:8083',
-        changeOrigin: true,
-      },
-      '/api/booking': {
-        target: 'http://localhost:10000',
-        changeOrigin: true,
-      },
-      '/api/qr': {
-        target: 'http://localhost:10000',
-        changeOrigin: true,
-      },
-    },
   },
 })
