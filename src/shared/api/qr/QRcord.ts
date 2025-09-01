@@ -6,7 +6,7 @@ interface ValidateQrParams {
 }
 
 const validateQrCode = async ({ qrCodeId }: ValidateQrParams) => {
-  const { data } = await api.post(`/api/validate/${qrCodeId}`);
+  const { data } = await api.post(`/qr/validate/${qrCodeId}`);
   return data;
 };
 

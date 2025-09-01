@@ -50,23 +50,28 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/users': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:10000',
         changeOrigin: true,
       },
       '/api/mail': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:10000',
         changeOrigin: true,
       },
       '/api/auth/kakao': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:10000',
       },
       '/api/festival': {
-        //target: 'http://localhost:10000',
+        // target: 'http://localhost:10000',
         target: 'http://localhost:8083',
         changeOrigin: true,
       },
       '/api/booking': {
-        target: 'http://localhost:8082',
+        target: 'http://localhost:10000',
+        changeOrigin: true,
+      },
+      '/api/qr': {
+        target: 'http://localhost:10000',
+        changeOrigin: true,
       },
     },
   },
