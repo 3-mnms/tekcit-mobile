@@ -38,7 +38,7 @@ import TicketHistoryPage from '@/pages/my/ticket/TicketHistoryPage'
 import MyTicketPage from '@/pages/my/ticket/MyTicketPage'
 import TicketDetailPage from '@/pages/my/ticket/TicketDetailPage'
 import TransferTicketPage from '@/pages/my/ticket/TransferTicketPage'
-import EntranceCheckPage from '@/pages/my/ticket/EntranceCheckPage'
+import EntranceCheckPage from '@/pages/entrancecount/EntranceCheckPage'
 import AddressDetailPage from '@/pages/my/myInfo/address/AddressDetailPage'
 
 // transfer

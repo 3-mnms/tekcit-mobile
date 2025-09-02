@@ -1,27 +1,26 @@
 /* ✅ 전체 오버레이 배경 (변경 없음) */
 .overlay {
-  position: fixed;
+  position: fixed; /* 삐약! 🐥 화면 전체를 덮도록 해요. */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000; /* 삐약! 🐥 다른 요소들 위에 뜨도록 z-index를 높게 설정해요. */
 }
 
 /* ✅ 카드 자체 (작고 예쁘게 중앙에) */
 .highlightCard {
+  width: 90%; /* 삐약! 🐥 모바일 화면에 맞춰 너비를 조절해요. */
+  max-width: 400px; /* 삐약! 🐥 너무 커지지 않도록 최대 너비를 설정해요. */
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   position: relative;
-  background: linear-gradient(135deg, #e0f0ff, #f4faff);
-  padding: 2rem 1.5rem 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  max-width: 90%;
-  text-align: center;
 }
 
 .closeBtn {
