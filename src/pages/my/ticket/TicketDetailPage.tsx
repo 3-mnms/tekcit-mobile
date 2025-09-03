@@ -50,7 +50,7 @@ const TicketDetailPage: React.FC = () => {
             />
             <h2 className="text-lg font-bold">결제내역</h2>
             <PaymentInfoSection
-              festivalId={data.festivalId}
+              bookingId={data.reservationNumber}
               reservationNumber={data.reservationNumber}
             />
           </div>
