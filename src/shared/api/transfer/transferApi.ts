@@ -6,12 +6,14 @@ import type {
   ApiEnvelope,
   ApiOk,
   ApiErr,
+  TransferWatchItem,          // ✅ 추가: watch 응답 타입
 } from '@/models/transfer/transferTypes';
 
 /** 공통 경로 (baseURL이 http://.../api 인 상황) */
 const PATH = {
   extract: '/transfer/extract',
   update: (id: number | string) => `/transfer/${id}`,
+  watch: '/transfer/watch',    // ✅ 추가
 };
 
 /** 안전 언랩: Ok/Err 래퍼 또는 생데이터 모두 대응 */
@@ -71,4 +73,17 @@ export async function apiUpdateFamilyTransfer(
     throw new Error(`${res.status} ${msg}`);
   }
   unwrap<null>(res.data ?? null);
+}
+
+/** 🆕 양도 요청 조회 (watch) */
+export async function apiWatchTransfer(): Promise<TransferWatchItem[]> {
+  const res = await api.get<ApiEnvelope<TransferWatchItem[]> | TransferWatchItem[]>('/transfer/watch', {
+    validateStatus: () => true,
+  });
+  if (res.status === 404) throw new Error('404 Not Found: /transfer/watch');
+  if (res.status >= 400) {
+    const msg = (res.data as any)?.message ?? res.statusText ?? '요청 실패';
+    throw new Error(`${res.status} ${msg}`);
+  }
+  return unwrap<TransferWatchItem[]>(res.data);
 }
