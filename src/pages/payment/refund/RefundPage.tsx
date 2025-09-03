@@ -5,7 +5,6 @@ import styles from './RefundPage.module.css'
 import TransferTicketInfo from '@/components/payment/refund/RefundTicketInfo'
 import Button from '@/components/common/button/Button'
 import AlertModal from '@/components/common/modal/AlertModal'
-import { requestFullRefund } from '@/shared/api/payment/payment' // ✅ 분리한 API 사용
 
 const RefundPage: React.FC = () => {
   const [isRefundModalOpen, setIsRefundModalOpen] = useState(false)
