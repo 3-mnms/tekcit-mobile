@@ -4,7 +4,7 @@ import styles from './TransferTicketPage.module.css';
 import MyHeader from '@/components/my/hedaer/MyHeader';
 import { useNavigate } from 'react-router-dom';
 import { useTicketsQuery, useTicketDetailQuery } from '@/models/my/ticket/tanstack-query/useTickets';
-import type { TicketListItem } from '@/models/my/ticket/ticketTypes';
+import type { TransferListItem } from '@/models/my/ticket/ticketTypes';
 
 export const TRANSFER_DONE_EVENT = 'ticket:transferred';
 
@@ -50,11 +50,11 @@ const TransferTicketPage: React.FC = () => {
   }, []);
 
   const visibleTickets = useMemo(() => {
-    const list: TicketListItem[] = data ?? [];
+    const list: TransferListItem[] = data ?? [];
     return list.filter((t) => t.rawStatus === 'CONFIRMED' && !hidden.has(t.reservationNumber));
   }, [data, hidden]);
 
-  const handleTransfer = (row: TicketListItem) => {
+  const handleTransfer = (row: TransferListItem) => {
     navigate('/mypage/ticket/transfer/test', {
       state: {
         reservationNumber: row.reservationNumber,
