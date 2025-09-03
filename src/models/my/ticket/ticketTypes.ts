@@ -9,6 +9,7 @@ export type TicketResponseDTO = {
   deliveryMethod: 'MOBILE' | 'PAPER';   
   reservationDate: string;        
   reservationStatus: ReservationStatus;
+  posterFile: string;
   festivalId: string;
   fname: string;   
   fcltynm: string;  
@@ -24,6 +25,7 @@ export type TicketListItem = {
   statusLabel: string;   
   rawStatus: ReservationStatus;
   reservationNumber: string;
+  posterFile: string;
   festivalId: string;
 };
 

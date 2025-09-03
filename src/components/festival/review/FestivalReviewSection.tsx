@@ -121,12 +121,10 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
     )
   }
 
-  // 목록/페이지 정보
   const items = data?.reviews?.content ?? []
   const totalPages = data?.reviews?.totalPages ?? 0
   const analyze = data?.analyze
 
-  // ✅ 현재 페이지에서 "내가 쓴 리뷰"를 최상단으로 재정렬
   const orderedItems = useMemo(() => {
     if (!items.length || myUserId == null) return items
     const mine: typeof items = []
@@ -136,6 +134,13 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
     )
     return [...mine, ...others]
   }, [items, myUserId])
+
+  const maskUserName = (name: string) => {
+    if (!name) return ''
+    if (name.length === 1) return name 
+    if (name.length === 2) return name[0] + '*' 
+    return name[0] + '*' + name.slice(2) 
+  }
 
   return (
     <section className={styles.wrap}>
@@ -235,7 +240,7 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
                 <div className={styles.leftMeta}>
                   <div className={styles.avatar} aria-hidden />
                   <div className={styles.metaText}>
-                    <span className={styles.user}>USER #{rev.userId}</span>
+                    <span className={styles.user}>{maskUserName(rev.userName)}</span>
                     <span className={styles.dot}>·</span>
                     <time className={styles.time}>{displayTime.toLocaleString()}</time>
                     {isEdited && <span className={styles.editedBadge}>수정됨</span>}

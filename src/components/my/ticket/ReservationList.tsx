@@ -25,8 +25,10 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
 
   const { startDate, endDate } = useMemo(() => {
     if (filter === '관람일정 조회' && viewDate) {
-      const start = new Date(viewDate); start.setHours(0, 0, 0, 0)
-      const end = new Date(viewDate);   end.setHours(23, 59, 59, 999)
+      const start = new Date(viewDate)
+      start.setHours(0, 0, 0, 0)
+      const end = new Date(viewDate)
+      end.setHours(23, 59, 59, 999)
       return { startDate: start, endDate: end }
     }
     return { startDate: null as Date | null, endDate: null as Date | null }
@@ -35,7 +37,7 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
   const statusFilter = mapTabToStatusLabel(filter)
 
   const items = useMemo(() => {
-    const src = Array.isArray(data) ? data as TicketListItem[] : []
+    const src = Array.isArray(data) ? (data as TicketListItem[]) : []
     return src.filter((item) => {
       const reservationDate = new Date(item.date.replaceAll('.', '-'))
       if (startDate && reservationDate < startDate) return false
@@ -59,7 +61,9 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
   if (isError) {
     return (
       <div className={styles.list}>
-        <p className={styles.empty}>목록 조회 실패: {(error as Error)?.message ?? '알 수 없는 오류'}</p>
+        <p className={styles.empty}>
+          목록 조회 실패: {(error as Error)?.message ?? '알 수 없는 오류'}
+        </p>
       </div>
     )
   }
@@ -74,18 +78,18 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
   return (
     <div className={styles.list}>
       {items.map((it) => (
-        <article
-          key={it.reservationNumber}
-          className={styles.card}
-          onClick={() => openDetail(it)}
-        >
+        <article key={it.reservationNumber} className={styles.card} onClick={() => openDetail(it)}>
           <h3 className={styles.title}>{it.title}</h3>
           <div className={styles.body}>
             <img
-              src={DUMMY_POSTER}
+              src={(it.posterFile ?? '').trim()}
               alt={`${it.title} 포스터`}
               className={styles.poster}
               loading="lazy"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                ;(e.currentTarget as HTMLImageElement).src = DUMMY_POSTER
+              }}
             />
             <div className={styles.info}>
               <div className={styles.row}>
