@@ -2,9 +2,10 @@
 import React, { useMemo } from 'react'
 import { usePaymentOrdersQuery } from '@/models/my/ticket/tanstack-query/usePaymentOrders'
 import styles from './PaymentInfoSection.module.css'
+import { useNavigate } from 'react-router-dom' // ✅ 추가
 
 type Props = {
-  festivalId: string
+  bookingId: string
   reservationNumber: string
 }
 
@@ -37,31 +38,56 @@ const toDotYMD = (iso?: string) => {
   return `${yyyy}.${mm}.${dd}`
 }
 
-const PaymentInfoSection: React.FC<Props> = ({ festivalId, reservationNumber }) => {
-  const { data: list, isLoading, isError, error } = usePaymentOrdersQuery(festivalId)
-
-  // 웹과 동일: 최신 결제건 1개 선택
-  const order = useMemo(() => {
-    if (!list || list.length === 0) return undefined
-    return [...list].sort((a, b) => {
-      const ta = new Date(a.payTime as unknown as string).getTime()
-      const tb = new Date(b.payTime as unknown as string).getTime()
-      return tb - ta // desc
+function normalizeOrder(input: any): any | undefined {
+  if (!input) return undefined
+  if (Array.isArray(input)) {
+    if (input.length === 0) return undefined
+    // 최신 1건
+    return [...input].sort((a, b) => {
+      const ta = new Date(String(a.payTime ?? a.createdAt ?? 0)).getTime()
+      const tb = new Date(String(b.payTime ?? b.createdAt ?? 0)).getTime()
+      return tb - ta
     })[0]
-  }, [list])
+  }
+  // 래퍼 형태 방어
+  const wrapped = input?.content ?? input?.data?.content ?? input?.data ?? input
+  if (Array.isArray(wrapped)) return normalizeOrder(wrapped)
+  if (wrapped && typeof wrapped === 'object') return wrapped
+  return undefined
+}
 
-  // 웹과 동일(현재 0 고정; 필요 시 API 필드 붙이면 교체)
+const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) => {
+  const navigate = useNavigate() // ✅ 추가
+  const { data, isLoading, isError, error } = usePaymentOrdersQuery(bookingId)
+
+  const order = useMemo(() => normalizeOrder(data), [data])
+  console.log(order)
+
   const fee = 0
   const delivery = 0
   const subtotal = order?.amount ?? 0
   const total = subtotal + fee + delivery
 
-  // 로딩/에러/빈값 처리 — 모바일 스타일 유지
+  const handleRefundClick = () => {
+    const paymentId =
+      (order as any)?.paymentId ??
+      (order as any)?.id ??
+      (order as any)?.paymentid
+
+    if (!paymentId) {
+      console.warn('[PaymentInfoSection] paymentId가 없습니다. order:', order)
+      return
+    }
+    navigate(`/payment/refund/${paymentId}`)
+  }
+
   if (isLoading) {
     return (
       <section className={styles.card} aria-label="결제 내역">
         <div className={styles.rows}>
-          <div className={styles.row}><span className={styles.v}>불러오는 중…</span></div>
+          <div className={styles.row}>
+            <span className={styles.v}>불러오는 중…</span>
+          </div>
         </div>
       </section>
     )
@@ -71,7 +97,9 @@ const PaymentInfoSection: React.FC<Props> = ({ festivalId, reservationNumber }) 
       <section className={styles.card} aria-label="결제 내역">
         <div className={styles.rows}>
           <div className={styles.row}>
-            <span className={styles.v}>불러오기 실패: {(error as Error)?.message ?? '알 수 없는 오류'}</span>
+            <span className={styles.v}>
+              불러오기 실패: {(error as Error)?.message ?? '알 수 없는 오류'}
+            </span>
           </div>
         </div>
       </section>
@@ -80,7 +108,7 @@ const PaymentInfoSection: React.FC<Props> = ({ festivalId, reservationNumber }) 
   if (!order) {
     return (
       <section className={styles.card} aria-label="결제 내역">
-            <span className={styles.v}>이 예매번호에 해당하는 결제내역이 없습니다.</span>
+        <span className={styles.v}>이 예매번호에 해당하는 결제내역이 없습니다.</span>
       </section>
     )
   }
@@ -97,19 +125,6 @@ const PaymentInfoSection: React.FC<Props> = ({ festivalId, reservationNumber }) 
           <span className={styles.v}>{methodLabel(order.payMethod as unknown as string)}</span>
         </div>
         <div className={styles.row}>
-          <span className={styles.k}>현재상태</span>
-          {/* 웹에선 아직 상태 필드가 없어 '-' 처리 */}
-          <span className={styles.v}>
-            <span className={`${styles.badge} ${styles.neutral}`}>-</span>
-          </span>
-        </div>
-        <div className={styles.row}>
-          <span className={styles.k}>결제상태</span>
-          <span className={styles.v}>
-            <span className={`${styles.badge} ${styles.success}`}>-</span>
-          </span>
-        </div>
-        <div className={styles.row}>
           <span className={styles.k}>예매번호</span>
           <span className={styles.v}>{reservationNumber}</span>
         </div>
@@ -122,19 +137,22 @@ const PaymentInfoSection: React.FC<Props> = ({ festivalId, reservationNumber }) 
       <div className={styles.divider} />
 
       <div className={styles.summary}>
-        <div className={styles.sumRow}>
-          <span>예매 수수료</span>
-          <span>{krw(fee, order.currency)}</span>
-        </div>
-        <div className={styles.sumRow}>
-          <span>배송비</span>
-          <span>{krw(delivery, order.currency)}</span>
-        </div>
         <div className={`${styles.sumRow} ${styles.total}`}>
           <span>총 결제금액</span>
           <span>{krw(total, order.currency)}</span>
         </div>
       </div>
+
+      {/* 환불하기 버튼 */}
+      <button
+        type="button"
+        className={styles.refundButton}
+        onClick={handleRefundClick}
+        aria-label="환불하기로 이동"
+        title="환불하기"
+      >
+        환불하기
+      </button>
     </section>
   )
 }

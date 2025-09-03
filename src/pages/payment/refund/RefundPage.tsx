@@ -25,7 +25,7 @@ const RefundPage: React.FC = () => {
     navigate(`/payment/result?${q}`)
   }, [navigate])
 
-  const handleCancel = () => navigate('/mypage/ticket')
+  const handleCancel = () => navigate(-1)
   const handleRefundClick = () => setIsRefundModalOpen(true)
 
   /** ✅ 환불 확정 → 분리된 API 호출 */

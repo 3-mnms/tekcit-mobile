@@ -145,7 +145,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: 'refund',
+        path: 'refund/:paymentId',
         children: [{ path: '', element: <RefundPage /> }],
       },
       {
