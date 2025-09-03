@@ -5,6 +5,8 @@ import KaKao from '@assets/kakao.png'
 import { reissue, type ReissueResponseDTO } from '@/shared/api/auth/login'
 import { useAuthStore } from '@/shared/storage/useAuthStore' 
 import { getEnv } from '@/shared/config/env'
+import { getAndSaveFcmToken } from '@/shared/api/auth/fcrmToken'
+
 
 const API_URL = getEnv('API_URL', '')
 
@@ -27,6 +29,7 @@ const SocialLogin: React.FC = () => {
       if (access) {
         useAuthStore.getState().setAccessToken(access) // <<<<<< 변경 핵심
         console.log('[Kakao] accessToken (raw):', access)
+        void getAndSaveFcmToken()
       }
     } catch (e) {
       console.error('[kakao] reissue failed', e)
