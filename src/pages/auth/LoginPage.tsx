@@ -37,7 +37,9 @@ const LoginPage: React.FC = () => {
         if (data.accessToken) {
           setAccessToken(data.accessToken)
         }
-        void getAndSaveFcmToken()
+        // void getAndSaveFcmToken()
+        const token = await getAndSaveFcmToken()
+        console.log("fcm", token)
 
         alert('로그인이 완료되었습니다!')
         navigate('/')
