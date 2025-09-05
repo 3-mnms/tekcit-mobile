@@ -3,7 +3,7 @@ import type {
   ApiSuccessResponse,
   FestivalItem,
   FestivalSearchParams,
-} from '@/models/festival/festivalSearchTypes';
+} from '@/models/festival/fFestivalSearchTypes';
 
 // 내부 정규화(필드 보강용)
 const normalizeFestivalItem = <T extends FestivalItem>(raw: T): T => {
