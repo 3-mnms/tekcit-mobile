@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { searchFestivals } from '@/shared/api/festival/sSearchApi';
-import type { FestivalItem } from '@/models/festival/fFestivalSearchTypes';
+import { searchFestivals } from '@/shared/api/festival/searchApi';
+import type { FestivalItem } from '@/models/festival/festivalSearchTypes';
 import styles from './ResultPanel.module.css';
 
 const CHUNK = 6;
