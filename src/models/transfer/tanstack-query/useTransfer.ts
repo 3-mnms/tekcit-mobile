@@ -1,4 +1,3 @@
-// src/models/transfer/tanstack-query/userTransfer.ts
 import {
   useMutation,
   useQuery,
@@ -9,6 +8,7 @@ import {
 import {
   apiExtractPersonInfo,
   apiUpdateFamilyTransfer,
+  apiWatchTransfer,             // ✅ 추가
 } from '@/shared/api/transfer/transferApi';
 import {
   fetchTransfereeByEmail,
@@ -20,12 +20,14 @@ import type {
   ExtractPayload,
   ExtractResponse,
   UpdateTicketRequest,
+  TransferWatchItem,            // ✅ 추가
 } from '@/models/transfer/transferTypes';
 
 /* ===========================
  *  Query Keys
  * =========================== */
 export const TRANSFEROR_QK = ['transfer', 'transferor', 'me'] as const;
+export const TRANSFER_INBOX_QK = ['transfer', 'requests', 'inbox', 'watch'] as const; // ✅ 추가
 
 /* ===========================
  *  OCR / Update (가족 양도)
@@ -49,6 +51,23 @@ export function useUpdateFamilyTransfer(ticketId?: number | string) {
       }
       return apiUpdateFamilyTransfer(ticketId, body);
     },
+  });
+}
+
+/* ===========================
+ *  🆕 양도 요청 조회 (watch)
+ * =========================== */
+export function useWatchTransferQuery(options?: {
+  enabled?: boolean;
+  staleTime?: number;
+  gcTime?: number;
+}) {
+  return useQuery<TransferWatchItem[], Error>({
+    queryKey: TRANSFER_INBOX_QK,
+    queryFn: apiWatchTransfer,
+    enabled: options?.enabled ?? true,
+    staleTime: options?.staleTime ?? 60 * 1000,
+    gcTime: options?.gcTime ?? 5 * 60 * 1000,
   });
 }
 
