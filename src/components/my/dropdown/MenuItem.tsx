@@ -1,16 +1,24 @@
 // src/components/my/dropdown/MenuItem.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styles from './MenuItem.module.css';
 
 interface MenuItemProps {
   label: string;
-  to?: string;        
-  onClick?: () => void;   
-  showArrow?: boolean;   
+  to?: string;                      
+  onClick?: () => void | Promise<void>; 
+  showArrow?: boolean;
+  reload?: 'assign' | 'replace';      
+  newTab?: boolean;                  
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ label, to, onClick, showArrow = false }) => {
+const MenuItem: React.FC<MenuItemProps> = ({
+  label,
+  to,
+  onClick,
+  showArrow = false,
+  reload = 'assign',
+  newTab = false,
+}) => {
   const content = (
     <>
       <span>{label}</span>
@@ -18,24 +26,45 @@ const MenuItem: React.FC<MenuItemProps> = ({ label, to, onClick, showArrow = fal
     </>
   );
 
-  return to ? (
-    <Link
-      to={to}
+  if (to) {
+    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
+      if (!onClick) return;    
+      e.preventDefault();        
+      try { await onClick(); } catch { /* noop */ }
+
+      if (newTab) {
+        window.open(to, '_blank', 'noopener');
+        return;
+      }
+      if (reload === 'replace') {
+        window.location.replace(to);
+      } else {
+        window.location.assign(to);
+      }
+    };
+
+
+    return (
+      <a
+        href={to}
+        className={styles.item}
+        onClick={handleClick}
+        target={newTab ? '_blank' : undefined}
+        rel={newTab ? 'noopener noreferrer' : undefined}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button
+      type="button"
       className={styles.item}
       onClick={onClick}
     >
       {content}
-    </Link>
-  ) : (
-    <div
-      className={styles.item}
-      role={onClick ? 'button' : 'presentation'}
-      tabIndex={onClick ? 0 : -1}
-      onClick={onClick}
-      onKeyDown={(e) => onClick && e.key === 'Enter' && onClick()}
-    >
-      {content}
-    </div>
+    </button>
   );
 };
 

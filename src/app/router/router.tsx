@@ -56,9 +56,9 @@ import QrScannerPage from '@/pages/qr-cord/QrScannerPage'
 import HostHeader from '@/components/host/hostHeader/hostHeader'
 
 // reservation
-import QueuePage from '@pages/reservation/TicketQueuePage'
-import OrderPage from '@pages/reservation/TicketOrderPage'
-import OrderInfoPage from '@pages/reservation/TicketOrderInfoPage'
+import QueuePage from '@/pages/booking/TicketQueuePage'
+import OrderPage from '@/pages/booking/TicketOrderPage'
+import OrderInfoPage from '@/pages/booking/TicketOrderInfoPage'
 
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },

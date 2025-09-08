@@ -62,24 +62,40 @@
   justify-content: center;
 }
 
+:root {
+  --bottom-nav-h: 64px;      /* ← 너의 BottomNav 높이에 맞게 조정 */
+  --cta-dock-h: 64px;        /* 도크 총 높이(패딩 포함) 추정치 */
+}
+
+.ctaDock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 58px;
+  z-index: 999;                   
+  background: rgba(255, 255, 255, 0.96);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+}
+
 .confirmBtn {
+  width: 100%;
+  height: 48px;
   background-color: #4D9AFD;
   color: #fff;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1.1rem;
-  width: 100%;
-  transition: opacity 0.2s ease;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
 }
 .confirmBtn:disabled {
-  background-color: #ccc;
+  background-color: #cbd5e1;
   cursor: not-allowed;
 }
 
-/* ====== 데이트피커 래퍼 ====== */
+.ctaSpacer {
+  height: calc(var(--cta-dock-h, 64px) + var(--bottom-nav-h, 64px) + 12px);
+}
+
 .datepickerWrapper {
   width: 100%;
   display: flex;
