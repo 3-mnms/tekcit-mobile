@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { searchFestivals } from '@/shared/api/festival/searchApi';
 import type { FestivalItem } from '@/models/festival/festivalSearchTypes';
 import styles from './ResultPanel.module.css';
+import FilterModal from '@/components/festival/search/FilterModal';
+import { FiFilter } from 'react-icons/fi';
 
 const CHUNK = 6;
 type Sale = '공연중' | '공연예정' | '공연종료' | undefined;
@@ -37,6 +39,7 @@ const fixPoster = (raw?: string) => {
 
 const ResultPanel: React.FC = () => {
   const [params] = useSearchParams();
+  const [openFilter, setOpenFilter] = useState(false);
   const keyword = (params.get('keyword') || '').trim();
 
   const selectedGenres = (params.get('genres') || '')
@@ -102,90 +105,107 @@ const ResultPanel: React.FC = () => {
 
   return (
     <section className={styles.container}>
-      <div className={styles.header}>
-        {keyword ? `“${keyword}” ` : ''}
-        {selectedGenres.length ? `[${selectedGenres.join(', ')}] ` : ''}
-        검색 결과 {total}건
+      <div className={styles.headerRow}>
+        <div className={styles.headerLeft}>
+          {keyword ? `“${keyword}” ` : ''}
+          {selectedGenres.length ? `[${selectedGenres.join(', ')}] ` : ''}
+          검색 결과 {total}건
+        </div>
+
+        <button
+          type="button"
+          className={styles.filterBtn}
+          aria-label="필터 열기"
+          onClick={() => setOpenFilter(true)}
+        >
+          <FiFilter size={15} />
+          <span className={styles.filterBtnText}></span>
+        </button>
       </div>
 
-      {itemsToShow.length ? (
-        <>
-          <div className={styles.grid}>
-            {itemsToShow.map((f) => {
-              const poster = fixPoster(f.poster);
-              const to = f.fid ? `/festival/${f.fid}` : undefined;
+      {/* ↓ 필터 모달 */}
+      <FilterModal open={openFilter} onClose={() => setOpenFilter(false)} />
 
-              const dateRange =
-                f.prfpdfrom
-                  ? (f.prfpdto && f.prfpdto.slice(0, 10) !== f.prfpdfrom.slice(0, 10)
+      {
+        itemsToShow.length ? (
+          <>
+            <div className={styles.grid}>
+              {itemsToShow.map((f) => {
+                const poster = fixPoster(f.poster);
+                const to = f.fid ? `/festival/${f.fid}` : undefined;
+
+                const dateRange =
+                  f.prfpdfrom
+                    ? (f.prfpdto && f.prfpdto.slice(0, 10) !== f.prfpdfrom.slice(0, 10)
                       ? `${f.prfpdfrom} ~ ${f.prfpdto}`
                       : f.prfpdfrom)
-                  : undefined;
+                    : undefined;
 
-              const CardInner = (
-                <>
-                  {poster && (
-                    <img
-                      src={poster}
-                      alt={f.prfnm}
-                      className={styles.poster}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = '/assets/placeholder-poster.png';
-                      }}
-                    />
-                  )}
-                  <h3 className={styles.cardTitle} title={f.prfnm}>{f.prfnm}</h3>
-                  {f.fcltynm && <p className={styles.venue}>{f.fcltynm}</p>}
-                  {dateRange && <p className={styles.date}>{dateRange}</p>}
-                </>
-              );
+                const CardInner = (
+                  <>
+                    {poster && (
+                      <img
+                        src={poster}
+                        alt={f.prfnm}
+                        className={styles.poster}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/assets/placeholder-poster.png';
+                        }}
+                      />
+                    )}
+                    <h3 className={styles.cardTitle} title={f.prfnm}>{f.prfnm}</h3>
+                    {f.fcltynm && <p className={styles.venue}>{f.fcltynm}</p>}
+                    {dateRange && <p className={styles.date}>{dateRange}</p>}
+                  </>
+                );
 
-              return (
-                <article key={f.fid} className={styles.card}>
-                  {to ? (
-                    <Link
-                      to={to}
-                      state={{
-                        fid: f.fid,            // ① fid(백업)
-                        title: f.prfnm,        // ② 제목
-                        poster,                // ③ 포스터
-                        // 프리뷰 보너스
-                        prfpdfrom: f.prfpdfrom,
-                        prfpdto: f.prfpdto,
-                        fcltynm: f.fcltynm,
-                      }}
-                      className={styles.cardLink}
-                      aria-label={`${f.prfnm} 상세보기`}
-                    >
-                      {CardInner}
-                    </Link>
-                  ) : (
-                    <div className={styles.cardStatic} title="상세 이동 불가: 식별자 없음">
-                      {CardInner}
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-
-          {canLoadMore && (
-            <div className={styles.loadMoreWrap}>
-              <button
-                type="button"
-                onClick={() => setVisibleCount((c) => Math.min(c + CHUNK, total))}
-                className={styles.loadMoreBtn}
-              >
-                더보기
-              </button>
+                return (
+                  <article key={f.fid} className={styles.card}>
+                    {to ? (
+                      <Link
+                        to={to}
+                        state={{
+                          fid: f.fid,            // ① fid(백업)
+                          title: f.prfnm,        // ② 제목
+                          poster,                // ③ 포스터
+                          // 프리뷰 보너스
+                          prfpdfrom: f.prfpdfrom,
+                          prfpdto: f.prfpdto,
+                          fcltynm: f.fcltynm,
+                        }}
+                        className={styles.cardLink}
+                        aria-label={`${f.prfnm} 상세보기`}
+                      >
+                        {CardInner}
+                      </Link>
+                    ) : (
+                      <div className={styles.cardStatic} title="상세 이동 불가: 식별자 없음">
+                        {CardInner}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
             </div>
-          )}
-        </>
-      ) : (
-        <div className={styles.message}>표시할 결과가 없어요.</div>
-      )}
-    </section>
+
+            {canLoadMore && (
+              <div className={styles.loadMoreWrap}>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((c) => Math.min(c + CHUNK, total))}
+                  className={styles.loadMoreBtn}
+                >
+                  더보기
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className={styles.message}>표시할 결과가 없어요.</div>
+        )
+      }
+    </section >
   );
 };
 

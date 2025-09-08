@@ -1,0 +1,65 @@
+/* src/components/festival/search/FilterModal.module.css */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.45);
+    display: grid;
+    place-items: end;
+}
+
+.sheet {
+    width: 100%;
+    max-height: 85%;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+    padding: 10px 12px 14px;
+    overflow: hidden;
+    /* 내부 body가 스크롤 담당 */
+    animation: slideUp 180ms ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    margin: 6px auto 8px;
+}
+
+.sheetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px 8px;
+}
+
+.sheetBody {
+    max-height: calc(85vh - 56px);
+    /* 헤더 제외 영역 */
+    overflow: auto;
+    /* ← 스크롤 이쪽에서! */
+    padding: 0 2px 4px;
+}
+
+.closeBtn {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-weight: 600;
+    font-size: 15px;
+}
