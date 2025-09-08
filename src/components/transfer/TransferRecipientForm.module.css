@@ -174,7 +174,8 @@
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.25rem 0.75rem; /* 하단 버튼 공간 분리 */
+  padding: 1rem 1.25rem 0.75rem;
+  height: min(80vh);
 }
 
 .modalTitle {
@@ -187,6 +188,8 @@
   flex-direction: column;
   gap: 8px;
   overflow: hidden;
+  flex: 1;
+  min-height: 0; 
 }
 
 .modalBtns {
@@ -202,8 +205,8 @@
   border: 1px solid #e5e7eb;
   border-radius: 0.8rem;
   overflow: hidden;
-  min-height: 40vh;   /* 최소 높이 */
-  max-height: 56vh;   /* 너무 커지지 않게 */
+  flex: 1;
+  min-height: 0;
 }
 
 .previewArea {
@@ -219,11 +222,14 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
 
 .previewPdf {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  display: block;
   border: 0;
 }
 

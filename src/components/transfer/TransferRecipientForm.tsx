@@ -11,6 +11,7 @@ import { FaTrash } from 'react-icons/fa';
 // ⬇️ 테킷페이
 import { useTekcitPayAccountQuery } from '@/models/transfer/tanstack-query/useTekcitPay';
 import { isNoTekcitPayAccountError } from '@/shared/api/transfer/tekcitPay';
+import PdfCanvasPreview from './PdfCanvasPreview';
 
 type Relation = 'FAMILY' | 'FRIEND' | null;
 
@@ -58,6 +59,20 @@ function hasMatch(people: PersonInfo[], name: string, rrn7: { front6?: string; b
   });
 }
 
+/** 모바일/에뮬에서 인라인 PDF가 막혀 있는지 감지 */
+function canInlinePdf(): boolean {
+  // 크롬에선 pdfViewerEnabled가 꽤 정확, 그 외엔 mimeTypes로 폴백
+  const enabled = (navigator as any).pdfViewerEnabled;
+  const hasMime = navigator.mimeTypes?.["application/pdf"];
+  const ua = navigator.userAgent || "";
+  const isMobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
+
+  // 모바일 UA면 대부분 불가로 본다
+  if (isMobileUA) return false;
+  if (typeof enabled === "boolean") return enabled;
+  return !!hasMime;
+}
+
 type Props = {
   currentName?: string;
   currentRrn7?: string;
@@ -74,7 +89,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
   const propName = props.currentName?.trim();
   const propRrn7 = props.currentRrn7?.trim();
   const navigate = useNavigate();
-
+  const inlineOk = useMemo(canInlinePdf, []);
   const needFetchMe = !(propName && propRrn7);
   const { data: me, isLoading: meLoading, isError: meError, error: meErr } = useTransferor({ enabled: needFetchMe });
 
@@ -140,7 +155,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
   const safeName = name ?? '';
   const baseValid = safeLoginId.trim().length > 0 && safeName.trim().length > 0 && recipientId !== null;
   const canSubmit = baseValid && relation !== null && (!needProof || !!proofFile) && !isRequesting;
-  
+
   const handleFileChange = (f?: File) => {
     if (!f) return;
     setTempFile(f);
@@ -424,6 +439,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     }
   };
 
+
   return (
     <form className={styles.card} onSubmit={handleSubmit}>
       <h2 className={styles.title}>양도자 선택</h2>
@@ -558,12 +574,21 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
               <div className={styles.previewBox}>
                 <div className={styles.previewArea}>
                   {isPdf ? (
-                    <iframe
-                      title="가족증명서 미리보기"
-                      src={tempUrl}
-                      className={styles.previewPdf}
-                      onLoad={() => setPreviewLoading(false)}
-                    />
+                    inlineOk ? (
+                      <embed
+                        title="가족증명서 미리보기"
+                        src={`${tempUrl}#view=FitH&zoom=page-width`}
+                        type="application/pdf"
+                        className={styles.previewPdf}
+                        onLoad={() => setPreviewLoading(false)}
+                      />
+                    ) : (
+                      <PdfCanvasPreview
+                        fileUrl={tempUrl}
+                        onReady={() => setPreviewLoading(false)}
+                        className={styles.previewPdf}
+                      />
+                    )
                   ) : isImage ? (
                     <img
                       src={tempUrl}
