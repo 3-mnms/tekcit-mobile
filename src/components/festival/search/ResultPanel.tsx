@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { searchFestivals } from '@shared/api/festival/SearchApi';
+import { searchFestivals } from '@/shared/api/festival/searchApi';
 import type { FestivalItem } from '@/models/festival/festivalSearchTypes';
 import styles from './ResultPanel.module.css';
 import FilterModal from '@/components/festival/search/FilterModal';

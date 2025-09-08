@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './HotSection.module.css';
-import type { Festival, FestivalWithViews } from '@models/festival/festivalType';
+import type { Festival, FestivalWithViews } from '@/models/festival/festivalType';
 import { getFestivals, getFestivalViews } from '@/shared/api/festival/festivalApi';
 import { useParams, Link } from 'react-router-dom'; // ✅ 추가!
 
