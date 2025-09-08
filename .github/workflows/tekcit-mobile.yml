@@ -1,4 +1,4 @@
-name: "🟢 tekcit-frontend – Docker Build & GitOps Dispatch (nginx-mobile only)"
+name: "Tekcit Mobile"
 
 on:
   push:
