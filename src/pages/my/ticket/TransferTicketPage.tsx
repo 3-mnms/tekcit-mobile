@@ -113,10 +113,8 @@ const TransferTicketPage: React.FC = () => {
           )}
         </div>
 
-        <hr className={styles.sectionDivider} />
-
         {/* ===== BEFORE: 양도 가능한 티켓 (하단) ===== */}
-        <h2 className={styles.sectionTitle}>양도할 수 있는 티켓</h2>
+        <h2 className={styles.sectionTitle}>양도 가능한 티켓</h2>
         <div className={styles.list}>
           {visibleTickets.map((t) => (
             <BeforeTransferTicket key={t.reservationNumber} item={t} onTransfer={handleTransfer} />
