@@ -6,10 +6,11 @@
   flex-direction: column;
   background: #fff;
   padding-bottom: var(--bottom-nav-height, 64px);
+  margin-top: 10px;
 }
 
 .body {
-  padding: 25px;
+  padding: 10px 25px 10px;
   display: grid;
   gap: 16px;
 }
@@ -20,7 +21,5 @@
 
 .col {
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
+  padding: 5px 16px;
 }

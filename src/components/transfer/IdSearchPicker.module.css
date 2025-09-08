@@ -19,12 +19,6 @@
   background: #fff;
 }
 
-.inputAttached {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: 0;
-}
-
 .actionBtn {
   height: 44px !important;
   display: inline-flex;

@@ -1,60 +1,95 @@
-/** 백엔드 PersonInfoResponseDTO 대응 */
+/* ========= 프론트 표현 ========= */
+export type TransferType = 'FAMILY' | 'OTHERS';
+export type TransferStatusFR = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+/* ========= 백엔드 표현 ========= */
+export type TransferStatusBEString = 'REQUESTED' | 'APPROVED' | 'COMPLETED' | 'CANCELED';
+export type TransferStatusBE = 0 | 1 | 2 | 3;
+
+/* ========= 요청 DTO ========= */
+export type TicketTransferRequest = {
+  reservationNumber: string;
+  recipientId: number;
+  transferType: TransferType;
+  senderName: string;
+};
+
 export type PersonInfo = {
   name: string;
-  rrnFront: string;   // 앞 6자리 (YYMMDD)
+  rrnFront: string;
 };
 
-/** extract 요청 payload (프론트 내부 표현) */
+/* ========= 수신 아이템 ========= */
+export type TransferWatchItem = {
+  transferId: number;   // 서버가 내려주도록 협의 권장
+  senderId: number;     // 반드시 "양도자"의 사용자 ID
+  senderName: string;
+  type: TransferType | string | number;
+  createdAt: string;
+  status: TransferStatusBE | TransferStatusBEString | string;
+  fname: string;
+  posterFile: string;
+  fcltynm: string;
+  ticketPrice: number;
+  performanceDate: string;
+  selectedTicketCount: number;
+};
+
+/* ========= 승인/거절 DTO ========= */
+// 프론트 표기로 호출 → API에서 서버 문자열로 변환해 전송
+export type UpdateTicketRequest = {
+  transferId: number;
+  senderId: number;
+  transferStatus: TransferStatusFR; // 'ACCEPTED' | 'REJECTED' | 'PENDING'
+  deliveryMethod?: 'QR' | 'PAPER' | '' | null;
+  address?: string | null;
+};
+
+/* ========= Others 수락 응답 ========= */
+export type TransferOthersResponse = {
+  receiverId: number;
+  senderId: number;
+  reservationNumber: string;
+  selectedTicketCount: number;
+  performanceDate: string;
+  ticketPrice: number;
+  fname: string;
+  posterFile: string;
+};
+
+/* ========= OCR ========= */
 export type ExtractPayload = {
   file: File;
-  /** 서버는 String(JSON)으로 받으므로 API 단에서 stringify 합니다. */
-  targetInfo: Record<string, string>; // { [이름]: 'YYMMDD-#' }
+  targetInfo: Record<string, string>;
 };
-
-/** extract 응답 */
 export type ExtractResponse = PersonInfo[];
 
-/** 양도 완료(승인) 요청 DTO - 백엔드 UpdateTicketRequestDTO와 맞춰서 정의 */
-export type UpdateTicketRequest = {
-  receiverUserId?: number;
-  note?: string;
-  // 필요 시 백엔드 스펙에 맞춰 필드 추가
-};
-
-/* ===========================
- *  🆕 watch 응답 타입들
- * =========================== */
-
-/** 백엔드 TransferType 추정: 가족/지인 등 (백엔드 enum과 맞추세요) */
-export type TransferType = 'FAMILY' | 'OTHERS' | string;
-
-/** 백엔드 TransferStatus (명세 주신 값과 정확히 일치) */
-export type TransferStatus = 'REQUESTED' | 'APPROVED' | 'COMPLETED' | 'CANCELED';
-
-/** 백엔드 TicketTransferResponseDTO 대응 */
-export type TransferWatchItem = {
-  // TRANSFER
-  senderId: number;
-  senderName: string;
-  type: TransferType;
-  createdAt: string; // ISO
-  status: TransferStatus | string;
-
-  // FESTIVAL
-  fname: string;
-  posterFile?: string | null;
-  fcltynm?: string | null;
-  ticketPrice: number;
-
-  // TICKET
-  performanceDate: string; // ISO
-  selectedTicketCount: number;
-
-  // ⚠️ 만약 백엔드가 transferId도 내려주면 여기에 추가:
-  // transferId?: number;
-};
-
-/** 공통 API 래퍼 */
+/* ========= Envelope ========= */
 export type ApiOk<T> = { success: true; data: T; message?: string };
 export type ApiErr = { success: false; errorCode?: string; errorMessage?: string; message?: string };
 export type ApiEnvelope<T> = ApiOk<T> | ApiErr | T;
+
+/* ========= 상태 매퍼 ========= */
+export const FRtoBEString = (s: TransferStatusFR): TransferStatusBEString => {
+  switch (s) {
+    case 'ACCEPTED': return 'COMPLETED';   // 수락 완료 = BE COMPLETED
+    case 'REJECTED': return 'CANCELED';    // 거절 = BE CANCELED
+    case 'PENDING':
+    default: return 'REQUESTED';           // 요청/승인 대기 = BE REQUESTED
+  }
+};
+
+export const BEtoFR = (s: TransferStatusBE | string): TransferStatusFR => {
+  const v = typeof s === 'string' ? s.trim().toUpperCase() : String(s);
+
+  if (v === '0' || v === 'REQUESTED' || v === '1' || v === 'APPROVED') {
+    return 'PENDING';
+  }
+  if (v === '2' || v === 'COMPLETED') {
+    return 'ACCEPTED';
+  }
+  if (v === '3' || v === 'CANCELED' || v === 'CANCELLED') {
+    return 'REJECTED';
+  }
+  return 'PENDING';
+};

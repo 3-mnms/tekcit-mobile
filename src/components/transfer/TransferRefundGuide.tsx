@@ -4,6 +4,7 @@ import styles from './TransferRefundGuide.module.css';
 const TransferRefundGuide: React.FC = () => {
   return (
     <div className={styles.card} aria-labelledby="transfer-guide-title">
+      <h2 id="transfer-guide-title" className={styles.title}>양도/환불 안내</h2>
       <div className={styles.box}>
         <ul className={styles.list}>
           <li>- 양도는 결제 완료 티켓에 한해 가능합니다.</li>
