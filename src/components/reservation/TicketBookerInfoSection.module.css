@@ -1,0 +1,57 @@
+/* src/components/reservation/TicketBookerInfoSection.module.css */
+.container {
+  width: 100%;
+  border: 1px solid #e5e7eb;      /* gray-200 */
+  border-radius: 16px;             /* rounded-2xl */
+  padding: 20px;                   /* p-5 */
+  background: #ffffff;
+}
+
+.title {
+  margin-bottom: 12px;             /* mb-3 */
+  font-size: 18px;                 /* text-lg */
+  line-height: 28px;
+  font-weight: 600;                /* semibold */
+  color: #111827;                  /* gray-900 */
+}
+
+.block { margin-bottom: 16px; }    /* mb-4 */
+
+.label {
+  margin-bottom: 4px;              /* mb-1 */
+  font-size: 14px;                 /* text-sm */
+  line-height: 20px;
+  font-weight: 500;                /* medium */
+  color: #111827;
+}
+
+.row {
+  display: flex;
+  gap: 8px;                        /* gap-2 */
+}
+
+.emailRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;                        /* gap-2 */
+}
+
+.at {
+  padding: 0 4px;
+  font-size: 14px;
+  color: #374151;                  /* gray-700 */
+}
+
+.input {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;       /* gray-300 */
+  background: #f9fafb;             /* gray-50/100 */
+  padding: 8px 12px;               /* px-3 py-2 */
+  font-size: 14px;                 /* text-sm */
+  line-height: 20px;
+}
+
+.readOnly {
+  cursor: default;
+}

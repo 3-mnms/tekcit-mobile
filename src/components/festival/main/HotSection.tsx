@@ -134,12 +134,12 @@ const HotSection: React.FC = () => {
             <>
               <div className={styles.imageWrapper}>
                 <img
-                  src={posterSrc || '/assets/placeholder-poster.png'}
+                  src={posterSrc || '@/shared/assets/placeholder-poster.png'}
                   alt={festival.prfnm}
                   className={styles.image}
                   referrerPolicy="no-referrer"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '/assets/placeholder-poster.png';
+                    (e.currentTarget as HTMLImageElement).src = '@/shared/assets/placeholder-poster.png';
                   }}
                 />
                 <span className={styles.rank}>{index + 1}</span>
@@ -165,7 +165,7 @@ const HotSection: React.FC = () => {
                   state={{
                     fid: festival.fid,            // ① fid (백업)
                     title: festival.prfnm,        // ② 공연명
-                    poster: posterSrc || '/assets/placeholder-poster.png', // ③ 포스터
+                    poster: posterSrc || '@/shared/assets/placeholder-poster.png', // ③ 포스터
                     // (보너스 프리뷰) UX 부드럽게
                     prfpdfrom: festival.prfpdfrom,
                     prfpdto: festival.prfpdto,
