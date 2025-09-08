@@ -1,57 +1,54 @@
-/* src/components/reservation/OrderConfirmSection.module.css */
-
 .section {
   width: 100%;
-  border: 1px solid #e5e7eb;      /* tailwind gray-200 */
-  border-radius: 16px;             /* rounded-2xl */
-  padding: 20px;                   /* p-5 */
+  border: 1px solid #e5e7eb;     
+  border-radius: 16px;            
+  padding: 20px;               
   background: #ffffff;
 }
 
 .title {
-  margin-bottom: 12px;             /* mb-3 */
-  font-size: 18px;                 /* text-lg */
-  line-height: 28px;               /* 대략 lg 라인하이트 */
-  font-weight: 600;                /* font-semibold */
-  color: #111827;                  /* zinc-900 계열 */
+  margin-bottom: 12px;             
+  font-size: 18px;                 
+  line-height: 28px;              
+  font-weight: 600;             
+  color: #111827;                
 }
 
 .priceBox {
-  margin-bottom: 16px;             /* mb-4 */
-  display: grid;                   /* grid */
-  gap: 8px;                        /* gap-2 */
-  font-size: 14px;                 /* text-sm */
+  margin-bottom: 16px;         
+  display: grid;              
+  gap: 8px;                    
+  font-size: 14px;              
   line-height: 20px;
   color: #111827;
 }
 
 .row {
-  display: flex;                   /* flex */
-  align-items: center;             /* items-center */
-  justify-content: space-between;  /* justify-between */
+  display: flex;             
+  align-items: center;           
+  justify-content: space-between; 
 }
 
 .label {
-  opacity: 0.8;                    /* opacity-80 */
+  opacity: 0.8;                    
 }
 
 .value {
-  font-weight: 500;                /* font-medium */
+  font-weight: 500;             
 }
 
 .totalRow {
-  font-size: 16px;                 /* text-base */
+  font-size: 16px;             
   line-height: 24px;
 }
 
 .total {
-  font-weight: 600;                /* font-semibold */
+  font-weight: 600;         
 }
 
-/* 공통 버튼 위에 추가 스타일(공통 Button.module.css와 충돌 없음) */
 .payButton {
-  width: 100%;                     /* w-full */
-  padding-top: 12px;               /* py-3 */
+  width: 100%;                   
+  padding-top: 12px;              
   padding-bottom: 12px;
-  border-radius: 16px;             /* rounded-2xl */
+  border-radius: 16px;         
 }

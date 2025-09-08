@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Button from '@/components/common/button/Button'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 
 type Props = { fid: string }
 
@@ -137,9 +138,9 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
 
   const maskUserName = (name: string) => {
     if (!name) return ''
-    if (name.length === 1) return name 
-    if (name.length === 2) return name[0] + '*' 
-    return name[0] + '*' + name.slice(2) 
+    if (name.length === 1) return name
+    if (name.length === 2) return name[0] + '*'
+    return name[0] + '*' + name.slice(2)
   }
 
   return (
@@ -247,25 +248,27 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
                   </div>
                 </div>
 
-                {/* 우측 액션: 내 댓글 & 편집중 아닐 때 */}
                 {isMine && !isEditingThis && rev.reviewId != null && (
                   <div className={styles.actionsInline}>
                     <button
                       type="button"
-                      className={styles.ghostBtn}
+                      className={styles.iconBtn}
                       onClick={() => startInlineEdit(rev.reviewId!, rev.reviewContent)}
                       title="기대평 수정"
+                      aria-label="기대평 수정"
                     >
-                      수정
+                      <FiEdit2 />
                     </button>
+                    <span className={styles.sep} aria-hidden="true"></span>
                     <button
                       type="button"
-                      className={`${styles.ghostBtn} ${styles.danger}`}
+                      className={`${styles.iconBtn} ${styles.danger}`}
                       onClick={() => onClickDelete(rev.reviewId!)}
                       disabled={deleteMut.isPending}
                       title="기대평 삭제"
+                      aria-label="기대평 삭제"
                     >
-                      {deleteMut.isPending ? '삭제 중...' : '삭제'}
+                      <FiTrash2 />
                     </button>
                   </div>
                 )}

@@ -70,7 +70,7 @@
 .transferBtn {
   width: 100%;
   min-width: 120px;
-  height: 44px;
+  height: 35px;
   padding: 0 14px;
   background-color: #4d9afd;
   color: #fff;
@@ -94,7 +94,6 @@
   transform: translateY(1px);
 }
 
-/* (미래용) 양도 완료 뱃지 */
 .transferredBadge {
   width: 100%;
   display: inline-flex;

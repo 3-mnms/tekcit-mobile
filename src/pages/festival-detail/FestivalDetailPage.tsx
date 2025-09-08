@@ -87,7 +87,7 @@ useEffect(() => {
                 onClick={() => setActiveTab('review')}
                 className={`${styles.tab} ${activeTab === 'review' ? styles.active : ''}`}
               >
-                관람평
+                기대평
               </div>
           </div>
 

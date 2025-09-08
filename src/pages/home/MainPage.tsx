@@ -8,11 +8,11 @@ import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
 import { useUIStore } from '@/shared/store/uiStore';
 
 const MainPage: React.FC = () => {
-  const { setBaseHeader } = useUIStore();
+  // const { setBaseHeader } = useUIStore();
 
-  useEffect(() => {
-    setBaseHeader();
-  }, [setBaseHeader]);
+  // useEffect(() => {
+  //   setBaseHeader();
+  // }, [setBaseHeader]);
 
 
   return (

@@ -9,7 +9,7 @@
 }
 
 .body {
-  padding: 25px;
+  padding: 0px 25px 10px;
 }
 
 .list {
@@ -25,10 +25,11 @@
 }
 
 .sectionTitle {
-  margin: 4px 0 10px;
   font-size: 16px;
   font-weight: 700;
   color: #222;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .sectionDivider {
