@@ -1,47 +1,28 @@
 import React from 'react';
 import styles from './BeforeTransferTicket.module.css';
-import { useTicketDetailQuery } from '@/models/my/ticket/tanstack-query/useTickets';
 import type { TransferListItem } from '@/models/my/ticket/ticketTypes';
 
 type Props = {
   item: TransferListItem;
-  onTransfer: (row: TransferListItem) => void;
-};
-
-const Poster: React.FC<{ reservationNumber: string; alt: string; className?: string }> = ({
-  reservationNumber,
-  alt,
-  className,
-}) => {
-  const { data } = useTicketDetailQuery(reservationNumber);
-  const src = data?.posterFile || '/dummy-poster.jpg';
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      decoding="async"
-      onError={(e) => {
-        (e.currentTarget as HTMLImageElement).src = '/dummy-poster.jpg';
-      }}
-    />
-  );
+  onTransfer: (reservationNumber: string) => void;
 };
 
 const BeforeTransferTicket: React.FC<Props> = ({ item, onTransfer }) => {
+  const posterSrc = item.posterFile ? encodeURI(item.posterFile) : '';
   return (
     <article
       className={styles.card}
       aria-label={`${item.title} 티켓`}
     >
-      {/* 좌측: 포스터 */}
       <div className={styles.left}>
-        <Poster
-          reservationNumber={item.reservationNumber}
-          alt={`${item.title} 포스터`}
-          className={styles.poster}
-        />
+        <img
+        src={posterSrc}
+        alt={item.posterFile}
+        className={styles.poster}
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).src = '@/shared/assets/placeholder-poster.png';
+        }}
+      />
       </div>
 
       {/* 중앙: 정보 */}
@@ -73,7 +54,7 @@ const BeforeTransferTicket: React.FC<Props> = ({ item, onTransfer }) => {
         <button
           type="button"
           className={styles.transferBtn}
-          onClick={() => onTransfer(item)}
+          onClick={() => onTransfer(item.reservationNumber)}
         >
           양도하기
         </button>
