@@ -1,12 +1,10 @@
+/* 기존 유지 */
 .container {
   width: 100%;
-  padding: 1.5rem 2%;
   background-color: white;
   border-radius: 1rem;
   border: none;
-  margin-bottom: 2rem;
 }
-
 .title {
   font-size: 1.1rem;
   font-weight: bold;
@@ -15,13 +13,148 @@
   align-items: center;
   gap: 0.5rem;
 }
-
 .icon {
   font-size: 1.2rem;
   color: #4D9AFD;
 }
-
 .description {
   font-size: 0.95rem;
   color: #555;
+}
+
+/* 추가 스타일 */
+.retryBtn {
+  margin-left: 8px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d0d7e2;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #fff;
+}
+.cardHead {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+/* 성별 도넛 */
+.genderWrap {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.donut {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: grid;
+  place-items: center;
+}
+.donutRing {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.donutCenter {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;               /* grid → flex */
+  flex-direction: column;      /* 세로 배치 */
+  align-items: center;         /* 가운데 정렬 */
+  justify-content: center;     /* 세로도 가운데 */
+  gap: 0.15rem;                /* 간격 줄이기 (원래보다 좁게) */
+  text-align: center;
+  box-shadow: inset 0 0 0 1px #eef2f7;
+}
+.centerMain {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.2;            /* 줄 간격도 타이트하게 */
+}
+.centerSub {
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.1;
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0;
+}
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+.legendLabel {
+  font-size: 0.9rem;
+}
+.legendValue {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+/* 연령대 막대 */
+.ageBars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ageRow {
+  display: grid;
+  grid-template-columns: 64px 1fr 40px;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ageLabel {
+  font-size: 0.89rem;
+  color: #374151;
+  text-align: center;
+}
+.barTrack {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: #eef2f7;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4D9AFD, #80B8FF);
+  transition: width 0.25s ease;
+}
+.ageValue {
+  text-align: right;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
 }

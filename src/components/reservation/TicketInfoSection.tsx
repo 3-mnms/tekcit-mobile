@@ -1,42 +1,39 @@
 // src/components/reservation/TicketInfoSection.tsx
 import React from 'react';
+import styles from './TicketInfoSection.module.css';
 
 type TicketInfoSectionProps = {
-  posterUrl?: string;
-  title?: string;
-  date?: string;
-  time?: string;
-  venue?: string;
-  unitPrice?: number;
-  quantity?: number;
+  posterUrl?: string | null;
+  title?: string | null;
+  date?: string | null;       // YYYY-MM-DD
+  time?: string | null;       // HH:mm
+  unitPrice?: number | null;  // 1매 가격
+  quantity?: number | null;   // 매수
   className?: string;
-  compact?: boolean;   // ✅ 추가: 컴팩트 모드
+  compact?: boolean;          // 컴팩트 모드
+  // venue 제거(사용 안 함)
 };
 
 const formatKRW = (n: number) => `${new Intl.NumberFormat('ko-KR').format(n)}원`;
 
-const DUMMY = {
-  posterUrl: 'https://picsum.photos/600/900?random=42',
-  title: '그랜드 민트 페스티벌 2025',
-  date: '2025-10-18(토)',
-  time: '18:00',
-  venue: '올림픽공원 88잔디마당',
-  unitPrice: 120000,
-  quantity: 2,
-};
-
 const TicketInfoSection: React.FC<TicketInfoSectionProps> = ({
-  posterUrl = DUMMY.posterUrl,
-  title = DUMMY.title,
-  date = DUMMY.date,
-  time = DUMMY.time,
-  venue = DUMMY.venue,
-  unitPrice = DUMMY.unitPrice,
-  quantity = DUMMY.quantity,
+  posterUrl,
+  title,
+  date,
+  time,
+  unitPrice,
+  quantity,
   className = '',
   compact = false,
 }) => {
-  const subtotal = unitPrice * quantity;
+  // 안전 값
+  const safeTitle = title ?? '';
+  const safeDate = date ?? '';
+  const safeTime = time ?? '';
+  const price = typeof unitPrice === 'number' ? unitPrice : 0;
+  const qty = typeof quantity === 'number' ? quantity : 0;
+
+  // 포스터 폴백
   const fallbackSvg =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(
@@ -47,46 +44,63 @@ const TicketInfoSection: React.FC<TicketInfoSectionProps> = ({
       </svg>`
     );
 
-  // ✅ compact 모드 크기/폰트 축소
-  const posterStyle = compact
-    ? { width: 120, aspectRatio: '2 / 3' as any }  // 약 120×180
-    : { width: '100%', aspectRatio: '2 / 3' as any };
-
-  const titleCls = compact ? 'text-sm font-semibold truncate' : 'text-base font-medium';
-  const metaCls  = compact ? 'text-xs opacity-80 truncate'   : 'text-sm opacity-80';
-
   return (
-    <section className={`w-full rounded-2xl border p-4 ${className}`}>
-      <h2 className={compact ? 'mb-2 text-sm font-semibold' : 'mb-4 text-lg font-semibold'}>내 티켓 정보</h2>
+    <section className={`${styles.section} ${className}`}>
+      <h2 className={compact ? styles.headingCompact : styles.heading}>
+        내 티켓 정보
+      </h2>
 
-      <div className="flex gap-12">
-        {/* 포스터 (compact면 고정폭) */}
-        <div style={posterStyle} className="overflow-hidden rounded-lg border shrink-0">
+      <div className={styles.content}>
+        {/* 포스터 */}
+        <div
+          className={`${styles.poster} ${compact ? styles.posterCompact : styles.posterFull
+            }`}
+        >
           <img
             src={posterUrl || fallbackSvg}
-            alt={`${title} 포스터`}
-            className="h-full w-full object-cover"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).src = fallbackSvg; }}
+            alt={safeTitle ? `${safeTitle} 포스터` : '포스터 이미지'}
+            className={styles.posterImg}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = fallbackSvg;
+            }}
             loading="lazy"
           />
         </div>
 
         {/* 정보 */}
-        <div className="min-w-0 flex-1">
-          <div className="grid gap-1">
-            <div className={titleCls} title={title}>{title}</div>
-            <div className={metaCls}  title={`${date} · ${time}`}>{date} · {time}</div>
-            <div className={metaCls}  title={venue}>{venue}</div>
+        <div className={styles.info}>
+          <div>
+            <div className={styles.priceBox}>
+              <div
+                className={compact ? styles.titleCompact : styles.title}
+                title={safeTitle}
+              >
+                {safeTitle}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-3 grid gap-1 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="opacity-80">가격 × 수량</span>
-              <span className="font-medium">{formatKRW(unitPrice)} × {quantity}매</span>
+          <div className={styles.priceBox}>
+            <div className={styles.priceRow}>
+              <span className={styles.label}>일시</span>
+              <span className={styles.value}>
+                {safeDate}
+                {safeDate && safeTime ? ' · ' : ''}
+                {safeTime}
+              </span>
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="opacity-80">소계</span>
-              <span className="text-base font-semibold">{formatKRW(subtotal)}</span>
+            <div className={styles.priceRow}>
+
+              <span className={styles.label}>가격</span>
+              <span className={styles.value}>
+                {formatKRW(price)}
+              </span>
+            </div>
+            <div className={styles.priceRow}>
+              <span className={styles.label}>수량</span>
+              <span className={styles.value}>
+                {qty}매
+              </span>
             </div>
           </div>
         </div>

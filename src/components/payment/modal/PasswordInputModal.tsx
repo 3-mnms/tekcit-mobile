@@ -1,74 +1,72 @@
+// src/components/payment/modal/PasswordInputModal.tsx
 import { useState } from 'react'
 import styles from './PasswordInputModal.module.css'
 import DotDisplay from '@components/payment/password/DotDisplay'
 import Keypad from '@components/payment/password/Keypad'
+// import { verifyTekcitPassword } from '@/shared/api/payment/tekcits'
+import { requestTekcitPay } from '@/shared/api/payment/payments'
 
 interface PasswordInputModalProps {
   onClose: () => void
   onComplete: (password: string) => void
+  userName?: string
+  amount: number
+  paymentId: string
+  userId: number          
 }
 
-const PasswordInputPage: React.FC<PasswordInputModalProps> = ({ onComplete, onClose }) => {
-  const [password, setPassword] = useState<string>('')
+const PasswordInputModal: React.FC<PasswordInputModalProps> = ({
+  onComplete, onClose, userName, amount, paymentId, userId,
+}) => {
+  const [password, setPassword] = useState('')
   const [isError, setIsError] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const handleKeyPress = async (value: string) => {
+    if (isSubmitting) return
+    if (value === '전체삭제') { setPassword(''); setIsError(false); return }
+    if (value === '삭제') { setPassword((prev) => prev.slice(0, -1)); setIsError(false); return }
+    if (!/^\d$/.test(value) || password.length >= 6) return
 
-  const handleKeyPress = (value: string) => {
-    if (value === '전체삭제') {
-      setPassword('')
-      setIsError(false)
-    } else if (value === '삭제') {
-      setPassword((prev) => prev.slice(0, -1))
-      setIsError(false)
-    } else if (password.length < 6) {
-      const newPassword = password + value
-      setPassword(newPassword)
+    const next = password + value
+    setPassword(next); setIsError(false)
 
-      if (newPassword.length === 6) {
-        // ✅ 여기서 비밀번호 검사
-        const isCorrect = newPassword === '123456' // ← 임시
-
-        if (isCorrect) {
-          setTimeout(() => {
-            onComplete(newPassword)
-            setPassword('')
-            setIsError(false)
-          }, 300)
-        } else {
-          setIsError(true)
-          setTimeout(() => {
-            setPassword('')
-          }, 500)
-        }
+    if (next.length === 6) {
+      setIsSubmitting(true)
+      try {
+        await requestTekcitPay({ amount, paymentId, password: next }, userId)
+        setTimeout(() => {
+          onComplete(next)
+          setPassword('')
+          setIsError(false)
+        }, 120)
+      } catch {
+        setIsError(true)
+        setTimeout(() => setPassword(''), 300)
+      } finally {
+        setIsSubmitting(false)
       }
     }
   }
 
   return (
-    <div className={styles.overlay}>
+    <div className={styles.overlay} role="dialog" aria-modal="true">
       <div className={styles.modal}>
-        <button className={styles.closeButton} onClick={onClose}>
-          ✕
-        </button>
+        <button className={styles.closeButton} onClick={onClose} aria-label="비밀번호 입력 닫기" disabled={isSubmitting}>✕</button>
 
         <div className={styles.top}>
-          <p className={styles.label}>김민정님의</p>
-          <h2 className={styles.title}>비밀번호 입력</h2>
+          {userName && <p className={styles.label}>{userName}님의</p>}
+          <h2 className={styles.title}>비밀번호를 입력하세요</h2>
           <DotDisplay length={password.length} />
-
-          {isError && (
-            <p className={styles.errorMessage}>비밀번호가 일치하지 않습니다.</p>
-          )}
-          
-          <button className={styles.reset}>비밀번호 재설정 &gt;</button>
+          {isError && <p className={styles.errorMessage}>비밀번호가 일치하지 않습니다.</p>}
         </div>
 
         <div className={styles.keypadWrapper}>
-          <Keypad onPress={handleKeyPress} />
+          <Keypad onPress={handleKeyPress} disabled={isSubmitting} />
         </div>
       </div>
     </div>
   )
 }
 
-export default PasswordInputPage
+export default PasswordInputModal

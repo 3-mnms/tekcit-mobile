@@ -29,11 +29,10 @@ html, body, #root {
   min-width: 0; /* 내부 그리드가 제대로 줄도록 */
 }
 
-@media (max-width: 1010px) {
+@media (max-width: 1200px) {
   .page {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 12px 20px;
+    padding: 12px 0px;
   }
 
   .filterCol {

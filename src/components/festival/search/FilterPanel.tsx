@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getFestivalCategories } from '@shared/api/festival/FestivalApi';
+import { getFestivalCategories } from '@/shared/api/festival/festivalApi';
 import styles from './FilterPanel.module.css';
 
 const WEEK_LABELS = ['일','월','화','수','목','금','토'];
@@ -14,7 +14,12 @@ const fmt = (d: Date) => {
   return `${y}-${m}-${da}`;
 };
 
-export default function FilterPanel() {
+type Props = {
+  onApplied?: () => void; // ⬅️ 추가
+  onReset?: () => void;   // ⬅️ 추가
+};
+
+export default function FilterPanel({ onApplied, onReset }: Props) {
   const [params, setParams] = useSearchParams();
 
   // ✅ URL → 상태 복원 (없으면 기본값)
@@ -106,13 +111,13 @@ export default function FilterPanel() {
 
     // 새 검색이면 page 리셋하고 싶다면: next.set('page', '1');
     setParams(next, { replace: false });
+    onApplied?.();
   };
 
   return (
     <aside className={styles.wrap}>
       <div className={styles.inner}>
         <div className={styles.body}>
-          <h3 className={styles.title}>필터</h3>
 
           {/* 장르 */}
           <section className={styles.section}>
@@ -235,6 +240,7 @@ export default function FilterPanel() {
               next.delete('from');
               next.delete('to');
               setParams(next, { replace: false });
+              onReset?.();
             }}
           >
             초기화
