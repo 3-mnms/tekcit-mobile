@@ -1,70 +1,81 @@
+// src/components/transfer/TransferTicketInfo.tsx
 import React from 'react';
 import styles from './TransferTicketInfo.module.css';
+import { useTicketDetailQuery } from '@/models/my/ticket/tanstack-query/useTickets';
+import type { TicketDetailResponseDTO } from '@/models/my/ticket/ticketTypes';
 
 type Props = {
-  ticket: {
-    festivalName: string;
-    date: string;
-    time: string;
-    venue: string;
-    seat?: string | null;
-    grade?: string | null;
-    delivery: 'QR' | 'PAPER';
-    price: number;
-    posterUrl?: string;
-  };
-  /** 선택: 예매번호/매수 등 추가 메타 */
-  extra?: {
-    reservationNo?: string;
-    count?: number;
-  };
+  /** 상세 조회용 예약번호 */
+  reservationNumber: string;
+  className?: string;
 };
 
-const TransferTicketInfo: React.FC<Props> = ({ ticket, extra }) => {
-  const deliveryText = ticket.delivery === 'QR' ? '모바일 QR' : '지류';
+const toYMDHM = (iso: string) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso || '-';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${y}.${m}.${day} ${hh}:${mm}`;
+};
+
+const deliveryLabel = (method?: TicketDetailResponseDTO['deliveryMethod']) =>
+  method === 'MOBILE' ? '모바일 QR' : method === 'PAPER' ? '지류' : '-';
+
+const TransferTicketInfo: React.FC<Props> = ({ reservationNumber, className }) => {
+  const { data, isLoading, isError, error } = useTicketDetailQuery(reservationNumber);
+
+  if (!reservationNumber) {
+    return <div className={styles.card}>예약번호가 없어요.</div>;
+  }
+
+  if (isLoading) {
+    return (
+      <div className={styles.card} aria-busy="true">
+        상세 정보를 불러오는 중…
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={styles.card} role="alert" style={{ color: '#b91c1c' }}>
+        티켓 상세 조회 실패: {(error as any)?.message ?? '알 수 없는 오류'}
+      </div>
+    );
+  }
+
+  const detail = data!;
+  const poster = detail.posterFile || '';
+  const festivalName = detail.fname || '-';
+  const dateTime = detail.performanceDate ? toYMDHM(detail.performanceDate) : '-';
+  const venue = detail.fcltynm || '-';
+  const delivery = deliveryLabel(detail.deliveryMethod);
 
   return (
-    <section className={styles.card} aria-labelledby="ticket-info-title">
+    <div className={`${styles.card} ${className ?? ''}`} aria-labelledby="ticket-info-title">
+      <h2 id="ticket-info-title" className={styles.title}>양도 · 티켓 정보</h2>
+
       <div className={styles.headerRow}>
         <div className={styles.thumbWrap}>
-          {ticket.posterUrl ? (
-            <img src={ticket.posterUrl} alt={ticket.festivalName} className={styles.thumb} />
+          {poster ? (
+            <img src={poster} alt={festivalName} className={styles.thumb} />
           ) : (
-            <div className={styles.thumbEmpty}>포스터</div>
+            <div className={styles.thumbEmpty} aria-label="포스터 없음">포스터</div>
           )}
         </div>
 
         <div className={styles.headerMeta}>
-          <strong className={styles.festival}>{ticket.festivalName}</strong>
-          <div className={styles.sub}>
-            {ticket.date} {ticket.time} {ticket.venue}
-          </div>
+          <strong className={styles.festival}>{festivalName}</strong>
+          <div className={styles.subTime}>{dateTime}</div>
+          <div className={styles.sub}>{venue}</div>
+          <div className={styles.sub}>{delivery}</div>
         </div>
       </div>
+    </div>
 
-      <div className={styles.divider} aria-hidden="true" />
-
-      <dl className={styles.infoGrid}>
-        {extra?.reservationNo && (
-          <>
-            <dt className={styles.k}>예매번호</dt>
-            <dd className={styles.v}>{extra.reservationNo}</dd>
-          </>
-        )}
-        {typeof extra?.count === 'number' && (
-          <>
-            <dt className={styles.k}>매수</dt>
-            <dd className={styles.v}>{extra.count}매</dd>
-          </>
-        )}
-
-        <dt className={styles.k}>수령</dt>
-        <dd className={styles.v}>{deliveryText}</dd>
-
-        <dt className={styles.k}>가격</dt>
-        <dd className={`${styles.v} ${styles.price}`}>{ticket.price.toLocaleString()}원</dd>
-      </dl>
-    </section>
   );
 };
 

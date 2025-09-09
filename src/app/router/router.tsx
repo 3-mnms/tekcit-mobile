@@ -115,7 +115,7 @@ export const router = createBrowserRouter([
             path: 'transfer',
             children: [
               { path: '', element: <TransferTicketPage /> },
-              { path: ':id', element: <TransferPage /> },
+              { path: ':reservationNumber', element: <TransferPage /> },
             ],
           },
           { path: 'entrancecheck', element: <EntranceCheckPage /> },
