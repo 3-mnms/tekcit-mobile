@@ -1,24 +1,22 @@
-// 📄 src/components/payment/address/AddressForm.tsx
-// - 아이폰 SE 기준 모바일 고정 레이아웃
-// - 주소만 필수, 나머지는 선택
-// - 연락처 인풋은 flex 고정폭 + 숫자만 허용 보강
-
-import { useEffect, useState } from 'react'
+// src/pages/payment/.../AddressForm.tsx
+// 목적: 모바일 UI 유지 + 웹 버전 연동(DeliveryManageModal/AddressSearchModal 선택값 주입) 동일 적용
+import { useEffect, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createPortal } from 'react-dom'
 
+import AddressSearchModal from '@/components/auth/signup/AddressSearchModal'
 import DeliveryManageModal from '@/components/payment/modal/DeliveryManageModal'
 
 import styles from './AddressForm.module.css'
 
 interface AddressFormProps {
-  /** 상위로 유효성 변경 여부 전달 (주소만 입력되면 true) 멍 */
+  // 주소가 입력되면 true를 상위에 알림
   onValidChange?: (isValid: boolean) => void
 }
 
-/** ✅ 폼 스키마: 주소만 필수, 나머지는 선택 멍 */
+// 폼 스키마: 주소만 필수, 나머지는 선택
 const schema = z.object({
   name: z.string().optional(),
   phonePrefix: z.enum(['010', '011', '016', '017', '018', '019']).optional(),
@@ -26,17 +24,40 @@ const schema = z.object({
   phonePart2: z.string().optional(),
   address: z.string().min(1, '주소를 입력해 주세요.'),
   zipCode: z.string().optional(),
+  addressDetail: z.string().optional(),
 })
 
 type AddressFormInputs = z.infer<typeof schema>
 
+// 배송지 관리 모달에서 내려주는 페이로드(웹과 동일 컨벤션 가정)
 type SelectedAddressPayload = {
+  name?: string
+  phone?: string
   address: string
   zipCode?: string
   id?: number
 }
 
+// phonePrefix 정확한 타입 별칭
+type PhonePrefix = NonNullable<AddressFormInputs['phonePrefix']>
+
+// 한국 휴대폰 포맷 분해기: "01012345678" → { prefix: "010", part1: "1234", part2: "5678" }
+const splitKoreanPhone = (raw?: string): {
+  prefix?: PhonePrefix
+  part1?: string
+  part2?: string
+} => {
+  if (!raw) return {}
+  const digits = raw.replace(/\D/g, '')
+  if (digits.length < 9) return {}
+  const pfx = digits.slice(0, 3) as PhonePrefix
+  if (digits.length === 11) return { prefix: pfx, part1: digits.slice(3, 7), part2: digits.slice(7, 11) }
+  if (digits.length === 10) return { prefix: pfx, part1: digits.slice(3, 6), part2: digits.slice(6, 10) }
+  return { prefix: pfx, part1: digits.slice(3, 7), part2: digits.slice(7) }
+}
+
 const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
+  // RHF 초기화
   const {
     register,
     setValue,
@@ -52,52 +73,22 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
       phonePart2: '',
       address: '',
       zipCode: '',
+      addressDetail: '',
     },
   })
 
-  // ✅ 모달 열림/닫힘 상태 멍
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  // 모달 상태: 배송지 관리 / 주소 검색을 분리
+  const [isManageOpen, setIsManageOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
-  // ✅ 모든 값 감시 → address만 있으면 valid 처리 멍
+  // 모든 값 감시 → 주소만 있으면 valid
   const watchAll = watch()
   useEffect(() => {
     const isValid = !!watchAll.address?.trim()
-    onValidChange?.(!!isValid)
+    onValidChange?.(isValid)
   }, [watchAll, onValidChange])
 
-  // AddressForm.tsx
-  useEffect(() => {
-    if (!isModalOpen) return
-
-    // 페이지 스크롤 잠금
-    const html = document.documentElement
-    const prevOverflow = html.style.overflow
-    html.style.overflow = 'hidden'
-
-    // ✅ 푸터 높이 측정 → --sheet-offset 세팅
-    const footer = document.getElementById('payment-cta')
-    const footerH = footer?.getBoundingClientRect().height ?? 0
-
-    // 안전 여백 + 안전영역
-    const safe = 0 // env()는 JS에서 못 읽으니 CSS에서 처리
-    const offset = footerH + 8 + safe
-
-    document.documentElement.style.setProperty('--sheet-offset', `${offset}px`)
-
-    return () => {
-      html.style.overflow = prevOverflow
-      document.documentElement.style.removeProperty('--sheet-offset')
-    }
-  }, [isModalOpen])
-
-  // ✅ 모달에서 배송지 선택 시 address/zipCode만 세팅 멍
-  const handleAddressSelect = (addr: SelectedAddressPayload) => {
-    setValue('address', addr.address ?? '', { shouldValidate: true })
-    setValue('zipCode', addr.zipCode ?? '', { shouldValidate: true })
-    setIsModalOpen(false)
-  }
-
-  // ✅ 숫자만 허용하는 인풋 보정(사파리/안드로이드 대비) 멍
+  // 숫자만 허용하는 인풋 보정
   const onlyDigits =
     (max = 4) =>
     (e: React.FormEvent<HTMLInputElement>) => {
@@ -105,41 +96,121 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
       target.value = target.value.replace(/[^0-9]/g, '').slice(0, max)
     }
 
+  // 전체 화면 시트 모달 열릴 때 스크롤 잠금 + 안전 오프셋 적용
+  useEffect(() => {
+    const opened = isManageOpen || isSearchOpen
+    if (!opened) return
+
+    const html = document.documentElement
+    const prevOverflow = html.style.overflow
+    html.style.overflow = 'hidden'
+
+    const footer = document.getElementById('payment-cta')
+    const footerH = footer?.getBoundingClientRect().height ?? 0
+    const offset = footerH + 8 // 여백 8px
+    document.documentElement.style.setProperty('--sheet-offset', `${offset}px`)
+
+    return () => {
+      html.style.overflow = prevOverflow
+      document.documentElement.style.removeProperty('--sheet-offset')
+    }
+  }, [isManageOpen, isSearchOpen])
+
+  // 주소 검색(다음/카카오) 완료 → address/zipCode 주입
+  const handleAddressCompleteFromDaum = useCallback(
+    (data: { zipCode: string; address: string }) => {
+      setValue('address', data.address ?? '', { shouldValidate: true })
+      setValue('zipCode', data.zipCode ?? '', { shouldValidate: true })
+      setIsSearchOpen(false)
+    },
+    [setValue]
+  )
+
+  // 배송지 관리에서 선택 → address/zipCode + 가능하면 name/phone도 주입
+  const handleAddressSelectFromManage = useCallback(
+    (addr: SelectedAddressPayload) => {
+      setValue('address', addr.address ?? '', { shouldValidate: true })
+      setValue('zipCode', addr.zipCode ?? '', { shouldValidate: true })
+
+      if (addr.name) setValue('name', addr.name, { shouldValidate: false })
+      if (addr.phone) {
+        const { prefix, part1, part2 } = splitKoreanPhone(addr.phone)
+        if (prefix) setValue('phonePrefix', prefix, { shouldValidate: false })
+        if (part1 !== undefined) setValue('phonePart1', part1, { shouldValidate: false })
+        if (part2 !== undefined) setValue('phonePart2', part2, { shouldValidate: false })
+      }
+
+      setIsManageOpen(false)
+    },
+    [setValue]
+  )
+
   return (
     <form className={styles['address-container']} autoComplete="on">
-      {/* ───────── 상단: 배송지 관리 버튼 ───────── */}
+      {/* 상단: 배송지 관리/주소 검색 버튼(모바일 UI 유지) */}
       <div className={styles['address-tabs']}>
         <span className={styles['tabs-label']}>배송지 선택</span>
-        <button
-          type="button"
-          className={`plain-button ${styles['tab-manage-btn']}`}
-          onClick={() => setIsModalOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={isModalOpen}
-        >
-          배송지 관리
-        </button>
+        <div className={styles['tabs-actions']}>
+          <button
+            type="button"
+            className={`plain-button ${styles['tab-manage-btn']}`}
+            onClick={() => setIsManageOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={isManageOpen}
+          >
+            배송지 관리
+          </button>
+          <button
+            type="button"
+            className={`plain-button ${styles['address-search-btn']}`}
+            onClick={() => setIsSearchOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={isSearchOpen}
+          >
+            주소 검색
+          </button>
+        </div>
       </div>
-      {/* ───────── 전체화면 모달(시트) ───────── */}
-      {isModalOpen &&
+
+      {/* 배송지 관리 모달(풀스크린 시트) */}
+      {isManageOpen &&
         createPortal(
           <div
             className={styles['modal-overlay']}
             role="dialog"
             aria-modal="true"
-            onClick={() => setIsModalOpen(false)}
+            onClick={() => setIsManageOpen(false)}
           >
             <div className={styles['modal-sheet']} onClick={(e) => e.stopPropagation()}>
-              {/* ✅ 바깥 헤더/닫기 버튼 삭제, 내부 모달만 렌더 */}
               <DeliveryManageModal
-                onClose={() => setIsModalOpen(false)}
-                onSelectAddress={handleAddressSelect}
+                onClose={() => setIsManageOpen(false)}
+                onSelectAddress={handleAddressSelectFromManage}
               />
             </div>
           </div>,
-          document.body,
+          document.body
         )}
-      {/* ───────── 폼: 단일 컬럼 ───────── */}
+
+      {/* 주소 검색 모달(다음/카카오) */}
+      {isSearchOpen &&
+        createPortal(
+          <div
+            className={styles['modal-overlay']}
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setIsSearchOpen(false)}
+          >
+            <div className={styles['modal-sheet']} onClick={(e) => e.stopPropagation()}>
+              <AddressSearchModal
+                onComplete={handleAddressCompleteFromDaum}
+                onClose={() => setIsSearchOpen(false)}
+              />
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* 폼 본문: 모바일 단일 컬럼 UI 유지 */}
       <div className={styles['form-grid']}>
         {/* 받는 사람 */}
         <div className={styles['form-field']}>
@@ -151,14 +222,8 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
         {/* 연락처 */}
         <div className={styles['form-field']}>
           <label>연락처</label>
-
-          {/* ✅ flex 고정폭 배치로 높이/간격 일관화 */}
           <div className={styles['phone-inputs']}>
-            <select
-              {...register('phonePrefix')}
-              aria-label="연락처 앞자리"
-              className={styles['phone-prefix']}
-            >
+            <select {...register('phonePrefix')} aria-label="연락처 앞자리" className={styles['phone-prefix']}>
               <option value="010">010</option>
               <option value="011">011</option>
               <option value="016">016</option>
@@ -166,7 +231,6 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
               <option value="018">018</option>
               <option value="019">019</option>
             </select>
-
             <input
               type="text"
               inputMode="numeric"
@@ -189,7 +253,6 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
             />
           </div>
 
-          {/* 에러 라인 고정 공간 */}
           <div className={styles['error-space']}>
             {(errors.phonePrefix || errors.phonePart1 || errors.phonePart2) && (
               <p className={styles['error']}>
@@ -201,7 +264,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
           </div>
         </div>
 
-        {/* 주소(필수) */}
+        {/* 주소(필수) + 우편번호/상세주소(선택) */}
         <div className={styles['form-field']}>
           <label htmlFor="address">주소 *</label>
           <div className={styles['address-row']}>
@@ -211,18 +274,18 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
               placeholder="주소를 선택하거나 입력해 주세요"
               {...register('address')}
             />
-            <button
+            {/* 위의 상단 버튼으로도 검색 가능하지만, 행 내 버튼이 필요하면 유지 */}
+            {/* <button
               type="button"
               className={`plain-button ${styles['address-search-btn']}`}
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsSearchOpen(true)}
             >
               주소 검색
-            </button>
+            </button> */}
           </div>
           {errors.address && <p className={styles['error']}>{errors.address.message}</p>}
         </div>
 
-        {/* 우편번호(선택) */}
         <div className={styles['form-field']}>
           <input
             type="text"
@@ -232,6 +295,15 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
             onInput={onlyDigits(6)}
           />
           {errors.zipCode && <p className={styles['error']}>{errors.zipCode.message}</p>}
+        </div>
+
+        <div className={styles['form-field']}>
+          <input
+            type="text"
+            placeholder="상세 주소 (동/호수 등)"
+            {...register('addressDetail')}
+          />
+          {errors.addressDetail && <p className={styles['error']}>{errors.addressDetail.message}</p>}
         </div>
       </div>
     </form>
