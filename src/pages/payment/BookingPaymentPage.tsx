@@ -1,56 +1,56 @@
 // src/pages/payment/BookingPaymentPage.tsx
-import { useEffect, useRef, useState, useMemo } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
+// 목적: 모바일 UI 유지 + 웹 버전 API 연동(상세 조회, 세션 저장, 결제 준비, WS) 동일 적용
 
-import type { TossPaymentHandle } from '@/components/payment/pay/TossPayment'
-import PaymentInfo from '@/components/payment/pay/PaymentInfo'
-import ReceiveInfo from '@/components/payment/delivery/ReceiveInfo'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'                   // 주석: 훅
+import { useNavigate, useLocation } from 'react-router-dom'                                 // 주석: 라우팅
+import { useMutation } from '@tanstack/react-query'                                         // 주석: 결제 준비 요청 뮤테이션
+import SockJS from 'sockjs-client'                                                          // 주석: 웹소켓
+import { Client } from '@stomp/stompjs'                                                     // 주석: STOMP 클라이언트
 
-import Button from '@/components/common/button/Button'
-import PasswordInputModal from '@/components/payment/modal/PasswordInputModal'
-import AlertModal from '@/components/common/modal/AlertModal'
+import PaymentInfo from '@/components/payment/pay/PaymentInfo'                              // 주석: 주문 요약 카드
+import ReceiveInfo, { type ReceiveType } from '@/components/payment/delivery/ReceiveInfo'   // 주석: 수령 방법 표시
+import WalletPayment from '@/components/payment/pay/WalletPayment'                          // 주석: 지갑 결제 UI
+import PasswordInputModal from '@/components/payment/modal/PasswordInputModal'              // 주석: 지갑 비번 모달
+import TossPayment, { type TossPaymentHandle } from '@/components/payment/pay/TossPayment'  // 주석: 토스 결제 컴포넌트
+import PaymentTotal from '@/components/payment/pay/paymentTotal'                            // 주석: 최종 결제 정보/약관
+import PaymentFooter from '@/components/payment/pay/BookingPaymentFooter'                   // 주석: 하단 CTA 바
+import AlertModal from '@/components/common/modal/AlertModal'                               // 주석: 알럿 모달
+import BookingProgress from '@/components/common/steps/BookingProgress'                     // 주석: 진행 표시 (sellerId 로딩 시)
 
-import { useAuthStore } from '@/shared/storage/useAuthStore'
-import PaymentSection from '@/components/payment/pay/PaymentSection'
-import type { CheckoutState, PaymentMethod } from '@/models/payment/types/paymentTypes'
-import { createPaymentId } from '@/models/payment/utils/paymentUtils'
-import { saveBookingSession } from '@/shared/api/payment/paymentSession'
-import { fetchBookingDetail } from '@/shared/api/payment/bookingDetail'
+import styles from './BookingPaymentPage.module.css'                                        // 주석: 스타일
 
-import { requestPayment, type PaymentRequestDTO } from '@/shared/api/payment/payments'
-import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
-
-import styles from './BookingPaymentPage.module.css'
-
-// 결제수단 타입(모바일 버전의 네이밍 유지)
-type PaymentMethod = 'wallet' | 'Toss'
+import type { CheckoutState, PaymentMethod } from '@/models/payment/types/paymentTypes'     // 주석: 결제 타입/체크아웃 타입
+import { createPaymentId } from '@/models/payment/utils/paymentUtils'                       // 주석: paymentId 생성 유틸
+import { saveBookingSession } from '@/shared/api/payment/paymentSession'                    // 주석: 프론트 세션 저장
+import { fetchBookingDetail } from '@/shared/api/payment/bookingDetail'                     // 주석: 예매 상세 조회(sellerId 확보)
+import { requestPayment, type PaymentRequestDTO } from '@/shared/api/payment/payments'      // 주석: 결제 준비 API
+import { useAuthStore } from '@/shared/storage/useAuthStore'                                // 주석: 사용자명 표시
+import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'                          // 주석: userId 가져오기
 
 // 접근성: 페이지 타이틀 id
 const PAGE_TITLE_ID = 'bookingPaymentMainTitle'
 
 const BookingPaymentPage: React.FC = () => {
-  // STOMP 클라이언트 ref
+  // 주석: STOMP 클라이언트 ref
   const stompClientRef = useRef<Client | null>(null)
 
-  // 내비/라우팅 상태
+  // 주석: 내비/라우팅 상태
   const navigate = useNavigate()
   const { state } = useLocation()
   const checkout = state as CheckoutState | undefined
 
-  // 스토어/토큰 정보
+  // 주석: 스토어/토큰 정보
   const storeName = useAuthStore((s) => s.user?.name) || undefined
   const { data: tokenInfo } = useTokenInfoQuery()
   const userId = Number(tokenInfo?.userId)
 
-  // 수령방법: 모바일 UI 컴포넌트가 onChange 미지원 → 고정
+  // 주석: 수령방법(모바일 UI는 고정 표기)
   const [receiveType] = useState<ReceiveType>('QR')
 
-  // 토스 결제 ref
+  // 주석: 토스 결제 ref
   const tossRef = useRef<TossPaymentHandle>(null)
 
-  // UI/상태
+  // 주석: UI 상태
   const [openedMethod, setOpenedMethod] = useState<PaymentMethod | null>(null)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false)
@@ -58,7 +58,7 @@ const BookingPaymentPage: React.FC = () => {
   const [err, setErr] = useState<string | null>(null)
   const [allAgreed, setAllAgreed] = useState(false)
 
-  // 결제 금액/주문 파생값
+  // 주석: 결제 금액/주문 파생값
   const unitPrice = checkout?.unitPrice ?? checkout?.amount ?? 0
   const quantity = checkout?.quantity ?? 1
   const finalAmount = useMemo(() => unitPrice * quantity, [unitPrice, quantity])
@@ -66,31 +66,31 @@ const BookingPaymentPage: React.FC = () => {
   const festivalIdVal = checkout?.festivalId as any
   const buyerName = useMemo(
     () => storeName ?? checkout?.buyerName ?? '주문자',
-    [storeName, checkout?.buyerName]
+    [storeName, checkout?.buyerName],
   )
 
-  // 결과 페이지 이동(모바일 라우트 유지)
+  // 주석: 결과 페이지 이동(모바일 라우트 유지)
   const routeToResult = useCallback(
     (ok: boolean, id?: string) => {
       const params = new URLSearchParams({ type: 'booking', status: ok ? 'success' : 'fail' })
       if (id) params.set('paymentId', id)
       navigate(`/payment/result?${params.toString()}`)
     },
-    [navigate]
+    [navigate],
   )
 
-  // 상세 페이지 이동(닫기 확인 모달)
+  // 주석: 상세 페이지 이동(닫기 확인 모달)
   const goShowDetail = () => navigate(`/festival/${festivalIdVal}`)
 
-  // 버튼 활성
+  // 주석: 버튼 활성
   const canPay = !!openedMethod && allAgreed && !isPaying
 
-  // 결제 연동 공통 상태
+  // 주석: 결제 연동 공통 상태
   const [paymentId, setPaymentId] = useState<string | null>(null)
   const [ensuredPaymentId, setEnsuredPaymentId] = useState<string | null>(null)
   const [sellerId, setSellerId] = useState<number | null>(null)
 
-  // 최초 paymentId 생성 + 프론트 세션 저장
+  // 주석: 최초 paymentId 생성 + 프론트 세션 저장(웹과 동일)
   useEffect(() => {
     if (!paymentId) {
       const id = createPaymentId()
@@ -108,29 +108,29 @@ const BookingPaymentPage: React.FC = () => {
     }
   }, [paymentId, checkout?.bookingId, checkout?.festivalId, finalAmount, sellerId])
 
-  // 예매 상세 조회 → sellerId 확보
+  // 주석: 예매 상세 조회 → sellerId 확보(웹과 동일; sellerId/seller_id 모두 대응은 fetchBookingDetail 내부에서 처리)
   useEffect(() => {
     if (!checkout?.festivalId || !checkout?.performanceDate || !checkout?.bookingId) return
-      ; (async () => {
-        try {
-          const res = await fetchBookingDetail({
-            festivalId: String(checkout.festivalId),
-            performanceDate: checkout.performanceDate,
-            reservationNumber: checkout.bookingId,
-          })
-          if (!res.success) throw new Error(res.message || '상세 조회 실패')
-          const sid = (res.data?.sellerId ?? res.data?.sellerId) as number | undefined
-          if (!sid || sid <= 0) throw new Error('sellerId 누락')
-          setSellerId(sid)
-        } catch (e) {
-          console.error('예매 상세 조회 실패', e)
-          alert('결제 정보를 불러오지 못했습니다.')
-          navigate(-1)
-        }
-      })()
+    ;(async () => {
+      try {
+        const res = await fetchBookingDetail({
+          festivalId: String(checkout.festivalId),
+          performanceDate: checkout.performanceDate,               // 주석: 서버가 ISO 요구 시 호출부/인터셉터에서 변환
+          reservationNumber: checkout.bookingId,
+        })
+        if (!res.success) throw new Error(res.message || '상세 조회 실패')
+        const sid = res.data?.sellerId as number | undefined
+        if (!sid || sid <= 0) throw new Error('sellerId 누락')
+        setSellerId(sid)
+      } catch (e) {
+        console.error('예매 상세 조회 실패', e)
+        alert('결제 정보를 불러오지 못했습니다.')
+        navigate(-1)
+      }
+    })()
   }, [checkout?.festivalId, checkout?.performanceDate, checkout?.bookingId, navigate])
 
-  // 웹소켓 연결 (결제 완료 알림 수신)
+  // 주석: 웹소켓 연결 (결제 완료 알림 수신) — 웹과 동일
   useEffect(() => {
     if (!checkout?.bookingId) return
 
@@ -160,13 +160,9 @@ const BookingPaymentPage: React.FC = () => {
               window.opener.postMessage(
                 {
                   type: 'PAYMENT_SUCCESS',
-                  data: {
-                    bookingId: checkout.bookingId,
-                    paymentId: ensuredPaymentId || paymentId,
-                    status: 'success',
-                  },
+                  data: { bookingId: checkout.bookingId, paymentId: ensuredPaymentId || paymentId, status: 'success' },
                 },
-                window.location.origin
+                window.location.origin,
               )
               setTimeout(() => window.close(), 1000)
             } else {
@@ -175,11 +171,8 @@ const BookingPaymentPage: React.FC = () => {
           } else if (data.status === 'CANCELED') {
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(
-                {
-                  type: 'PAYMENT_FAILURE',
-                  data: { bookingId: checkout.bookingId, status: 'fail', reason: 'canceled' },
-                },
-                window.location.origin
+                { type: 'PAYMENT_FAILURE', data: { bookingId: checkout.bookingId, status: 'fail', reason: 'canceled' } },
+                window.location.origin,
               )
               setTimeout(() => window.close(), 1000)
             } else {
@@ -191,7 +184,7 @@ const BookingPaymentPage: React.FC = () => {
         }
       })
 
-      // 연결 테스트용 publish (선택)
+      // 연결 테스트용 publish(선택)
       setTimeout(() => {
         try {
           client.publish({
@@ -219,7 +212,7 @@ const BookingPaymentPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkout?.bookingId, routeToResult])
 
-  // 결제 준비 요청 — TanStack Query
+  // 주석: 결제 준비 요청 — TanStack Query(웹과 동일 DTO)
   const requestMut = useMutation({
     mutationFn: async (params: { ensuredId: string; method: PaymentMethod }) => {
       if (!checkout) throw new Error('결제 정보가 없습니다.')
@@ -230,8 +223,7 @@ const BookingPaymentPage: React.FC = () => {
         paymentId: params.ensuredId,
         bookingId: checkout.bookingId ?? null,
         festivalId: checkout.festivalId ?? null,
-        paymentRequestType:
-          params.method === 'wallet' ? 'POINT_PAYMENT_REQUESTED' : 'GENERAL_PAYMENT_REQUESTED',
+        paymentRequestType: params.method === 'wallet' ? 'POINT_PAYMENT_REQUESTED' : 'GENERAL_PAYMENT_REQUESTED',
         buyerId: userId!,
         sellerId: sellerId!,
         amount: finalAmount,
@@ -244,25 +236,20 @@ const BookingPaymentPage: React.FC = () => {
     },
   })
 
-  // 결제 버튼 핸들러 (모바일 UI 동작 유지)
+  // 주석: 결제수단 토글(모바일 UX 유지)
   const toggleMethod = (m: PaymentMethod) => {
     if (isPaying) return
     setOpenedMethod((prev) => (prev === m ? null : m))
     setErr(null)
   }
 
+  // 주석: 결제 버튼
   const handlePayment = async () => {
-    if (!checkout) {
-      setErr('결제 정보를 불러오지 못했어요. 처음부터 다시 진행해주세요.')
-      return
-    }
-    if (!openedMethod) {
-      setErr('결제 수단을 선택해주세요.')
-      return
-    }
+    if (!checkout) { setErr('결제 정보를 불러오지 못했어요. 처음부터 다시 진행해주세요.'); return }
+    if (!openedMethod) { setErr('결제 수단을 선택해주세요.'); return }
     if (isPaying) return
 
-    // paymentId 고정
+    // paymentId 고정(웹과 동일)
     const ensuredId = ensuredPaymentId ?? paymentId ?? createPaymentId()
     if (!ensuredPaymentId) setEnsuredPaymentId(ensuredId)
     if (!paymentId) setPaymentId(ensuredId)
@@ -278,7 +265,7 @@ const BookingPaymentPage: React.FC = () => {
       return
     }
 
-    // 지갑: 비번 모달 열기(모달 내부에서 tekcitpay → 웹소켓 또는 타임아웃으로 결과 이동)
+    // 지갑: 비번 모달 열기(모달 내부에서 tekcitpay → WS/타임아웃으로 결과 이동)
     if (openedMethod === 'wallet') {
       setIsPaying(false)
       setIsPasswordModalOpen(true)
@@ -298,6 +285,7 @@ const BookingPaymentPage: React.FC = () => {
         failUrl: `${window.location.origin}/payment/result?type=booking&status=fail`,
       } as any)
 
+      // 주석: 구버전 대응
       if (!tossRef.current?.requestPay) {
         await (tossRef.current as any)?.requestPay?.()
       }
@@ -309,7 +297,7 @@ const BookingPaymentPage: React.FC = () => {
     }
   }
 
-  // sellerId 로딩 중
+  // 주석: 가드 렌더
   if (!checkout) {
     return (
       <div className={styles.page}>
@@ -331,6 +319,7 @@ const BookingPaymentPage: React.FC = () => {
     )
   }
 
+  // 주석: 실제 렌더(모바일 UI 유지)
   return (
     <div className={styles.page}>
       <div className={styles.container} role="main" aria-labelledby={PAGE_TITLE_ID}>
@@ -441,7 +430,7 @@ const BookingPaymentPage: React.FC = () => {
         </AlertModal>
       )}
 
-      {/* 모달: 지갑 비밀번호 (tekcitpay 성공 시 complete 호출 없이 결과 이동; 웹소켓 미수신 대비 타임아웃 이동) */}
+      {/* 모달: 지갑 비밀번호(tekcitpay 성공 시 결과 이동; WS 미수신 대비 타임아웃) */}
       {isPasswordModalOpen && ensuredPaymentId && Number.isFinite(userId) && (
         <PasswordInputModal
           amount={finalAmount}
