@@ -1,50 +1,57 @@
-// 📄 src/components/payment/delivery/DeliveryManageModal.tsx 멍
-// - 단순 조회 + 선택 모달 컴포넌트
-// - axios 기반 getAddresses 사용, AbortController 제거
-// - catch는 unknown으로 받아 타입/ESLint 만족
+import { useEffect, useState, useMemo } from 'react'
+import type { AxiosError } from 'axios'
 
-import { useEffect, useState } from 'react'
 import AddressItem from '@/components/payment/address/AddressItem'
 import Header from '@components/payment/delivery/DeliveryHeader'
 import Footer from '@components/payment/delivery/DeliveryFooter'
-import { getAddresses, type AddressDTO } from '@/shared/api/payment/addresses'
+import { getAddress, type AddressDTO } from '@/shared/api/payment/address'
 
 import styles from './DeliveryManageModal.module.css'
 
-// ✅ props 타입 정의
 interface DeliveryManageModalProps {
   onClose?: () => void
   onSelectAddress?: (addr: {
-    address: string // 선택된 주소
-    zipCode?: string // 우편번호(선택)
-    id?: number // 서버 id(선택)
+    name?: string          // 수령인 이름
+    phone?: string         // 수령인 전화번호
+    address: string        // 선택된 주소
+    zipCode?: string       // 우편번호
+    isDefault?: boolean    // 기본 배송지 여부
   }) => void
 }
 
 // ✅ React.FC로 선언하되, JSX를 반드시 return 해야 함
-const DeliveryManageModal: React.FC<DeliveryManageModalProps> = ({ onClose, onSelectAddress }) => {
+const DeliveryManageModal: React.FC<DeliveryManageModalProps> = ({
+  onClose,
+  onSelectAddress,
+}) => {
   // 상태들
-  const [addresses, setAddresses] = useState<AddressDTO[]>([]) // 목록
+  const [addresses, setAddress] = useState<AddressDTO[]>([])         // 목록
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null) // 선택 인덱스
-  const [loading, setLoading] = useState(false) // 로딩
-  const [error, setError] = useState<string | null>(null) // 에러 메시지
-  const [authRequired, setAuthRequired] = useState(false) // 401 여부
+  const [loading, setLoading] = useState(false)                        // 로딩
+  const [error, setError] = useState<string | null>(null)              // 에러 메시지
+  const [authRequired, setAuthRequired] = useState(false)
 
   // 목록 로드 함수
   const load = async () => {
     setLoading(true)
     setError(null)
     setAuthRequired(false)
-
     try {
-      const list = await getAddresses() // ✅ 단순 조회
-      setAddresses(list ?? []) // ✅ 빈배열 안전
-      setSelectedIndex(null) // ✅ 선택 초기화
+      const list = await getAddress()
+      setAddress(list ?? [])
+
+      const defaultIdx = (list ?? []).findIndex(a => a.default === true)
+      setSelectedIndex(defaultIdx >= 0 ? defaultIdx : null)
     } catch (e: unknown) {
-      // ✅ Axios 인터셉터에서 status를 부여해두었다면 안전하게 판별
-      const status = (e as { status?: number })?.status
+      const axErr = e as AxiosError<{ message?: string }>
+      const status = axErr?.response?.status
+
       if (status === 401) {
         setAuthRequired(true)
+      } else if (axErr?.response?.data?.message) {
+        setError(axErr.response.data.message)
+      } else if (axErr?.message) {
+        setError(axErr.message)
       } else if (e instanceof Error) {
         setError(e.message)
       } else {
@@ -55,21 +62,23 @@ const DeliveryManageModal: React.FC<DeliveryManageModalProps> = ({ onClose, onSe
     }
   }
 
-  // 마운트 시 1회 로드
   useEffect(() => {
     load()
   }, [])
 
-  // 선택된 아이템 도출
-  const selected = selectedIndex !== null ? addresses[selectedIndex] : undefined
+  const selected = useMemo(
+    () => (selectedIndex !== null ? addresses[selectedIndex] : undefined),
+    [selectedIndex, addresses],
+  )
 
-  // 하단 선택 버튼 클릭 시 상위로 콜백
   const handleSelectButton = () => {
     if (!selected) return
     onSelectAddress?.({
+      name: selected.name,
+      phone: selected.phone,
       address: selected.address,
       zipCode: selected.zipCode,
-      id: selected.id,
+      isDefault: selected.default,
     })
     onClose?.()
   }
@@ -79,39 +88,46 @@ const DeliveryManageModal: React.FC<DeliveryManageModalProps> = ({ onClose, onSe
     <div className={styles.container}>
       <Header onClose={() => onClose?.()} />
 
-      <div className={styles.content}>
-        {loading && <p className={styles.info}>배송지 불러오는 중…</p>}
-        {!loading && authRequired && <p className={styles.info}>세션 만료…</p>}
-        {!loading && !authRequired && error && <p className={styles.error}>{error}</p>}
-        {!loading && !authRequired && !error && addresses.length === 0 && (
-          <p className={styles.info}>등록된 배송지가 없습니다.</p>
-        )}
+      {/* 상태 메시지 */}
+      {loading && <p className={styles.info}>배송지 불러오는 중…</p>}
+      {!loading && authRequired && (
+        <p className={styles.info}>세션이 만료되었습니다. 다시 로그인해 주세요.</p>
+      )}
+      {!loading && !authRequired && error && (
+        <p className={styles.error}>{error}</p>
+      )}
+      {!loading && !authRequired && !error && addresses.length === 0 && (
+        <p className={styles.info}>등록된 배송지가 없습니다.</p>
+      )}
 
-        {!loading && !authRequired && !error && addresses.length > 0 && (
-          <div className={styles['address-wrapper']}>
-            <ul className={styles['address-list']}>
-              {addresses.map((addr, idx) => (
-                <li
-                  key={addr.id ?? `${addr.address}-${addr.zipCode}-${idx}`}
-                  className={`${styles['address-list-item']} ${
-                    selectedIndex === idx ? styles.selected : ''
-                  }`}
+      {/* 주소 목록 */}
+      {!loading && !authRequired && !error && addresses.length > 0 && (
+        <div className={styles['address-wrapper']}>
+          <ul className={styles['address-list']}>
+            {addresses.map((addr, idx) => (
+              <li
+                key={`${addr.address}-${addr.zipCode}-${idx}`} // id 대신 안전한 fallback 키
+                className={`${styles['address-list-item']} ${
+                  selectedIndex === idx ? styles.selected : ''
+                }`}
+                onClick={() => setSelectedIndex(idx)}
+                style={{ cursor: 'pointer' }}
+              >
+                <AddressItem
+                  name={addr.name}
+                  phone={addr.phone}
+                  address={addr.address}
+                  zipCode={addr.zipCode}
+                  isDefault={!!addr.default}
+                  selected={selectedIndex === idx}
                   onClick={() => setSelectedIndex(idx)}
-                >
-                  <AddressItem
-                    address={addr.address}
-                    zipCode={addr.zipCode}
-                    isDefault={!!addr.isDefault}
-                    selected={selectedIndex === idx}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-      {/* ✅ 항상 하단 */}
       <Footer onSelect={handleSelectButton} />
     </div>
   )

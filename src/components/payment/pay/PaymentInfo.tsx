@@ -1,56 +1,47 @@
-// 📄 src/components/payment/pay/PaymentInfo.tsx 멍
-// - 주문 요약 카드(포스터/타이틀/일시 + 금액/매수/배송비 표시) 멍
-// - props: receiveType, shippingFee(옵션) 추가 멍
-// - 배송 방식일 때만 배송비 행을 표시하도록 조건부 렌더링 멍
-
-import React from 'react'
+import { useLocation } from 'react-router-dom'
 import styles from './PaymentInfo.module.css'
 
-// ✅ 수령 방법 타입(ReceiveInfo와 호환) 멍
-export type ReceiveType = 'QR' | 'DELIVERY' | 'COURIER'
-
-// ✅ 컴포넌트에 전달할 요약 정보 타입 멍
-export interface PaymentSummaryProps {
-  posterUrl?: string                     // 공연 포스터 URL 멍
-  title: string                          // 공연 제목 멍
-  dateTimeLabel: string                  // 일시(예: 2025.09.21 (일) 17:00) 멍
-  unitPrice: number                      // 1매 금액 멍
-  quantity: number                       // 매수 멍
-  receiveType: ReceiveType               // ✅ 수령 방법(배송/QR) 멍
-  shippingFee?: number                   // ✅ 배송비(옵션, 기본 0) 멍
-  buyerName?: string                     // 예매자 이름(옵션) 멍
-  festivalId?: string | number           // 페스티벌 ID(옵션: 표시는 기본 비노출) 멍
-  showFestivalId?: boolean               // true면 ID도 표시 멍
+// ✅ 웹 버전과 동일한 state 타입
+interface PaymentInfoState {
+  bookingId: string
+  festivalId: string
+  posterUrl?: string
+  title: string
+  performanceDate: string
+  unitPrice: number
+  quantity: number
+  bookerName?: string
+  deliveryMethod: string // 'QR' | 'DELIVERY'
+  reservationNumber?: string
 }
 
-// ✅ 통화 포맷 유틸(원화) 멍
-const asKRW = (n: number) =>
-  new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW',
-    maximumFractionDigits: 0,
-  })
-    .format(n)
-    .replace('₩', '') + '원'
+const PaymentInfo: React.FC = () => {
+  // ✅ 웹 버전과 동일한 라우터 state 수신
+  const location = useLocation()
+  const state = location.state as PaymentInfoState | undefined
 
-// ✅ 수령 방법 한글 라벨 변환 멍
-const receiveLabel = (t: ReceiveType) =>
-  t === 'QR' ? '모바일 QR' : '택배 배송'
+  // 데이터 없으면 표시
+  if (!state) {
+    return (
+      <div className={styles.card}>
+        <p>결제 정보가 없습니다.</p>
+      </div>
+    )
+  }
 
-const PaymentInfo: React.FC<PaymentSummaryProps> = ({
-  posterUrl,
-  title,
-  dateTimeLabel,
-  unitPrice,
-  quantity,
-  receiveType,             // ✅ 추가 멍
-  shippingFee = 0,         // ✅ 기본값 0 멍
-  buyerName,
-  festivalId,
-  showFestivalId = false,  // 기본은 ID 비표시 멍
-}) => {
-  // ✅ 배송 방식 여부(배송: DELIVERY/COURIER) 멍
-  const isDelivery = receiveType === 'DELIVERY' || receiveType === 'COURIER'
+  // ✅ 여기부터는 state가 정의됨 (TS가 타입을 좁힘)
+  const { 
+    posterUrl, 
+    title, 
+    performanceDate, 
+    unitPrice, 
+    quantity, 
+    bookerName, 
+    deliveryMethod 
+  } = state
+  
+  // ✅ 총 결제 금액 계산
+  const total = unitPrice * quantity
 
   return (
     <div className={styles.card}>
@@ -65,31 +56,22 @@ const PaymentInfo: React.FC<PaymentSummaryProps> = ({
         </div>
         <div className={styles.titleBox}>
           <p className={styles.title}>{title}</p>
-          <p className={styles.sub}>{dateTimeLabel}</p>
-          {/* 수령 방법 뱃지(시각 보조용) 멍 */}
-          <span className={styles.badge}>{receiveLabel(receiveType)}</span>
+          <p className={styles.sub}>{performanceDate}</p>
         </div>
       </div>
 
       {/* ─ 정보 표 ─ */}
       <div className={styles.table}>
-        {showFestivalId && festivalId != null && (
-          <div className={styles.row}>
-            <span className={styles.label}>페스티벌 ID</span>
-            <span className={styles.value}>{festivalId}</span>
-          </div>
-        )}
-
-        {buyerName && (
-          <div className={styles.row}>
-            <span className={styles.label}>예매자</span>
-            <span className={styles.value}>{buyerName}</span>
-          </div>
-        )}
+        <div className={styles.row}>
+          <span className={styles.label}>예매자</span>
+          <span className={styles.value}>{bookerName || '자동입력'}</span>
+        </div>
 
         <div className={styles.row}>
-          <span className={styles.label}>티켓 금액</span>
-          <span className={styles.value}>{asKRW(unitPrice)}</span>
+          <span className={styles.label}>수령 방법</span>
+          <span className={styles.value}>
+            {deliveryMethod === 'QR' ? 'QR 티켓' : 'QR 티켓과 지류 티켓 배송'}
+          </span>
         </div>
 
         <div className={styles.row}>
@@ -97,13 +79,16 @@ const PaymentInfo: React.FC<PaymentSummaryProps> = ({
           <span className={styles.value}>{quantity}매</span>
         </div>
 
-        {/* ✅ 배송 방식일 때만 배송비 노출 멍 */}
-        {isDelivery && (
-          <div className={styles.row}>
-            <span className={styles.label}>배송비</span>
-            <span className={styles.value}>{asKRW(shippingFee)}</span>
-          </div>
-        )}
+        <div className={styles.row}>
+          <span className={styles.label}>티켓 금액</span>
+          <span className={styles.value}>{unitPrice.toLocaleString()}</span>
+        </div>
+
+        {/* ✅ 총 결제 금액: 프론트 계산 값 */}
+        <div className={`${styles.row} ${styles.totalRow}`}>
+          <span className={styles.labelTotal}>총 결제</span>
+          <span className={styles.valueTotal}>{total.toLocaleString()}</span>
+        </div>
       </div>
     </div>
   )
