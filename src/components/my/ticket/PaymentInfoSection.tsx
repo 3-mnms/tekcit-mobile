@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react'
 import { usePaymentOrdersQuery } from '@/models/my/ticket/tanstack-query/usePaymentOrders'
 import styles from './PaymentInfoSection.module.css'
-import { useNavigate } from 'react-router-dom' // ✅ 추가
+import { useNavigate } from 'react-router-dom' 
 
 type Props = {
   bookingId: string
@@ -78,7 +78,13 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
       console.warn('[PaymentInfoSection] paymentId가 없습니다. order:', order)
       return
     }
-    navigate(`/payment/refund/${paymentId}`)
+    navigate(`/payment/refund/${paymentId}`, {
+      state: {
+        paymentId,
+        paymentAmount: order?.amount,      
+        currency: order?.currency ?? 'KRW' 
+      },
+    })
   }
 
   if (isLoading) {
