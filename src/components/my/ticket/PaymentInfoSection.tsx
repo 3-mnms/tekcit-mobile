@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react'
 import { usePaymentOrdersQuery } from '@/models/my/ticket/tanstack-query/usePaymentOrders'
 import styles from './PaymentInfoSection.module.css'
-import { useNavigate } from 'react-router-dom' // ✅ 추가
+import { useNavigate } from 'react-router-dom' 
 
 type Props = {
   bookingId: string
