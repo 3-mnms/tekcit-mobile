@@ -1,4 +1,4 @@
-// src/components/festival/detail/FestivalScheduleSection.tsx (모바일 로직만 업그레이드)
+// src/components/festival/detail/FestivalScheduleSection.tsx (모바일 로직 업그레이드)
 import React, { useMemo, useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import { isSameDay } from 'date-fns'
@@ -70,6 +70,9 @@ const parseMinAge = (raw?: string | null): number | null => {
   return null
 }
 
+/** 요일 키 */
+const DOW_KEYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as const
+
 /** 테스트 중 강제 대기열로 보내기 (완료 후 false) */
 const FORCE_WAIT = true
 
@@ -81,7 +84,7 @@ const FestivalScheduleSection: React.FC = () => {
   const location = useLocation()
   const accessToken = useAuthStore((s) => s.accessToken)
   const { refetch: refetchAge } = useUserAgeQuery({ enabled: false })
-  const enterMut = useEnterWaitingMutation()
+  const enterMut = useEnterWaitingMutation() // ✅ 훅은 컴포넌트 최상단에서 1회만
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -95,7 +98,7 @@ const FestivalScheduleSection: React.FC = () => {
 
   /** 기간 파싱 */
   const startDate = useMemo(() => parseYMD((detail as any)?.prfpdfrom as any), [detail?.prfpdfrom])
-  const endDate = useMemo(() => parseYMD((detail as any)?.prfpdto as any), [detail?.prfpdto])
+  const endDate   = useMemo(() => parseYMD((detail as any)?.prfpdto as any),   [detail?.prfpdto])
   const isSingleDay = !!startDate && !!endDate && isSameDay(startDate, endDate)
 
   /** 과거 비활성: 시작일 vs 오늘 중 늦은 날 */
@@ -104,23 +107,38 @@ const FestivalScheduleSection: React.FC = () => {
     return startDate < today ? today : startDate
   }, [startDate, today])
 
-  /** 공연 요일 집합 (비어있으면 요일 제한 없음) */
+  /** 공연 요일 집합: timesByDow가 있으면 그 키로, 없으면 daysOfWeek */
   const allowedDowSet = useMemo(() => {
-    const src = ((detail as any)?.daysOfWeek ?? []) as Array<string | null | undefined>
     const set = new Set<number>()
+    if (detail?.timesByDow && Object.keys(detail.timesByDow).length > 0) {
+      for (const k of Object.keys(detail.timesByDow)) {
+        const idx = DOW_KEYS.indexOf(k as (typeof DOW_KEYS)[number])
+        if (idx >= 0) set.add(idx)
+      }
+      return set
+    }
+    const src = ((detail as any)?.daysOfWeek ?? []) as Array<string | null | undefined>
     for (const v of src) {
       const n = toJsDow(v ?? undefined)
       if (n !== undefined) set.add(n)
     }
     return set
-  }, [detail?.daysOfWeek])
+  }, [detail?.timesByDow, detail?.daysOfWeek])
 
-  /** 날짜 선택 가능 판정 */
+  /** 날짜 선택 가능 판정: 기간 + (단일일자 특례) + 허용 요일 + 해당 요일에 타임 존재 */
   const isSelectableDate = (date: Date) => {
     if (effectiveMinDate && date < effectiveMinDate) return false
     if (endDate && date > endDate) return false
     if (isSingleDay && endDate) return isSameDay(date, endDate)
-    if (allowedDowSet.size > 0 && !allowedDowSet.has(date.getDay())) return false
+
+    const dow = date.getDay()
+    if (allowedDowSet.size > 0 && !allowedDowSet.has(dow)) return false
+
+    // timesByDow가 있으면 그 요일에 시간이 있어야 함
+    const key = DOW_KEYS[dow]
+    const list = (detail?.timesByDow?.[key] ?? []) as string[]
+    if (Array.isArray(list) && list.length === 0) return false
+
     return true
   }
 
@@ -155,23 +173,16 @@ const FestivalScheduleSection: React.FC = () => {
     const minD = first ?? (effectiveMinDate ?? startDate ?? today)
     const maxD = last ?? (endDate ?? minD)
     return [minD, maxD]
-  }, [effectiveMinDate, endDate, startDate, today, isSingleDay])
+  }, [effectiveMinDate, endDate, startDate, today, isSingleDay, allowedDowSet, detail?.timesByDow])
 
-  /** 시작시간 목록: DTO times → 중복 제거 후 정렬 */
-  const baseTimes = useMemo(() => {
-    const t = ((detail as any)?.times ?? []) as string[]
-    const unique = Array.from(
-      new Set(t.map((s) => (typeof s === 'string' ? s.trim() : '')).filter(Boolean)),
-    )
-    unique.sort()
-    return unique
-  }, [detail?.times])
-
-  /** 선택된 날짜의 표시 시간들 */
+  /** ✅ 선택된 날짜의 시간들: 선택 날짜의 요일 → timesByDow[요일] */
   const availableTimes = useMemo(() => {
     if (!selectedDate) return [] as string[]
-    return baseTimes
-  }, [selectedDate, baseTimes])
+    const dowIdx = selectedDate.getDay()
+    const key = DOW_KEYS[dowIdx]
+    const list = (detail?.timesByDow?.[key] ?? []) as string[]
+    return Array.isArray(list) ? list : []
+  }, [selectedDate, detail?.timesByDow])
 
   /** 시간이 없으면 "공연시작" */
   const timesToShow = useMemo(
@@ -182,8 +193,7 @@ const FestivalScheduleSection: React.FC = () => {
   /** 날짜 변경 시 첫 시간 자동 선택 */
   useEffect(() => {
     if (!selectedDate) return
-    if (availableTimes.length > 0) setSelectedTime(availableTimes[0])
-    else setSelectedTime(null)
+    setSelectedTime(availableTimes.length > 0 ? availableTimes[0] : null)
   }, [selectedDate, availableTimes])
 
   /** 최초 자동 선택 */
@@ -193,7 +203,7 @@ const FestivalScheduleSection: React.FC = () => {
 
     let initialDate: Date | null = null
     if (isSingleDay && endDate) {
-      initialDate = endDate
+      if (isSelectableDate(endDate)) initialDate = endDate
     } else {
       if (endDate) {
         const startScan = new Date(effectiveMinDate ?? today)
@@ -201,14 +211,18 @@ const FestivalScheduleSection: React.FC = () => {
           if (isSelectableDate(startScan)) { initialDate = new Date(startScan); break }
           startScan.setDate(startScan.getDate() + 1)
         }
-      } else if (effectiveMinDate) {
+      } else if (effectiveMinDate && isSelectableDate(effectiveMinDate)) {
         initialDate = effectiveMinDate
       }
     }
-    const initialTime = baseTimes.length > 0 ? baseTimes[0] : null
-    if (initialDate) setSelectedDate((p) => p ?? initialDate)
-    if (initialTime) setSelectedTime((p) => p ?? initialTime)
-  }, [detail, isSingleDay, endDate, effectiveMinDate, today, baseTimes, selectedDate, selectedTime])
+
+    if (initialDate) {
+      const key = DOW_KEYS[initialDate.getDay()]
+      const list = (detail?.timesByDow?.[key] ?? []) as string[]
+      setSelectedDate((p) => p ?? initialDate)
+      setSelectedTime((p) => p ?? (list[0] ?? null))
+    }
+  }, [detail, isSingleDay, endDate, effectiveMinDate, today, selectedDate, selectedTime, isSelectableDate])
 
   const confirmDisabled = !selectedDate || !selectedTime
 
@@ -231,7 +245,7 @@ const FestivalScheduleSection: React.FC = () => {
             <div className={styles.datepickerWrapper}>
               <DatePicker
                 inline
-                locale={ko}
+                locale={ko as any}
                 selected={selectedDate}
                 onChange={(d) => setSelectedDate(d)}
                 minDate={minNavDate}
@@ -299,7 +313,7 @@ const FestivalScheduleSection: React.FC = () => {
               const minAge = parseMinAge(ageText)
               if (minAge !== null && minAge > 0) {
                 try {
-                  const { data: userAge } = await refetchAge() // 서버에서 나이 확인
+                  const { data: userAge } = await refetchAge()
                   if (userAge == null) {
                     alert('나이 확인에 실패했어요. 잠시 후 다시 시도해 주세요.')
                     return
@@ -322,7 +336,7 @@ const FestivalScheduleSection: React.FC = () => {
                 const params = new URLSearchParams()
                 params.set('date', ymd(selectedDate))
                 if (selectedTime) params.set('time', selectedTime)
-                params.set('wn', '1') // 더미 대기자 수
+                params.set('wn', '1')
                 if (fdfrom) params.set('fdfrom', fdfrom)
                 if (fdto) params.set('fdto', fdto)
                 navigate(`/reservation/${fid}/queue?${params.toString()}`)
@@ -332,13 +346,13 @@ const FestivalScheduleSection: React.FC = () => {
               // 4) 대기열 진입 API → 즉시/대기 분기
               try {
                 const reservationDateTime = combineDateTime(selectedDate, selectedTime)
-                const res = await useEnterWaitingMutation().mutateAsync({
+                // ❗️훅 재호출 금지: 이미 선언한 enterMut 사용
+                const res = await enterMut.mutateAsync({
                   festivalId: fid,
                   reservationDate: reservationDateTime,
                 })
 
                 if (res.immediateEntry) {
-                  // 즉시 예약 페이지
                   const params = new URLSearchParams()
                   params.set('date', ymd(selectedDate))
                   if (selectedTime) params.set('time', selectedTime)
@@ -346,7 +360,6 @@ const FestivalScheduleSection: React.FC = () => {
                   if (fdto) params.set('fdto', fdto)
                   navigate(`/reservation/${fid}?${params.toString()}`)
                 } else {
-                  // 대기열 페이지
                   const params = new URLSearchParams()
                   params.set('date', ymd(selectedDate))
                   if (selectedTime) params.set('time', selectedTime)
