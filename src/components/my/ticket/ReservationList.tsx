@@ -62,7 +62,7 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
     return (
       <div className={styles.list}>
         <p className={styles.empty}>
-          목록 조회 실패: {(error as Error)?.message ?? '알 수 없는 오류'}
+          예매 내역이 존재하지 않습니다.
         </p>
       </div>
     )

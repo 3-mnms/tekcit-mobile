@@ -5,18 +5,13 @@ import Hot from '@/components/festival/main/HotSection'
 import Category from '@/components/festival/main/CategorySection'
 import KakaoPopupBridge from '@/components/auth/login/KakaoPopupBridge'
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
-import { useUIStore } from '@/shared/store/uiStore';
+import TikiChatWidget from '@/components/ai/chatbot/TikiChatWidget';
 
 const MainPage: React.FC = () => {
-  // const { setBaseHeader } = useUIStore();
-
-  // useEffect(() => {
-  //   setBaseHeader();
-  // }, [setBaseHeader]);
-
 
   return (
     <div>
+      <TikiChatWidget />
       {typeof window !== 'undefined' && !!window.opener && <KakaoPopupBridge status="existing" />}
       <Header />
       <Hot />
