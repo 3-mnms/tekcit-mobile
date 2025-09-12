@@ -20,9 +20,9 @@ const toLocalIsoString = (date: Date, timeHHmm: string) => {
   return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}T${pad2(dt.getHours())}:${pad2(dt.getMinutes())}:00`;
 };
 
-const DOW: Array<'SUN'|'MON'|'TUE'|'WED'|'THU'|'FRI'|'SAT'> = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const DOW: Array<'SUN' | 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT'> = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-const parseYMD = (s?: string|null) => {
+const parseYMD = (s?: string | null) => {
   if (!s) return null;
   const d = s.includes('T') ? new Date(s) : new Date(`${s}T00:00:00`);
   if (isNaN(d.getTime())) return null;
@@ -45,10 +45,10 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
     null;
 
   if (fdfrom) fromDate = parseYMD(fdfrom) || fromDate;
-  if (fdto)   toDate   = parseYMD(fdto)   || toDate;
+  if (fdto) toDate = parseYMD(fdto) || toDate;
 
   if (!fromDate || !toDate) {
-    const base = new Date(); base.setHours(0,0,0,0);
+    const base = new Date(); base.setHours(0, 0, 0, 0);
     fromDate ||= base;
     toDate ||= new Date(base.getFullYear(), base.getMonth(), base.getDate() + 90);
   }
@@ -75,7 +75,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
     const timeByWeekday = new Map<string, Set<string>>();
     list.forEach((s: any) => {
       const dow = String(s?.dayOfWeek || '').toUpperCase();
-      const time = typeof s?.time === 'string' ? s.time.slice(0,5) : '';
+      const time = typeof s?.time === 'string' ? s.time.slice(0, 5) : '';
       if (!dow || !time) return;
       weekdaySet.add(dow);
       (timeByWeekday.get(dow) || timeByWeekday.set(dow, new Set()).get(dow)!).add(time);
@@ -102,7 +102,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
       Array.from(set).sort((a, b) => {
         const [ha, ma] = a.split(':').map(Number);
         const [hb, mb] = b.split(':').map(Number);
-        return ha*60+ma - (hb*60+mb);
+        return ha * 60 + ma - (hb * 60 + mb);
       })
     ])
   );
@@ -182,7 +182,7 @@ const TicketOrderPage: React.FC = () => {
     }
 
     const fdFromStr = (sp.get('fdfrom') || phase1?.fdfrom || phase1?.period?.from) ?? undefined;
-    const fdToStr   = (sp.get('fdto')   || phase1?.fdto   || phase1?.period?.to)   ?? undefined;
+    const fdToStr = (sp.get('fdto') || phase1?.fdto || phase1?.period?.to) ?? undefined;
 
     const cal = buildCalendarData(phase1, fdFromStr, fdToStr);
 
@@ -237,7 +237,7 @@ const TicketOrderPage: React.FC = () => {
       try {
         const res = await selMut.mutateAsync(payload);
         const reservationNumber = typeof res === 'string' ? res : (res?.data ?? res);
-        try { sessionStorage.setItem('reservationId', reservationNumber); } catch {}
+        try { sessionStorage.setItem('reservationId', reservationNumber); } catch { }
         navigate(`/reservation/${fid}/order-info?res=${encodeURIComponent(reservationNumber)}`, {
           replace: true,
           state: {
@@ -290,7 +290,7 @@ const TicketOrderPage: React.FC = () => {
                 maxQuantity,
                 selectedDate: selDate ?? serverSelectedDate ?? null,
                 selectedTime: selTime ?? serverSelectedTime ?? null,
-                onSelectionChange: (d: Date|null, t: string|null, q: number) => {
+                onSelectionChange: (d: Date | null, t: string | null, q: number) => {
                   setSelDate(d ?? null);
                   setSelTime(t ?? null);
                   setSelQty(q);
@@ -315,7 +315,9 @@ const TicketOrderPage: React.FC = () => {
       {!captchaPassed && (
         <CaptchaOverlay
           onVerified={() => setCaptchaPassed(true)}
-          onCloseWindow={() => window.close()}
+          // ❌ 기존: window.close()
+          // ✅ 수정: 예약 첫 페이지로 이동
+          onCloseWindow={() => navigate(`/festival/${fid}`)}
           expireSeconds={180}
         />
       )}
