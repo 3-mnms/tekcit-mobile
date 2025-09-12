@@ -103,6 +103,16 @@ const TicketOrderSection: React.FC<Props> = ({
     if (!time || !timesForDate.includes(time)) setTime(timesForDate[0])
   }, [date, timesForDate])
 
+  const handleChangeDate = (d: Date | null) => {
+    setDate(d)
+    const list = getTimesFor(d)
+    if (list.length === 0) {
+      setTime(null)
+    } else if (!time || !list.includes(time)) {
+      setTime(list[0]) // 가장 빠른 시간 자동 선택
+    } // 같은 시간이 있으면 유지
+  }
+
   const [quantity, setQuantity] = React.useState(clamp(initialQuantity, 1, Math.max(1, maxQty)))
   const totalPrice = unitPrice * (isSoldOut ? 0 : quantity)
   const isReady = !!date && !!time && !isSoldOut
@@ -119,10 +129,10 @@ const TicketOrderSection: React.FC<Props> = ({
       {!hideHeader && <h2 className={styles.header}>예매 정보</h2>} {/* ✅ 조건부 렌더 */}
       <div className={styles.content}>
         {/* 달력 + 시간 */}
-        <div className={styles.calendar}>
+        <div className={styles.dpCard}>
           <DatePicker
             selected={date}
-            onChange={(d) => setDate(d)}
+            onChange={handleChangeDate}
             locale={ko}
             inline
             filterDate={includeDate}
@@ -130,6 +140,48 @@ const TicketOrderSection: React.FC<Props> = ({
             minDate={minDate ?? undefined}
             maxDate={maxDate ?? undefined}
             showDisabledMonthNavigation
+            renderCustomHeader={({
+              date,
+              decreaseMonth,
+              increaseMonth,
+              prevMonthButtonDisabled,
+              nextMonthButtonDisabled,
+            }) => (
+              <div className={styles.dpHeader}>
+                <button
+                  type="button"
+                  onClick={decreaseMonth}
+                  disabled={prevMonthButtonDisabled}
+                  className={styles.dpNavBtn}
+                  aria-label="이전 달"
+                >
+                  ‹
+                </button>
+                <div className={styles.dpMonthTitle}>
+                  {date.getFullYear()}년 {String(date.getMonth() + 1).padStart(2, '0')}월
+                </div>
+                <button
+                  type="button"
+                  onClick={increaseMonth}
+                  disabled={nextMonthButtonDisabled}
+                  className={styles.dpNavBtn}
+                  aria-label="다음 달"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+            formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
+            dayClassName={(d) => {
+              const isSel = !!date && ymd(d) === ymd(date)
+              const isWeekend = [0, 6].includes(d.getDay())
+              return [
+                'custom-day',
+                includeDate(d) ? 'day-active' : 'day-inactive',
+                isSel ? 'day-selected' : '',
+                isWeekend ? 'day-weekend' : '',
+              ].join(' ')
+            }}
           />
         </div>
         <div className={styles.topGrid}>
