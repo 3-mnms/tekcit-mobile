@@ -1,5 +1,6 @@
 // src/components/my/dropdown/MenuItem.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './MenuItem.module.css';
 
 interface MenuItemProps {
@@ -7,7 +8,7 @@ interface MenuItemProps {
   to?: string;                      
   onClick?: () => void | Promise<void>; 
   showArrow?: boolean;
-  reload?: 'assign' | 'replace';      
+  replace?: boolean;   
   newTab?: boolean;                  
 }
 
@@ -16,9 +17,11 @@ const MenuItem: React.FC<MenuItemProps> = ({
   to,
   onClick,
   showArrow = false,
-  reload = 'assign',
+  replace = false,
   newTab = false,
 }) => {
+  const navigate = useNavigate();
+
   const content = (
     <>
       <span>{label}</span>
@@ -28,21 +31,15 @@ const MenuItem: React.FC<MenuItemProps> = ({
 
   if (to) {
     const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
-      if (!onClick) return;    
+      if (!onClick && !newTab) return;    
       e.preventDefault();        
-      try { await onClick(); } catch { /* noop */ }
 
-      if (newTab) {
-        window.open(to, '_blank', 'noopener');
-        return;
-      }
-      if (reload === 'replace') {
-        window.location.replace(to);
-      } else {
-        window.location.assign(to);
-      }
+      try { 
+        if (onClick) await onClick(); 
+      } catch { /* noop */ }
+
+      navigate(to, { replace });
     };
-
 
     return (
       <a
