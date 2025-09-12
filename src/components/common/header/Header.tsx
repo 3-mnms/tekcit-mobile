@@ -12,10 +12,10 @@ const Header: React.FC = () => {
   const [keyword, setKeyword] = useState('');
 
   const isHome = location.pathname === '/';
+  const isNearBy = location.pathname === '/nearby';
 
   useEffect(() => {
     if (isHome) {
-      // 홈에서는 제목/아이콘 등을 초기화
       setHeader({ leftIcon: undefined, title: '' });
     }
   }, [isHome, setHeader]);
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
     <header className={styles.header}>
       {/* 왼쪽 영역 */}
       <div className={styles.left}>
-        {(!isHome && leftIcon === 'back') ? (
+        {(!isHome && !isNearBy && leftIcon === 'back') ? (
           <button type="button" onClick={() => navigate(-1)} className={styles.iconButton}>
             <i className="fa-solid fa-arrow-left" />
           </button>

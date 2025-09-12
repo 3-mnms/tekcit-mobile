@@ -1,16 +1,15 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import styles from './NearbyShowsPage.module.css'
 import Button from '@/components/common/Button'
 import Header from '@/components/common/header/Header'
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
 import { useNavigate } from 'react-router-dom'
 import { useNearbyFestivalsQuery } from '@/models/ai/tanstack-query/useNearbyFestivals'
 import { useDefaultAddressQuery } from '@/models/auth/tanstack-query/useAddress'
 import NearbySpotEmbed, { type NearbyFestivalMini } from '@/components/ai/nearby/NearbySpotEmbed'
 
 declare global {
-  interface Window {
-    kakao: any
-  }
+  interface Window { kakao: any }
 }
 
 type UiShow = {
@@ -43,9 +42,11 @@ const NearbyShowsPage: React.FC = () => {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const mapObjRef = useRef<any>(null)
 
+  const [sheetOpen, setSheetOpen] = useState(true)
+  const [selected, setSelected] = useState<NearbyFestivalMini | null>(null)
+
   const { data: defaultAddr } = useDefaultAddressQuery()
   const { data, isLoading, isError, refetch } = useNearbyFestivalsQuery()
-  const [selected, setSelected] = React.useState<NearbyFestivalMini | null>(null)
 
   const shows = useMemo<UiShow[]>(() => (data?.festivalList ?? []).map(toUi), [data])
 
@@ -55,6 +56,25 @@ const NearbyShowsPage: React.FC = () => {
     return lat && lng ? { lat, lng } : null
   }, [data])
 
+  const fitToBounds = useCallback(() => {
+    if (!mapObjRef.current || !window.kakao?.maps) return
+    const map = mapObjRef.current
+    const bounds = new window.kakao.maps.LatLngBounds()
+
+    let added = false
+    shows.forEach((s) => {
+      if (!s.lat || !s.lng) return
+      bounds.extend(new window.kakao.maps.LatLng(s.lat, s.lng))
+      added = true
+    })
+    if (userCenter) {
+      bounds.extend(new window.kakao.maps.LatLng(userCenter.lat, userCenter.lng))
+      added = true
+    }
+    if (added) map.setBounds(bounds)
+  }, [shows, userCenter])
+
+  // 지도 렌더링
   useEffect(() => {
     if (!mapRef.current) return
     if (!window.kakao?.maps) return
@@ -70,10 +90,9 @@ const NearbyShowsPage: React.FC = () => {
 
       const map = mapObjRef.current ?? new window.kakao.maps.Map(mapRef.current as any, mapOption)
       if (!mapObjRef.current) mapObjRef.current = map
-      else
-        map.setCenter(mapOption.center)
+      else map.setCenter(mapOption.center)
 
-        // 기존 오버레이/마커 정리용
+      // 마커 클리어
       ;(map.__markers ?? []).forEach((m: any) => m.setMap(null))
       map.__markers = []
 
@@ -84,14 +103,12 @@ const NearbyShowsPage: React.FC = () => {
         map.__markers.push(marker)
 
         const iw = new window.kakao.maps.InfoWindow({
-          content: `<div style="padding:8px 10px;font-size:13px;">
-              <b>${s.title}</b><br/>
-              <span style="color:#666">${s.venue}</span>
+          content: `<div style="padding:8px 12px;font-size:13px;max-width:200px;line-height:1.4;border-radius:8px;">
+              <b style="color:#1f2937;">${s.title}</b><br/>
+              <span style="color:#6b7280;">${s.venue}</span>
             </div>`,
         })
 
-        window.kakao.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker))
-        window.kakao.maps.event.addListener(marker, 'mouseout', () => iw.close())
         window.kakao.maps.event.addListener(marker, 'click', () =>
           setSelected({
             id: s.id,
@@ -101,9 +118,10 @@ const NearbyShowsPage: React.FC = () => {
             lng: s.lng ?? null,
           }),
         )
+        window.kakao.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker))
+        window.kakao.maps.event.addListener(marker, 'mouseout', () => iw.close())
       })
 
-      // 사용자 위치 마커(있을 경우)
       if (userCenter) {
         const userMarker = new window.kakao.maps.Marker({
           position: new window.kakao.maps.LatLng(userCenter.lat, userCenter.lng),
@@ -111,139 +129,156 @@ const NearbyShowsPage: React.FC = () => {
         })
         map.__markers.push(userMarker)
       }
+
+      fitToBounds()
     }
 
-    if (window.kakao?.maps?.load) {
-      window.kakao.maps.load(render)
+    if (window.kakao?.maps?.load) window.kakao.maps.load(render)
+    else render()
+  }, [shows, userCenter, fitToBounds])
+
+  // 맵 컨트롤
+  const zoomIn = () => { if (mapObjRef.current) mapObjRef.current.setLevel(mapObjRef.current.getLevel() - 1) }
+  const zoomOut = () => { if (mapObjRef.current) mapObjRef.current.setLevel(mapObjRef.current.getLevel() + 1) }
+  const recenter = () => {
+    if (!mapObjRef.current || !window.kakao?.maps) return
+    const map = mapObjRef.current
+    if (userCenter) {
+      map.setCenter(new window.kakao.maps.LatLng(userCenter.lat, userCenter.lng))
+      map.setLevel(5)
     } else {
-      render()
+      fitToBounds()
     }
-  }, [shows, userCenter, navigate])
+  }
+
+  const addrText = defaultAddr ? `${defaultAddr?.address || ''}`.trim() : ''
 
   return (
     <div className={styles.pageWrapper}>
       <Header />
-      <div className={styles.page}>
-        <div className={styles.headerRow}>
-          <div className={styles.titleWrap}>
-            <i className="fa-solid fa-map-location-dot" />
-            <h1>내 주변 공연 추천</h1>
-          </div>
+      {/* 상단 주소 바 (첨부파일 스타일) */}
+      <div className={styles.addrBar}>
+        <div className={styles.addrMain}>
+          <i className={`fa-solid fa-location-dot ${styles.addrIcon}`} />
+          <span className={styles.addrText}>
+            {defaultAddr ? addrText : '기본 주소를 불러오는 중…'}
+          </span>
+        </div>
+        <Button
+          className={styles.addrBtn}
+          onClick={() => navigate('/mypage/myinfo/address')}
+        >
+          주소 변경
+        </Button>
+      </div>
 
-          <div className={styles.addr}>
-            현재 주소:&nbsp;
-            {defaultAddr
-              ? `${defaultAddr?.address || ''}`.trim()
-              : '불러오는 중…'}
-            <button
-              className={styles.addrBtn}
-              type="button"
-              onClick={() => navigate('/mypage/myinfo/address')}
-            >
-              기본 주소 변경
-            </button>
-          </div>
+      {/* 지도 영역 */}
+      <div className={styles.mapStage}>
+        <div ref={mapRef} className={styles.mapArea} />
+
+        {/* 맵 FAB (동그란 버튼 3종) */}
+        <div className={styles.mapFabCol}>
+          <button className={styles.fab} aria-label="확대" onClick={zoomIn}>
+            <i className="fa-solid fa-plus" />
+          </button>
+          <button className={styles.fab} aria-label="축소" onClick={zoomOut}>
+            <i className="fa-solid fa-minus" />
+          </button>
+          <button className={`${styles.fab} ${styles.fabAccent}`} aria-label="내 위치" onClick={recenter}>
+            <i className="fa-solid fa-location-crosshairs" />
+          </button>
         </div>
 
-        <div className={`${styles.content} ${selected ? styles.embedMode : ''}`}>
-          {selected ? (
-            <NearbySpotEmbed festival={selected} onBack={() => setSelected(null)} />
-          ) : (
-            <>
-              {/* 왼쪽 리스트 */}
-              <div className={styles.list}>
-                {isLoading && <div className={styles.skeleton}>근처 공연을 불러오는 중…</div>}
-                {isError && (
-                  <div className={styles.error}>
-                    불러오기에 실패했어요.
-                    <button className={styles.retry} onClick={() => refetch()}>
-                      다시 시도
-                    </button>
-                  </div>
-                )}
+        {/* 바텀시트 */}
+        <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}>
+          {/* 핸들 */}
+          <button className={styles.sheetHandle} onClick={() => setSheetOpen((v) => !v)}>
+            <span className={styles.handleBar} />
+          </button>
 
-                {!isLoading &&
-                  !isError &&
-                  shows.map((s) => (
-                    <div key={s.id} className={styles.card}>
-                      <div className={styles.poster} aria-hidden>
-                        {s.poster ? (
-                          <img src={s.poster} alt={`${s.title} 포스터`} />
-                        ) : (
-                          <span>포스터</span>
-                        )}
-                      </div>
+          {/* 헤더 */}
+          <div className={styles.sheetHeader}>
+            <div className={styles.titleWrap}>
+              <i className="fa-solid fa-map" />
+              <h1>내 주변 공연</h1>
+            </div>
 
-                      <div className={styles.meta}>
-                        <h3 className={styles.cardTitle}>{s.title}</h3>
-                        <div className={styles.venue}>{s.venue}</div>
-                        <div className={styles.distance}>
-                          내 위치로부터 <b>{s.distanceKm != null ? `${s.distanceKm}km` : '-'}</b>
-                        </div>
+            {!isLoading && !isError && (
+              <span className={styles.badgeCount}>{shows.length}개</span>
+            )}
+            {isLoading && <span className={styles.badgeMuted}>불러오는 중…</span>}
+            {isError && (
+              <button className={styles.badgeError} onClick={() => refetch()}>
+                불러오기 실패 — 다시 시도
+              </button>
+            )}
+          </div>
 
-                        <div className={styles.actions}>
-                          <Button
-                            className={styles.btnGhost}
-                            onClick={() =>
-                              setSelected({
-                                id: s.id,
-                                name: s.title,
-                                venue: s.venue,
-                                lat: s.lat ?? null,
-                                lng: s.lng ?? null,
-                              })
-                            }
-                          >
-                            주변 볼거리 & 먹거리
-                          </Button>
-                          <Button
-                            className={styles.btnPrimary}
-                            onClick={() => navigate(`/festival/${s.id}`)}
-                          >
-                            공연 상세 페이지로 이동
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+          {/* 리스트 */}
+          <div className={styles.list}>
+            {!isLoading && !isError && shows.length === 0 && (
+              <div className={styles.empty}>
+                <i className="fa-regular fa-map" />
+                <p>주변에 공연이 없습니다</p>
               </div>
+            )}
 
-              {/* 오른쪽 카카오맵 */}
-              <div className={styles.mapWrap}>
-                <div className={styles.mapHeader}>
-                  <span>지도 (카카오맵)</span>
-                  <div className={styles.mapTools}>
-                    <button
-                      type="button"
-                      aria-label="확대"
+            {!isLoading && !isError && shows.map((s) => (
+              <div key={s.id} className={styles.card}>
+                <div className={styles.poster} aria-hidden>
+                  {s.poster ? (
+                    <img src={s.poster} alt={`${s.title} 포스터`} />
+                  ) : (
+                    <span>포스터</span>
+                  )}
+                </div>
+
+                <div className={styles.meta}>
+                  <h3 className={`${styles.cardTitle} ${styles.clamp2}`}>{s.title}</h3>
+                  <div className={`${styles.venue} ${styles.clamp1}`}>{s.venue}</div>
+                  {s.distanceKm != null && (
+                    <span className={styles.badgeOutline}>{s.distanceKm}km</span>
+                  )}
+
+                  <div className={styles.actions}>
+                    <Button
+                      className={styles.btnGhost}
                       onClick={() =>
-                        mapObjRef.current &&
-                        mapObjRef.current.setLevel(mapObjRef.current.getLevel() - 1)
+                        setSelected({
+                          id: s.id,
+                          name: s.title,
+                          venue: s.venue,
+                          lat: s.lat ?? null,
+                          lng: s.lng ?? null,
+                        })
                       }
                     >
-                      <i className="fa-solid fa-plus" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="축소"
-                      onClick={() =>
-                        mapObjRef.current &&
-                        mapObjRef.current.setLevel(mapObjRef.current.getLevel() + 1)
-                      }
+                      주변 볼거리
+                    </Button>
+
+                    <Button
+                      className={styles.btnPrimary}
+                      onClick={() => navigate(`/festival/${s.id}`)}
                     >
-                      <i className="fa-solid fa-minus" />
-                    </button>
+                      상세 보기
+                    </Button>
                   </div>
                 </div>
-                <div ref={mapRef} className={styles.mapArea} />
-                {/* <div className={styles.kakaoBadge}>Kakao Map</div> */}
               </div>
-            </>
-          )}
+            ))}
+          </div>
         </div>
+
+        {/* NearbySpotEmbed 전체 오버레이 */}
+        {selected && (
+          <div className={styles.embedOverlay}>
+            <NearbySpotEmbed festival={selected} onBack={() => setSelected(null)} />
+          </div>
+        )}
       </div>
+
+      <BottomNav />
     </div>
   )
 }
-
 export default NearbyShowsPage
