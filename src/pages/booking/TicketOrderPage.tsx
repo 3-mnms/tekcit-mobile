@@ -1,5 +1,5 @@
 // src/pages/reservation/TicketOrderPage.tsx (모바일)
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styles from './TicketOrderPage.module.css';
 import TicketOrderSection from '@/components/reservation/TicketOrderSection';
@@ -7,6 +7,7 @@ import TicketOrderSection from '@/components/reservation/TicketOrderSection';
 import { useSelectDate, usePhase1Detail } from '@/models/booking/tanstack-query/useBookingDetail';
 import type { BookingSelect } from '@/models/booking/bookingTypes';
 import BookingProgress from '@/components/common/steps/BookingProgress';
+import CaptchaOverlay from '@/components/reservation/captcha/CaptchaOverlay';
 
 // ---------- utils ----------
 const pad2 = (n: number) => String(n).padStart(2, '0');
@@ -118,6 +119,18 @@ const TicketOrderPage: React.FC = () => {
   };
   const [sp] = useSearchParams();
 
+  // ✅ 캡챠 상태 (웹에서 이식)
+  const [captchaPassed, setCaptchaPassed] = useState(false);
+
+  // 스크롤 락 (캡챠 통과 전까지 body 스크롤 방지)
+  useEffect(() => {
+    if (!captchaPassed) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [captchaPassed]);
+
   // 초기값: params/state/query 순서
   const fid = state?.fid || fidParam || sp.get('fid') || '';
   const initialDateYMD = state?.dateYMD || sp.get('date') || '';
@@ -206,10 +219,16 @@ const TicketOrderPage: React.FC = () => {
 
   const selMut = useSelectDate();
 
+  // ✅ 더블 클릭/연타 방지 (웹에서 이식)
+  const clickLockRef = useRef(false);
+
   // 다음 단계
   const handleNext = useCallback(
     async ({ date, time, quantity }: { date: Date; time: string; quantity: number }) => {
       if (!fid) return;
+      if (clickLockRef.current) return;
+      clickLockRef.current = true;
+
       const payload: BookingSelect = {
         festivalId: fid,
         performanceDate: toLocalIsoString(date, time),
@@ -234,6 +253,8 @@ const TicketOrderPage: React.FC = () => {
       } catch (e) {
         console.error('예약번호 발급 실패', e);
         alert('예약번호 발급에 실패했어요. 잠시 후 다시 시도해주세요.');
+      } finally {
+        clickLockRef.current = false;
       }
     },
     [fid, navigate, selMut]
@@ -257,7 +278,7 @@ const TicketOrderPage: React.FC = () => {
       )}
 
       {!guardMessage && !(isLoading && !phase1) && (
-        <main className={styles.main}>
+        <main className={styles.main} aria-hidden={!captchaPassed}>
           {readyForUI ? (
             // 타입 차이 있을 수 있어 캐스팅 처리
             <TicketOrderSection
@@ -288,6 +309,15 @@ const TicketOrderPage: React.FC = () => {
             </div>
           )}
         </main>
+      )}
+
+      {/* ✅ 캡챠 오버레이 (웹과 동일 동작) */}
+      {!captchaPassed && (
+        <CaptchaOverlay
+          onVerified={() => setCaptchaPassed(true)}
+          onCloseWindow={() => window.close()}
+          expireSeconds={180}
+        />
       )}
     </div>
   );
