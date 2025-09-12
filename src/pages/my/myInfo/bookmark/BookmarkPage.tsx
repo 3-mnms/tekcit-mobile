@@ -34,7 +34,6 @@ const BookmarkPage: React.FC = () => {
       <MyHeader title="북마크" />
 
       <div className={styles.sectionHead}>
-        <p className={styles.subTitle}>관심 공연</p>
       </div>
 
       {isLoading ? (
