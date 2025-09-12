@@ -1,10 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import styles from './HotSection.module.css';
-import type { Festival, FestivalWithViews } from '@/models/festival/festivalType';
-import { getFestivals, getFestivalViews } from '@/shared/api/festival/festivalApi';
-import { useParams, Link } from 'react-router-dom'; // ✅ 추가!
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import styles from './HotSection.module.css'
+import type { Festival } from '@/models/festival/festivalType'
+import { useParams, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
-// ✅ 라우트 슬러그 -> 그룹 카테고리
+import { Swiper, SwiperSlide } from 'swiper/react'
+import type { Swiper as SwiperType } from 'swiper/types'
+import { Navigation, Keyboard, A11y, EffectCoverflow, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/effect-coverflow'
+
+import { useHotFestivals } from '@/models/festival/tanstack-query/useHotFestivals'
+import { useHotByGenrenm } from '@/models/festival/tanstack-query/useCategoryPaged'
+import { useCategorySelection } from '@/shared/storage/useCategorySelection'
+
+/* ───────────────────────── 카테고리 매핑 ───────────────────────── */
 const slugToCategory: Record<string, string> = {
   pop: '대중음악',
   dance: '무용',
@@ -12,182 +23,297 @@ const slugToCategory: Record<string, string> = {
   classic: '클래식/국악',
   magic: '서커스/마술',
   mix: '복합',
-};
+}
 
-// ✅ 원본 카테고리 -> 그룹 카테고리
-const CATEGORY_MAP: Record<string, string> = {
-  '대중무용': '무용',
-  '무용(서양/한국무용)': '무용',
-  '대중음악': '대중음악',
-  '뮤지컬': '뮤지컬/연극',
-  '연극': '뮤지컬/연극',
-  '서양음악(클래식)': '클래식/국악',
-  '한국음악(국악)': '클래식/국악',
-  '서커스/마술': '서커스/마술',
-};
-
-const normalizeCategory = (original?: string): string => {
-  if (!original) return '복합';
-  return CATEGORY_MAP[original] ?? '복합';
-};
-
-// ✅ 포스터 URL 보정(절대경로/https 강제)
+/* 포스터 URL 보정(절대경로/https 강제) */
 const buildPosterUrl = (f: Partial<Festival>): string => {
-  const raw =
-    (f as any)?.poster ??
-    (f as any)?.poster_file ??
-    (f as any)?.posterFile ??
-    (f as any)?.posterUrl ??
-    '';
-
-  if (!raw) return '';
+  const raw = f?.poster ?? ''
+  if (!raw) return ''
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
-    // 혼합콘텐츠 방지: http → https
-    return raw.replace(/^http:\/\//i, 'https://');
+    return raw.replace(/^http:\/\//i, 'https://')
   }
-  const path = raw.startsWith('/') ? raw : `/${raw}`;
-  return `https://www.kopis.or.kr${encodeURI(path)}`;
-};
+  const path = raw.startsWith('/') ? raw : `/${raw}`
+  return `https://www.kopis.or.kr${encodeURI(path)}`
+}
+
+/* 이미지 프리로드(유휴시간 사용) */
+const preloadImages = (urls: string[]) => {
+  const run = () => {
+    urls.forEach((u) => {
+      const img = new Image()
+      img.src = u
+    })
+  }
+  if ('requestIdleCallback' in window && typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(run as IdleRequestCallback)
+  } else {
+    setTimeout(run, 0)
+  }
+}
 
 const HotSection: React.FC = () => {
-  const { name: slug } = useParams<{ name?: string }>(); // ex) /category/theater
-  const [hotFestivals, setHotFestivals] = useState<FestivalWithViews[]>([]);
-  const [visibleCount, setVisibleCount] = useState(5);
-
-  const selectedCategory = useMemo(
-    () => (slug ? slugToCategory[slug] ?? null : null),
-    [slug]
-  );
-
-  // ✅ 반응형 카드 개수
+  const { name: slug } = useParams<{ name?: string }>()
+  const isCategoryPage = !!slug
+  const { activeChild } = useCategorySelection()
+  const [hoveringBar, setHoveringBar] = useState(false)
+  const swiperRef = useRef<SwiperType | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0) // 활성(가운데) 슬라이드의 "원본 배열" 인덱스
+  const isCoarsePointer = useRef<boolean>(false)
   useEffect(() => {
-    const handleResize = () => {
-      const ratio = window.innerWidth / window.innerHeight;
-      if (ratio < 0.7) setVisibleCount(3);      // 모바일 세로형
-      else if (ratio < 0.9) setVisibleCount(3); // 태블릿
-      else if (ratio < 1.2) setVisibleCount(4); // 노트북
-      else setVisibleCount(5);                  // 와이드
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    isCoarsePointer.current = window.matchMedia('(pointer:coarse)').matches
+  }, [])
 
+  const selectedCategory = useMemo(() => (slug ? (slugToCategory[slug] ?? null) : null), [slug])
+  const childForQuery = activeChild ?? undefined
+
+  // ✅ 훅은 항상 같은 순서로 호출 + enabled로 제어
+  const catHot = useHotByGenrenm(childForQuery, 10, { enabled: isCategoryPage })
+  const allHot = useHotFestivals(null, 10, { enabled: !isCategoryPage })
+
+  // ✅ 뷰에 쓸 데이터 선택
+  const items = (isCategoryPage ? catHot.data : allHot.data) ?? []
+  const isLoading = isCategoryPage ? catHot.isLoading : allHot.isLoading
+
+  const hasItems = items.length > 0
+
+  // 배경 포스터 = 활성(가운데) 슬라이드 포스터
+  const bgPoster = hasItems ? buildPosterUrl(items[currentIndex]) : ''
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const festivals: Festival[] = await getFestivals();
+    setCurrentIndex(0)
+    if (items.length) {
+      swiperRef.current?.slideToLoop(0, 0)
+      warmUpAround(0)
+    }
+  }, [selectedCategory, items.length])
+  // 키보드 좌우 화살표
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!hasItems || !swiperRef.current) return
+      if (e.key === 'ArrowRight') swiperRef.current.slideNext()
+      else if (e.key === 'ArrowLeft') swiperRef.current.slidePrev()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [hasItems])
 
-        // ✅ 백엔드 카테고리 필드 (이제 genrenm이 표준)
-        const getOriginalCategory = (f: Festival): string =>
-          f.genrenm ??
-          (f as any).category ??
-          (f as any).genre ??
-          (f as any).fcategory ??
-          (f as any).fctg ??
-          '';
+  const goPrev = () => swiperRef.current?.slidePrev()
+  const goNext = () => swiperRef.current?.slideNext()
 
-        const filtered = selectedCategory
-          ? festivals.filter((f) => normalizeCategory(getOriginalCategory(f)) === selectedCategory)
-          : festivals;
+  // ✅ 슬라이드 주변 이미지 프리로드
+  const warmUpAround = (idx: number) => {
+    if (!hasItems) return
+    const around = [idx, idx + 1, idx - 1, idx + 2, idx - 2]
+      .map((i) => ((i % items.length) + items.length) % items.length)
+      .map((i) => buildPosterUrl(items[i]))
+      .filter(Boolean)
+    preloadImages(Array.from(new Set(around)))
+  }
 
-        // ✅ 조회수 가져와 랭킹 정렬 (상위 20개만 계산)
-        const withViewsPromises = filtered.slice(0, 20).map(async (festival) => {
-          const fid = festival.fid;
-          let views = 0;
-          if (fid) {
-            try {
-              views = await getFestivalViews(fid);
-            } catch {
-              views = 0;
-            }
-          }
-          return { ...festival, views } as FestivalWithViews;
-        });
-
-        const withViews = await Promise.all(withViewsPromises);
-        withViews.sort((a, b) => b.views - a.views);
-        setHotFestivals(withViews);
-      } catch (err) {
-        console.error('🔥 Hot 공연 불러오기 실패', err);
-        setHotFestivals([]);
-      }
-    };
-
-    fetchData();
-  }, [selectedCategory]);
+  const SLIDES_PER_VIEW = 5
+  const shouldLoop = items.length > SLIDES_PER_VIEW
 
   return (
     <section className={styles.section}>
+      {/* 배경: 가운데 카드 포스터 */}
+      {hasItems && (
+        <motion.img
+          key={bgPoster}
+          src={bgPoster || '@/shared/assets/placeholder-poster.png'}
+          alt=""
+          aria-hidden="true"
+          className={styles.bgImage}
+          referrerPolicy="no-referrer"
+          draggable={false}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.28 }}
+        />
+      )}
+      <div className={styles.bgOverlay} />
+
       <h2 className={styles.title}>
         {selectedCategory ? `${selectedCategory} HOT 공연` : '오늘의 HOT 공연'}
       </h2>
 
-      <div className={styles.cardList}>
-        {hotFestivals.slice(0, visibleCount).map((festival, index) => {
-          const key = `${festival.fid || (festival as any).id || 'unknown'}-${index}`;
-          const posterSrc = buildPosterUrl(festival);
+      {/* 캐러셀 */}
+      {isLoading ? (
+        <div className={styles.carouselWrap}>
+          <div className={styles.skeletonRow}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className={styles.skeletonCard} />
+            ))}
+          </div>
+        </div>
+      ) : hasItems ? (
+        <div className={styles.carouselWrap} aria-live="polite">
+          <Swiper
+            modules={[Navigation, Keyboard, A11y, EffectCoverflow, Autoplay]}
+            effect="coverflow"
+            grabCursor
+            centeredSlides
+            slidesPerView={3}
+            initialSlide={0}
+            loop={shouldLoop}
+            watchOverflow
+            coverflowEffect={{
+              rotate: 0,
+              stretch: 0,
+              depth: 80,
+              modifier: -1,
+              slideShadows: false,
+            }}
+            spaceBetween={24}
+            keyboard={{ enabled: true }}
+            navigation={{ nextEl: '.swiper-next', prevEl: '.swiper-prev' }}
+            breakpoints={{
+              0: { slidesPerView: 2, spaceBetween: 12, centeredSlides: true },  // ✅ 1장만 보여주기
+              480: { slidesPerView: 2.2, spaceBetween: 12, centeredSlides: true }, // 작은 화면은 거의 한 장
+              768: { slidesPerView: 3, spaceBetween: 20, centeredSlides: true },
+              1024: { slidesPerView: 5, spaceBetween: 24, centeredSlides: true },
+            }}
+            autoplay={{
+              delay: 2000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+              waitForTransition: true,
+              stopOnLastSlide: false,
+            }}
+            onSwiper={(sw) => {
+              swiperRef.current = sw
+              sw.slideToLoop(0, 0)
+              setCurrentIndex(sw.realIndex)
+              warmUpAround(0)
+            }}
+            onSlideChange={(sw) => {
+              setCurrentIndex(sw.realIndex)
+              warmUpAround(sw.realIndex)
+            }}
+            className={styles.heroSwiper}
+          >
+            {items.map((f, i) => {
+              const poster = buildPosterUrl(f)
+              const isActive = i === currentIndex
 
-          const to = festival.fid ? `/festival/${festival.fid}` : undefined;
+              const handleClick = (e: React.MouseEvent) => {
+                if (!isActive) {
+                  e.preventDefault()
+                  swiperRef.current?.slideToLoop(i, 400) // 옆 카드 → 가운데로
+                }
+              }
 
-          const CardInner = (
-            <>
-              <div className={styles.imageWrapper}>
-                <img
-                  src={posterSrc || '@/shared/assets/placeholder-poster.png'}
-                  alt={festival.prfnm}
-                  className={styles.image}
-                  referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = '@/shared/assets/placeholder-poster.png';
-                  }}
-                />
-                <span className={styles.rank}>{index + 1}</span>
-              </div>
-              <div className={styles.content}>
-                <h3 className={styles.name}>{festival.prfnm}</h3>
-                <p className={styles.location}>{festival.fcltynm}</p>
-                <p className={styles.date}>
-                  {festival.prfpdfrom === festival.prfpdto
-                    ? festival.prfpdfrom
-                    : `${festival.prfpdfrom} ~ ${festival.prfpdto}`}
-                </p>
-              </div>
-            </>
-          );
+              return (
+                <SwiperSlide key={f.fid ?? i} className={styles.slide}>
+                  <Link
+                    to={isActive ? `/festival/${f.fid}` : '#'} // 중앙 카드만 상세 진입
+                    onClick={handleClick}
+                    state={
+                      isActive
+                        ? {
+                          fid: f.fid,
+                          title: f.prfnm,
+                          poster: poster || '@/shared/assets/placeholder-poster.png',
+                          prfpdfrom: f.prfpdfrom,
+                          prfpdto: f.prfpdto,
+                          fcltynm: f.fcltynm,
+                        }
+                        : undefined
+                    }
+                    className={styles.cardLink}
+                    aria-label={`${f.prfnm} 상세보기`}
+                  >
+                    <div
+                      className={`${styles.cardPoster} ${isActive ? styles.isCenter : styles.isSide}`}
+                    >
+                      {/* ✅ lazy 이미지 + async 디코드 */}
+                      <img
+                        src={poster || '@/shared/assets/placeholder-poster.png'}
+                        alt={f.prfnm}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        draggable={false}
+                        onError={(e) => {
+                          const el = e.currentTarget as HTMLImageElement
+                          el.removeAttribute('data-src')
+                          el.src = '@/shared/assets/placeholder-poster.png'
+                        }}
+                      />
 
-          return (
-            <div key={key} className={styles.card}>
-              {to ? (
-                // ✅ 링크로 전체 카드 클릭 가능 + state로 3개(+) 전달
-                <Link
-                  to={to}
-                  state={{
-                    fid: festival.fid,            // ① fid (백업)
-                    title: festival.prfnm,        // ② 공연명
-                    poster: posterSrc || '@/shared/assets/placeholder-poster.png', // ③ 포스터
-                    // (보너스 프리뷰) UX 부드럽게
-                    prfpdfrom: festival.prfpdfrom,
-                    prfpdto: festival.prfpdto,
-                    fcltynm: festival.fcltynm,
-                  }}
-                  className={styles.cardLink}
-                  aria-label={`${festival.prfnm} 상세보기`}
-                >
-                  {CardInner}
-                </Link>
-              ) : (
-                // fid 없으면 정적 카드
-                <div className={styles.cardStatic} title="상세 이동 불가: 식별자 없음">
-                  {CardInner}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                      <span className={styles.rankPill}>{i + 1}</span>
+
+                      {/* hover overlay */}
+                      <div className={styles.cardOverlay}>
+                        <h3 className={styles.ovTitle}>{f.prfnm}</h3>
+                        <p className={styles.ovPeriod}>{f.prfpdfrom}</p>
+                        <p className={styles.ovPeriod}>~</p>
+                        <p className={styles.ovPeriod}>{f.prfpdto}</p>
+                        <p className={styles.ovPlace}>{f.fcltynm}</p>
+                      </div>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              )
+            })}
+          </Swiper>
+        </div>
+      ) : (
+        <div className={styles.empty}>현재 예매 가능한 공연이 없습니다.</div>
+      )}
+
+      {/* 하단 바/네비 */}
+      {hasItems && !isLoading && (
+        <>
+          <button
+            type="button"
+            className={`${styles.arrow} ${styles.arrowLeft} swiper-prev`}
+            aria-label="이전 포스터"
+            onClick={goPrev}
+          >
+            <svg className={styles.arrowIcon} viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M15.5 19.5L8.5 12l7-7.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className={`${styles.arrow} ${styles.arrowRight} swiper-next`}
+            aria-label="다음 포스터"
+            onClick={goNext}
+          >
+            <svg className={styles.arrowIcon} viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8.5 4.5L15.5 12l-7 7.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          <div
+            className={styles.bottomBar}
+            onMouseEnter={() => setHoveringBar(true)}
+            onMouseLeave={() => setHoveringBar(false)}
+            style={{ '--segments': items.length, '--index': currentIndex } as React.CSSProperties}
+          >
+            <div className={styles.barTrack} />
+            <div className={styles.barIndicator} />
+            <span className={styles.pageText}>
+              {currentIndex + 1}/{items.length}
+            </span>
+          </div>
+        </>
+      )}
     </section>
-  );
-};
+  )
+}
 
-export default HotSection;
+export default HotSection
