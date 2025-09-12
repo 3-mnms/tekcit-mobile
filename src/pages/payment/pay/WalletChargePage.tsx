@@ -13,10 +13,11 @@ import Button from '@/components/common/button/Button'
 
 import { requestTossPointCharge, type PointChargeRequest } from '@/shared/api/payment/pointToss'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
+import { getEnv } from '@/shared/config/env'
 
 // 포트원 환경변수(웹 버전과 동일하게 사용)
-const STORE_ID = import.meta.env.VITE_PORTONE_STORE_ID?.trim()
-const CHANNEL_KEY = import.meta.env.VITE_PORTONE_CHANNEL_KEY?.trim()
+const STORE_ID = getEnv("VITE_PORTONE_STORE_ID")
+const CHANNEL_KEY = getEnv("VITE_PORTONE_CHANNEL_KEY")
 
 // 금액 검증 스키마(웹 버전과 동일)
 const AmountSchema = z.number().int().positive().min(1000, '최소 1,000원 이상 충전해 주세요.')

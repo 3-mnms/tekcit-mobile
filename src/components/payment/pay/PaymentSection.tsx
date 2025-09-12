@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import WalletPayment from '@/components/payment/pay/TekcitPay'
 import TossPayment, { type TossPaymentHandle } from '@/components/payment/pay/TossPayment'
 import type { PaymentMethod } from '@/models/payment/types/paymentTypes'
-import styles from '@/pages/payment/BookingPaymentPage.module.css'
+import styles from '@/components/payment/pay/PaymentSection.module.css'
 
 type Props = {
   openedMethod: PaymentMethod | null
