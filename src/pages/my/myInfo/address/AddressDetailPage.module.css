@@ -4,7 +4,8 @@
   margin: 0 auto;
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto 1fr; /* 헤더, 본문 */
+  grid-template-rows: auto 1fr;
+  /* 헤더, 본문 */
   background: #fff;
 }
 
@@ -36,12 +37,12 @@
   padding: 1.5rem;
 }
 
-.form > div {
-  margin: 0 0 0.5rem 0 !important;  
+.form>div {
+  margin: 0 0 0.5rem 0 !important;
 }
 
 .label {
-  font-weight:400;
+  font-weight: 400;
 }
 
 .phoneInput {
@@ -51,7 +52,7 @@
 
 .addressRow {
   display: grid;
-  grid-template-columns: 1fr auto;  
+  grid-template-columns: 1fr auto;
   gap: 0.5rem;
   align-items: start;
   margin-top: 8px;
@@ -78,12 +79,14 @@
 }
 
 input:disabled {
-  background: #f3f4f6; /* 기본 회색 */
+  background: #f3f4f6;
+  /* 기본 회색 */
   color: #6b7280;
 }
 
 .editing input:disabled {
-  background: #fff !important;  /* 수정 모드일 땐 흰색으로 강제 */
+  background: #fff !important;
+  /* 수정 모드일 땐 흰색으로 강제 */
   color: #111;
 }
 
@@ -95,6 +98,7 @@ input:disabled {
   color: #333;
   user-select: none;
 }
+
 .checkboxLabel input[type="checkbox"] {
   accent-color: #4D9AFD;
   width: 1rem;
@@ -106,6 +110,7 @@ input:disabled {
   gap: 0.5rem;
   margin-top: 1rem;
 }
+
 .actionButton {
   width: 50%;
 }
@@ -115,7 +120,10 @@ input:disabled {
   text-align: center;
   margin-bottom: 1rem;
 }
-.fullButton { width: 100%; }
+
+.fullButton {
+  width: 100%;
+}
 
 .skeleton {
   width: 100%;
@@ -124,8 +132,17 @@ input:disabled {
   border-radius: 12px;
   animation: pulse 1.6s ease-in-out infinite;
 }
+
 @keyframes pulse {
-  0% { opacity: 0.55; }
-  50% { opacity: 1; }
-  100% { opacity: 0.55; }
+  0% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.55;
+  }
 }

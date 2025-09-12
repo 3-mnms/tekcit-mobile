@@ -1,66 +1,52 @@
-// src/components/my/dropdown/MenuItem.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './MenuItem.module.css';
 
 interface MenuItemProps {
   label: string;
-  to?: string;                      
-  onClick?: () => void | Promise<void>; 
+  to?: string;
+  onClick?: () => void | Promise<void>;
   showArrow?: boolean;
-  replace?: boolean;   
-  newTab?: boolean;                  
+  reload?: 'assign' | 'replace';
+  newTab?: boolean;
 }
+
+const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
 const MenuItem: React.FC<MenuItemProps> = ({
   label,
   to,
   onClick,
   showArrow = false,
-  replace = false,
+  reload = 'assign',
   newTab = false,
 }) => {
   const navigate = useNavigate();
 
-  const content = (
-    <>
-      <span>{label}</span>
-      {showArrow && <span className={styles.arrow}>›</span>}
-    </>
-  );
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    if (onClick) {
+      try { await onClick(); } catch {/* noop */}
+    }
 
-  if (to) {
-    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
-      if (!onClick && !newTab) return;    
-      e.preventDefault();        
+    if (!to) return;
 
-      try { 
-        if (onClick) await onClick(); 
-      } catch { /* noop */ }
+    if (newTab) {
+      window.open(to, '_blank', 'noopener');
+      return;
+    }
 
-      navigate(to, { replace });
-    };
+    if (isExternal(to)) {
+      window.location.assign(to);
+      return;
+    }
 
-    return (
-      <a
-        href={to}
-        className={styles.item}
-        onClick={handleClick}
-        target={newTab ? '_blank' : undefined}
-        rel={newTab ? 'noopener noreferrer' : undefined}
-      >
-        {content}
-      </a>
-    );
-  }
+    navigate(to, { replace: reload === 'replace' });
+  };
 
   return (
-    <button
-      type="button"
-      className={styles.item}
-      onClick={onClick}
-    >
-      {content}
+    <button type="button" className={styles.item} onClick={handleClick}>
+      <span>{label}</span>
+      {showArrow && <span className={styles.arrow}>›</span>}
     </button>
   );
 };
