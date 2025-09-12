@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 import logo from '@shared/assets/logo.png';
 import { useUIStore } from '@/shared/store/uiStore';
-import { useAuthStore } from '@/shared/storage/useAuthStore' 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { leftIcon, centerMode, headerTitle } = useUIStore();
+  const location = useLocation();
+  const { leftIcon, centerMode, headerTitle, setHeader } = useUIStore();
   const [keyword, setKeyword] = useState('');
-  const accessToken = useAuthStore((s) => s.accessToken)
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setHeader({ leftIcon: undefined, title: '' });
+    }
+  }, [location.pathname, setHeader]);
 
   const handleSearch = () => {
     const q = keyword.trim();

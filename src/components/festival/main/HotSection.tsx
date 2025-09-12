@@ -57,7 +57,7 @@ const HotSection: React.FC = () => {
   const { activeChild } = useCategorySelection()
   const [hoveringBar, setHoveringBar] = useState(false)
   const swiperRef = useRef<SwiperType | null>(null)
-  const [currentIndex, setCurrentIndex] = useState(0) // 활성(가운데) 슬라이드의 "원본 배열" 인덱스
+  const [currentIndex, setCurrentIndex] = useState(0) 
   const isCoarsePointer = useRef<boolean>(false)
   useEffect(() => {
     isCoarsePointer.current = window.matchMedia('(pointer:coarse)').matches
