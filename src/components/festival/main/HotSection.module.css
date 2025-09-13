@@ -35,6 +35,9 @@
   margin-bottom: 1.25rem;
   position: relative;
   z-index: 3;
+  display: flex;
+  width: 100%;
+  place-content: center;
 }
 
 .carouselWrap {
