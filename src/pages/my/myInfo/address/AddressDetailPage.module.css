@@ -1,10 +1,11 @@
+/* page, body는 기존 그대로 유지 */
 .page {
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
   height: 100dvh;
   display: grid;
-  grid-template-rows: auto 1fr; /* 헤더, 본문 */
+  grid-template-rows: auto 1fr;
   background: #fff;
 }
 
@@ -12,79 +13,129 @@
   padding: 16px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
-}
-
-.card {
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 16px;
-  background-color: #fff;
-  margin-bottom: 16px;
+  padding-bottom: calc(var(--bottom-nav-height, 84px) + env(safe-area-inset-bottom, 0px));
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
   margin-bottom: 1rem;
 }
 
+/* 카드 패널: 좌측 대표색 보더 + 라이트 섀도우 */
 .panel {
-  border: 1px solid #b4b4b4;
-  border-radius: 16px;
+  border-left: 4px solid #4D9AFD;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   background: #fff;
-  padding: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+}
+
+/* 헤더 아이콘 + 제목 */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+
+.icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  color: #4D9AFD;
+  align-items: center;
+  justify-content: center;
+   margin-bottom: 10px;
+}
+
+.cardTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 10px;
 }
 
 .form > div {
-  margin: 0 0 0.5rem 0 !important;  
+  margin: 0 0 0.6rem 0 !important;
 }
 
 .label {
-  font-weight:400;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #374151;
 }
 
 .phoneInput {
   flex: 1;
   margin-bottom: 0.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.phoneInput:not(:disabled) {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+}
+
+.addressGroup {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.25rem;
 }
 
 .addressRow {
-  display: grid;
-  grid-template-columns: 1fr auto;  
+  display: flex;
   gap: 0.5rem;
-  align-items: start;
+  align-items: flex-start;
   margin-top: 8px;
   width: 100%;
 }
 
 .zonecodeInput {
-  width: 100%;
+  width: 8rem;
+}
+
+.editing .zonecodeInput:disabled {
+  background: #f8f8f8b9;
+  border: 2px solid #e4e6e9;
 }
 
 .searchButton {
   white-space: nowrap;
   padding: 0.6rem 1rem;
+  border: 1px solid #bfdbfe !important;
+  color: #2563eb !important;
+  background: transparent !important;
+  border-radius: 10px !important;
+}
+.searchButton:hover {
+  background: #eff6ff !important;
 }
 
 .addressInput {
   flex: 1;
-  margin-top: -0.5rem;
+  margin-top: -0.6rem;
+  height: 47px;
+}
+.editing .addressInput:disabled {
+  background: #f8f8f8b9;
+  border: 2px solid #e4e6e9;
 }
 
 .detailInput {
   flex: 1;
-  margin-top: -0.5rem;
+  margin-top: -0.6rem;
 }
-
-input:disabled {
-  background: #f3f4f6; /* 기본 회색 */
-  color: #6b7280;
-}
-
-.editing input:disabled {
-  background: #fff !important;  /* 수정 모드일 땐 흰색으로 강제 */
-  color: #111;
+.detailInput:not(:disabled) {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 .checkboxLabel {
@@ -92,7 +143,7 @@ input:disabled {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-  color: #333;
+  color: #374151;
   user-select: none;
 }
 .checkboxLabel input[type="checkbox"] {
@@ -102,12 +153,32 @@ input:disabled {
 }
 
 .actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   margin-top: 1rem;
 }
+
+/* 프라이머리 버튼 */
 .actionButton {
-  width: 50%;
+  width: 100%;
+  background: #4D9AFD !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 600;
+  border-radius: 10px !important;
+}
+.actionButton:hover {
+  background: #3b82f6 !important;
+}
+
+.outlineButton {
+  background: #fff !important;
+  color: #4b5563 !important;
+  border: 1px solid #d1d5db !important;
+}
+.outlineButton:hover {
+  background: #f9fafb !important;
 }
 
 .errorText {
@@ -124,6 +195,12 @@ input:disabled {
   border-radius: 12px;
   animation: pulse 1.6s ease-in-out infinite;
 }
+
+input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
 @keyframes pulse {
   0% { opacity: 0.55; }
   50% { opacity: 1; }

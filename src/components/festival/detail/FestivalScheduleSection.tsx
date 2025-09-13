@@ -1,4 +1,3 @@
-// src/components/festival/detail/FestivalScheduleSection.tsx (모바일 로직 업그레이드)
 import React, { useMemo, useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import { isSameDay } from 'date-fns'
@@ -245,20 +244,59 @@ const FestivalScheduleSection: React.FC = () => {
             <div className={styles.datepickerWrapper}>
               <DatePicker
                 inline
-                locale={ko as any}
+                locale={ko}
                 selected={selectedDate}
                 onChange={(d) => setSelectedDate(d)}
                 minDate={minNavDate}
                 maxDate={maxNavDate}
                 filterDate={isSelectableDate}
                 openToDate={minNavDate}
+                showDisabledMonthNavigation
+                renderCustomHeader={({
+                  date,
+                  decreaseMonth,
+                  increaseMonth,
+                  prevMonthButtonDisabled,
+                  nextMonthButtonDisabled,
+                }) => (
+                  <div className={styles.dpHeader}>
+                    <button
+                      type="button"
+                      onClick={decreaseMonth}
+                      disabled={prevMonthButtonDisabled}
+                      className={styles.dpNavBtn}
+                      aria-label="이전 달"
+                    >
+                      ‹
+                    </button>
+                    <div className={styles.dpMonthTitle}>
+                      {date.getFullYear()}년 {String(date.getMonth() + 1).padStart(2, '0')}월
+                    </div>
+                    <button
+                      type="button"
+                      onClick={increaseMonth}
+                      disabled={nextMonthButtonDisabled}
+                      className={styles.dpNavBtn}
+                      aria-label="다음 달"
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
+                /* ✅ 추가 2: 요일 한 글자 */
+                formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
+                /* ✅ 기존 dayClassName → 오늘/주말 표시 포함으로 강화 */
                 dayClassName={(date) => {
                   const selectable = isSelectableDate(date)
                   const isSel = selectedDate && isSameDay(date, selectedDate)
+                  const isToday = isSameDay(date, new Date())
+                  const isWeekend = [0, 6].includes(date.getDay())
                   return [
                     'custom-day',
                     selectable ? 'day-active' : 'day-inactive',
                     isSel ? 'day-selected' : '',
+                    isToday ? 'day-today' : '',
+                    isWeekend ? 'day-weekend' : '',
                   ].join(' ')
                 }}
               />

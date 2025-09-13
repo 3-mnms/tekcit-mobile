@@ -6,14 +6,33 @@ import AddressEmpty from '@/components/my/myinfo/address/AddressEmpty';
 import Button from '@/components/common/button/Button';
 import MyHeader from '@/components/my/hedaer/MyHeader';
 import styles from './AddressListPage.module.css';
-import { useAddressesQuery } from '@/models/auth/tanstack-query/useAddress';
+import { useAddressesQuery, useDeleteAddressMutation } from '@/models/auth/tanstack-query/useAddress'
+import { useQueryClient } from '@tanstack/react-query'
 
 const AddressListPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { data, isLoading, isError, error } = useAddressesQuery();
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+  const { data, isLoading, isError, error } = useAddressesQuery()
+  const deleteAddressMut = useDeleteAddressMutation()
 
-  const goNew = () => navigate('new');
+  const goNew = () => navigate('new')
 
+  const handleDelete = (addressId: number) => {
+    if (!addressId) return
+    if (!window.confirm('정말 이 배송지를 삭제하시겠습니까?')) return
+
+    deleteAddressMut.mutate(addressId, {
+      onSuccess: () => {
+        alert('배송지가 삭제되었습니다.')
+        qc.invalidateQueries({ queryKey: ['addresses'] })
+        qc.invalidateQueries({ queryKey: ['addresses', 'default'] })
+      },
+      onError: (e: any) => {
+        alert(e?.response?.data?.message || '배송지 삭제에 실패했습니다.')
+      },
+    })
+  }
+  
   return (
     <section className={styles.page}>
       <MyHeader title="배송지 관리" />
@@ -43,16 +62,17 @@ const AddressListPage: React.FC = () => {
               <div className={styles.card}>
                 {(data ?? []).map((addr) => (
                   <AddressItem
-                    key={addr.id}
-                    name={addr.name}
-                    phone={addr.phone}
-                    zipCode={addr.zipCode}
-                    address={addr.address}
-                    isDefault={addr.isDefault}
-                    onClick={() => {
-                      navigate(`/mypage/myinfo/address/${addr.id}`);
-                    }}
-                  />
+                  key={addr.id}
+                  id={Number(addr.id)}
+                  name={addr.name}
+                  phone={addr.phone}
+                  zipCode={addr.zipCode}
+                  address={addr.address}
+                  isDefault={addr.isDefault}
+                  onEdit={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
+                  onClick={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
+                  onDelete={() => handleDelete(Number(addr.id))}
+                />
                 ))}
               </div>
             )}

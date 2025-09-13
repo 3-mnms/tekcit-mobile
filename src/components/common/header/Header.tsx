@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Header.module.css';
 import logo from '@shared/assets/logo.png';
 import { useUIStore } from '@/shared/store/uiStore';
-import { useAuthStore } from '@/shared/storage/useAuthStore' 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { leftIcon, centerMode, headerTitle } = useUIStore();
+  const location = useLocation();
+  const { leftIcon, centerMode, headerTitle, setHeader } = useUIStore();
   const [keyword, setKeyword] = useState('');
-  const accessToken = useAuthStore((s) => s.accessToken)
+
+  const isHome = location.pathname === '/';
+  const isNearBy = location.pathname === '/nearby';
+
+  useEffect(() => {
+    if (isHome) {
+      setHeader({ leftIcon: undefined, title: '' });
+    }
+  }, [isHome, setHeader]);
 
   const handleSearch = () => {
     const q = keyword.trim();
-    // 검색어가 없으면 검색하지 않고, 검색창 모드만 종료
     if (!q) {
-      navigate(-1); // 이전 페이지로 돌아가기
+      navigate(-1);
       return;
     }
     navigate(`/search?keyword=${encodeURIComponent(q)}&page=1`);
@@ -26,12 +33,17 @@ const Header: React.FC = () => {
     <header className={styles.header}>
       {/* 왼쪽 영역 */}
       <div className={styles.left}>
-        {leftIcon === 'back' ? (
+        {(!isHome && !isNearBy && leftIcon === 'back') ? (
           <button type="button" onClick={() => navigate(-1)} className={styles.iconButton}>
             <i className="fa-solid fa-arrow-left" />
           </button>
         ) : (
-          <img src={logo} alt="logo" className={styles.logo} onClick={() => navigate('/')} />
+          <img
+            src={logo}
+            alt="logo"
+            className={styles.logo}
+            onClick={() => navigate('/')}
+          />
         )}
       </div>
 
@@ -60,7 +72,6 @@ const Header: React.FC = () => {
 
       {/* 오른쪽 영역 */}
       <div className={styles.right}>
-        {/* 검색 페이지가 아닐 때만 검색 아이콘을 보여줘서 중복을 피함 */}
         {centerMode !== 'searchBar' && (
           <button type="button" onClick={() => navigate('/search')} className={styles.iconButton}>
             <i className="fa-solid fa-magnifying-glass" />

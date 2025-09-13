@@ -1,11 +1,12 @@
 // src/pages/search/SearchPage.tsx
-import React, { useLayoutEffect  } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import Header from '@components/common/header/Header';
 import Filter from '@components/festival/search/FilterPanel';
 import Result from '@components/festival/search/ResultPanel';
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
 import { useUIStore } from '@/shared/store/uiStore';
+import TikiChatWidget from '@/components/ai/chatbot/TikiChatWidget';
 
 import styles from './SearchPage.module.css';
 
@@ -16,9 +17,9 @@ const SearchPage: React.FC = () => {
   const keyword = searchParams.get('keyword');
   const { setHeader } = useUIStore();
 
-  useLayoutEffect (() => {
+  useLayoutEffect(() => {
     setHeader({ centerMode: 'searchBar', leftIcon: 'back' });
-  }, [setHeader]); 
+  }, [setHeader]);
 
   // ✅ 1) 렌더 전에 쿼리 정규화 (가드)
   const params = new URLSearchParams(location.search);
@@ -31,6 +32,7 @@ const SearchPage: React.FC = () => {
 
   return (
     <>
+      <TikiChatWidget />
       <Header />
       <div className={styles.page}>
         <aside className={styles.filterCol}>
@@ -39,7 +41,7 @@ const SearchPage: React.FC = () => {
         <main className={styles.resultsCol}>
           <Result keyword={keyword} />
         </main>
-        <BottomNav/>
+        <BottomNav />
       </div>
     </>
   );

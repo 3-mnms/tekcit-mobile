@@ -16,12 +16,6 @@
   padding: 12px 16px 8px 16px;
 }
 
-.subTitle {
-  font-weight: 700;
-  font-size: 16px;
-  margin-left: 10px;
-}
-
 .actions {
   display: inline-flex;
   gap: 10px;

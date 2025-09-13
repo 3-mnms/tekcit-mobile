@@ -1,15 +1,17 @@
-// src/components/my/dropdown/MenuItem.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './MenuItem.module.css';
 
 interface MenuItemProps {
   label: string;
-  to?: string;                      
-  onClick?: () => void | Promise<void>; 
+  to?: string;
+  onClick?: () => void | Promise<void>;
   showArrow?: boolean;
-  reload?: 'assign' | 'replace';      
-  newTab?: boolean;                  
+  reload?: 'assign' | 'replace';
+  newTab?: boolean;
 }
+
+const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
 const MenuItem: React.FC<MenuItemProps> = ({
   label,
@@ -19,51 +21,32 @@ const MenuItem: React.FC<MenuItemProps> = ({
   reload = 'assign',
   newTab = false,
 }) => {
-  const content = (
-    <>
-      <span>{label}</span>
-      {showArrow && <span className={styles.arrow}>›</span>}
-    </>
-  );
+  const navigate = useNavigate();
 
-  if (to) {
-    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = async (e) => {
-      if (!onClick) return;    
-      e.preventDefault();        
-      try { await onClick(); } catch { /* noop */ }
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    if (onClick) {
+      try { await onClick(); } catch {/* noop */}
+    }
 
-      if (newTab) {
-        window.open(to, '_blank', 'noopener');
-        return;
-      }
-      if (reload === 'replace') {
-        window.location.replace(to);
-      } else {
-        window.location.assign(to);
-      }
-    };
+    if (!to) return;
 
+    if (newTab) {
+      window.open(to, '_blank', 'noopener');
+      return;
+    }
 
-    return (
-      <a
-        href={to}
-        className={styles.item}
-        onClick={handleClick}
-        target={newTab ? '_blank' : undefined}
-        rel={newTab ? 'noopener noreferrer' : undefined}
-      >
-        {content}
-      </a>
-    );
-  }
+    if (isExternal(to)) {
+      window.location.assign(to);
+      return;
+    }
+
+    navigate(to, { replace: reload === 'replace' });
+  };
 
   return (
-    <button
-      type="button"
-      className={styles.item}
-      onClick={onClick}
-    >
-      {content}
+    <button type="button" className={styles.item} onClick={handleClick}>
+      <span>{label}</span>
+      {showArrow && <span className={styles.arrow}>›</span>}
     </button>
   );
 };

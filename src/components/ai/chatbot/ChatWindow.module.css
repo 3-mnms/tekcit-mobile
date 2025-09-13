@@ -1,0 +1,253 @@
+/* ChatWindow.module.css */
+
+/* 포털 루트: 전체 레이어 */
+.portalRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 10030;
+}
+
+/* 바깥 영역: 클릭 막고 누르면 닫힘 */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, .35);
+  opacity: 0;
+  pointer-events: auto;
+  /* 페이지 클릭 막기 */
+  transition: opacity .22s ease;
+}
+
+.backdropEnter {
+  opacity: 1;
+}
+
+.backdropExit {
+  opacity: 0;
+}
+
+/* 시트 래퍼: 화면 하단 배치 */
+.sheetWrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* 슬라이드 애니메이션(시트 자체) */
+.enter {
+  animation: sheet-up .25s ease-out both;
+}
+
+.exit {
+  animation: sheet-down .20s ease-in both;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-down {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Swiper 컨테이너를 시트 높이로 */
+.swiper {
+  width: 100%;
+  max-width: 560px;
+  height: 85vh;
+  /* ← 더 길게 */
+  touch-action: pan-y;
+}
+
+/* slide 0: 닫힘 포지션(살짝 여유 높이) */
+.slideZero {
+  display: block;
+  height: 24vh;
+  /* 아래로 당기면 이 슬라이드가 보이게 */
+  background: transparent;
+}
+
+/* slide 1: 실제 콘텐츠 */
+.slideContent {
+  height: 85vh;
+  /* 콘텐츠가 차는 높이 */
+  display: flex;
+  align-items: stretch;
+}
+
+/* 카드(바텀시트) */
+.card {
+  width: 100%;
+  background: #ffffff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -8px 24px rgba(2, 6, 23, .24);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 헤더 */
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 10px;
+  background: linear-gradient(180deg, #4D9AFD 0%, #3F83F8 100%);
+  color: #fff;
+}
+
+/* 손잡이(회색 바) */
+.grabber {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  /* 회색 바 */
+  opacity: .9;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+.subtitle {
+  opacity: .9;
+  font-size: 12px;
+}
+
+/* 본문(스크롤) */
+.body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  background: #f8fafc;
+  flex: 1;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* 푸터 */
+.footer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+
+.inputBar {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 8px;
+  align-items: end;
+}
+
+.textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  line-height: 1.4;
+  max-height: 160px;
+}
+
+.textarea:disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.sendBtn {
+  border: none;
+  border-radius: 10px;
+  background: #4D9AFD;
+  color: #fff;
+  font-weight: 700;
+  height: 40px;
+}
+
+.sendBtn:hover {
+  background: #478ce7;
+}
+
+/* 로딩 */
+.pendingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #64748b;
+  padding: 4px 0;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #4D9AFD;
+  border-radius: 50%;
+  animation: tiki-spin .8s linear infinite;
+}
+
+@keyframes tiki-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.4s;
+  }
+
+  .enter,
+  .exit {
+    animation: none;
+  }
+}

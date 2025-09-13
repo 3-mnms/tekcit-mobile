@@ -8,11 +8,11 @@ import MyHeader from '@/components/my/hedaer/MyHeader';
 import styles from './AddressDetailPage.module.css';
 import {
   useAddressQuery,
-  useDeleteAddressMutation,
   useUpdateAddressMutation,
   useChangeDefaultMutation,
 } from '@/models/auth/tanstack-query/useAddress';
 import { useQueryClient } from '@tanstack/react-query';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const AddressDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +21,6 @@ const AddressDetailPage: React.FC = () => {
   const qc = useQueryClient();
 
   const { data: address, isLoading, isError } = useAddressQuery(addressId);
-  const deleteAddressMut = useDeleteAddressMutation();
   const updateAddressMut = useUpdateAddressMutation();
   const changeDefaultMut = useChangeDefaultMutation();
 
@@ -63,22 +62,6 @@ const AddressDetailPage: React.FC = () => {
     setIsDefault(pickIsDefault(address));
   }, [address]);
 
-  const handleDelete = () => {
-    if (!addressId) return;
-    if (!window.confirm('정말 이 배송지를 삭제하시겠습니까?')) return;
-    deleteAddressMut.mutate(addressId, {
-      onSuccess: () => {
-        alert('배송지가 삭제되었습니다.');
-        qc.invalidateQueries({ queryKey: ['addresses'] });
-        qc.invalidateQueries({ queryKey: ['addresses', 'default'] });
-        navigate('/mypage/myinfo/address');
-      },
-      onError: (e: any) => {
-        alert(e?.response?.data?.errorMessage || '배송지 삭제에 실패했습니다.');
-      },
-    });
-  };
-
   const startEdit = () => setEditing(true);
 
   const cancelEdit = () => {
@@ -107,15 +90,18 @@ const AddressDetailPage: React.FC = () => {
       alert('필수 정보를 입력해주세요.');
       return;
     }
+
     const wasDefault = Boolean((address as any)?.isDefault ?? (address as any)?.default);
     const fullAddress = joinAddress(baseAddress, addressDetail);
     const payload = { name, phone, zipCode: zonecode, address: fullAddress, isDefault };
 
     try {
       await updateAddressMut.mutateAsync({ addressId, payload });
+
       if (isDefault && !wasDefault) {
         await changeDefaultMut.mutateAsync(addressId);
       }
+
       alert('주소가 저장되었습니다.');
       setEditing(false);
       qc.invalidateQueries({ queryKey: ['addresses'] });
@@ -133,24 +119,30 @@ const AddressDetailPage: React.FC = () => {
 
       <div className={styles.body}>
         {isLoading ? (
-          <div className={styles.card}>
+          <div className={styles.panel}>
             <div className={styles.skeleton} />
           </div>
         ) : isError || !address ? (
-          <div className={styles.card}>
+          <div className={styles.panel}>
             <div className={styles.errorText}>주소 정보를 불러올 수 없습니다.</div>
             <Button className={styles.fullButton} onClick={() => navigate('/mypage/myinfo/address')}>
               목록으로 돌아가기
             </Button>
           </div>
         ) : (
-          <div className={styles.card}>
+          <div className={styles.panel}>
+            <div className={styles.cardHeader}>
+              <span className={styles.icon}><FaMapMarkerAlt /></span>
+              <h3 className={styles.cardTitle}>배송지 수정</h3>
+            </div>
+
             <div className={styles.form}>
               <Input
                 label="수령인"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={!editing}
+                className={styles.phoneInput}
               />
               <Input
                 label="연락처"
@@ -161,7 +153,7 @@ const AddressDetailPage: React.FC = () => {
                 className={styles.phoneInput}
               />
 
-              <div className={styles.addressGroup}>
+              <div className={`${styles.addressGroup} ${editing ? styles.editing : ''}`}>
                 <label className={styles.label}>주소</label>
 
                 <div className={styles.addressRow}>
@@ -169,7 +161,7 @@ const AddressDetailPage: React.FC = () => {
                     placeholder="우편번호"
                     value={zonecode}
                     onChange={(e) => setZonecode(e.target.value)}
-                    disabled={!editing}
+                    disabled
                     className={styles.zonecodeInput}
                   />
                   <div className={styles.searchButtonWrapper}>
@@ -187,7 +179,7 @@ const AddressDetailPage: React.FC = () => {
                   placeholder="기본주소"
                   value={baseAddress}
                   onChange={(e) => setBaseAddress(e.target.value)}
-                  disabled={!editing}
+                  disabled
                   className={styles.addressInput}
                 />
                 <Input
@@ -216,8 +208,8 @@ const AddressDetailPage: React.FC = () => {
                   <Button className={styles.actionButton} onClick={startEdit}>
                     수정
                   </Button>
-                  <Button className={styles.actionButton} onClick={handleDelete}>
-                    삭제
+                  <Button className={styles.actionButton} onClick={() => navigate('/mypage/myinfo/address')}>
+                    목록으로 가기
                   </Button>
                 </>
               ) : (

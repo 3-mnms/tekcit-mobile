@@ -60,6 +60,10 @@ import QueuePage from '@/pages/booking/TicketQueuePage'
 import OrderPage from '@/pages/booking/TicketOrderPage'
 import OrderInfoPage from '@/pages/booking/TicketOrderInfoPage'
 
+// ai
+import NearbyShowsPage from '@/pages/ai/nearby/NearbyShowsPage'
+import NotFound from '@/components/shared/NotFound'
+
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
   { path: '/login', element: <LoginPage /> },
@@ -172,5 +176,17 @@ export const router = createBrowserRouter([
       { index: true, element: <EntranceCheckPage /> },
       { path: 'qr-scanner', element: <QrScannerPage /> },
     ],
+  },
+
+  {
+    path: 'nearby',
+    children: [
+      { path: '', element: <NearbyShowsPage /> },
+      // { path: 'spot', element: <NearbySpotPage  /> },
+    ],
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ])
