@@ -1,5 +1,4 @@
 // src/pages/payment/wallet/WalletChargePage.tsx
-// 목적: 모바일 UI는 그대로 유지하고, 웹 버전과 동일한 결제 연동(사전요청→포트원→리다이렉트 쿼리) 적용
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

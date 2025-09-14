@@ -102,7 +102,11 @@
   gap: 12px;
 }
 
-.form-field { display: grid; gap: 6px; }
+.form-field { 
+  width: 100%;
+  display: grid; 
+  gap: 6px; 
+}
 
 label {
   font-size: 13px;
@@ -151,8 +155,15 @@ select:focus {
 /* 에러 라인 높이 고정 */
 .error-space { min-height: 18px; }
 
+/* 주소 텍스트 */
+.address-container{
+  border: #111827;
+  border-radius: 50%;
+}
+
 /* 주소 행: 인풋 + 버튼 */
 .address-row {
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
@@ -169,6 +180,8 @@ select:focus {
   font-weight: 800;
   font-size: 13px;
   cursor: pointer;
+  text-align: center;
+  margin-left: 200px;
 }
 .address-search-btn:active { transform: translateY(1px); }
 
