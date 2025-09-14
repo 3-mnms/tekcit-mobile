@@ -27,6 +27,8 @@ export type TossPaymentHandle = {
     bookingId: string
     festivalId: string
     sellerId: number
+    successUrl?: string
+    failUrl?: string
   }) => Promise<void>
 }
 
@@ -43,35 +45,16 @@ const TossPayment = forwardRef<TossPaymentHandle, TossPaymentProps>(
 
     // ✅ 페이지에서 ref로 호출할 requestPay 구현을 노출
     useImperativeHandle(ref, () => ({
-      async requestPay({ paymentId, amount, orderName, bookingId, festivalId, sellerId, successUrl }) {
-        const hasSellerId =
-          typeof sellerId === 'number' && Number.isFinite(sellerId) && sellerId >= 0
+      async requestPay({ paymentId, amount, orderName, bookingId, festivalId, sellerId, successUrl, failUrl }) {
+        if (!STORE_ID || !CHANNEL_KEY) throw new Error('Missing PortOne credentials')
+        if (!bookingId || !festivalId || !Number.isFinite(sellerId)) throw new Error('Invalid context')
 
-        // 1) 필수 키 체크
-        if (!STORE_ID || !CHANNEL_KEY) {
-          alert('결제 설정이 올바르지 않습니다. 관리자에게 문의하세요.')
-          throw new Error('Missing PortOne credentials')
-        }
-
-        if (!bookingId || !festivalId || !hasSellerId) {
-          alert('결제 정보가 부족합니다. 다시 시도해 주세요.')
-          throw new Error('Invalid booking/festival/seller context')
-        }
-
-        // 2) 리다이렉트 URL 구성(paymentId 쿼리 포함)
-        const finalRedirect = (() => {
-          const base = redirectUrl ??
-            successUrl ??
-            `${window.location.origin}/payment/result?type=booking`
-          const finalRedirect =
-            `${base}${base.includes('?') ? '&' : '?'}paymentId=${encodeURIComponent(paymentId)}`
-
-        })()
-
-        // 3) 백엔드 사전요청 (구매자/판매자/주문 컨텍스트 저장)
+        // 사전요청(백엔드)
         await paymentRequest(paymentId, bookingId, festivalId, sellerId, amount)
 
-        // 4) PortOne SDK 호출(리디렉트)
+        // const base = redirectUrl ?? successUrl ?? `${window.location.origin}/payment/result?type=booking`
+        const finalRedirect = successUrl ?? `${window.location.origin}/payment/result?type=booking&status=success`
+
         await PortOne.requestPayment({
           storeId: STORE_ID,
           channelKey: CHANNEL_KEY,
@@ -82,21 +65,6 @@ const TossPayment = forwardRef<TossPaymentHandle, TossPaymentProps>(
           payMethod: PayMethod.CARD,
           redirectUrl: finalRedirect,
         })
-        try {
-          const result = await paymentConfirm(paymentId);
-
-
-          // ✅ 동일 페이지에서 쿼리만 업데이트하여 결과 렌더 유도 멍
-
-          if (result.success) {
-            navigate(`/payment/result?paymentId=${paymentId}`)
-          } else {
-            navigate(`/payments/result`)
-          }
-
-        } catch (err) {
-          console.error("에러")
-        }
       },
     }))
 

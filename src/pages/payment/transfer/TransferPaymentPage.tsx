@@ -310,10 +310,8 @@ const TransferPaymentPage: React.FC = () => {
         commission,
       }
 
-      console.log('transfer 호출 payload', transferReqBody)
       // 실제 양도 결제 실행
       await requestTransferPayment(transferReqBody, userId)
-      console.log('transfer api 성공')
 
       // 양도 승인 처리
       const approveDTO = buildApproveDTO()

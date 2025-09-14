@@ -1,5 +1,4 @@
 // src/pages/payment/.../AddressForm.tsx
-// 목적: 모바일 UI 유지 + 웹 버전 연동(DeliveryManageModal/AddressSearchModal 선택값 주입) 동일 적용
 import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useForm } from 'react-hook-form'
@@ -12,11 +11,9 @@ import DeliveryManageModal from '@/components/payment/modal/DeliveryManageModal'
 import styles from './AddressForm.module.css'
 
 interface AddressFormProps {
-  // 주소가 입력되면 true를 상위에 알림
   onValidChange?: (isValid: boolean) => void
 }
 
-// 폼 스키마: 주소만 필수, 나머지는 선택
 const schema = z.object({
   name: z.string().optional(),
   phonePrefix: z.enum(['010', '011', '016', '017', '018', '019']).optional(),
@@ -41,7 +38,6 @@ type SelectedAddressPayload = {
 // phonePrefix 정확한 타입 별칭
 type PhonePrefix = NonNullable<AddressFormInputs['phonePrefix']>
 
-// 한국 휴대폰 포맷 분해기: "01012345678" → { prefix: "010", part1: "1234", part2: "5678" }
 const splitKoreanPhone = (raw?: string): {
   prefix?: PhonePrefix
   part1?: string
@@ -79,7 +75,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
 
   // 모달 상태: 배송지 관리 / 주소 검색을 분리
   const [isManageOpen, setIsManageOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false) // 다음 주소 검색
 
   // 모든 값 감시 → 주소만 있으면 valid
   const watchAll = watch()
@@ -91,10 +87,10 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
   // 숫자만 허용하는 인풋 보정
   const onlyDigits =
     (max = 4) =>
-    (e: React.FormEvent<HTMLInputElement>) => {
-      const target = e.currentTarget
-      target.value = target.value.replace(/[^0-9]/g, '').slice(0, max)
-    }
+      (e: React.FormEvent<HTMLInputElement>) => {
+        const target = e.currentTarget
+        target.value = target.value.replace(/[^0-9]/g, '').slice(0, max)
+      }
 
   // 전체 화면 시트 모달 열릴 때 스크롤 잠금 + 안전 오프셋 적용
   useEffect(() => {
@@ -159,15 +155,6 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
             aria-expanded={isManageOpen}
           >
             배송지 관리
-          </button>
-          <button
-            type="button"
-            className={`plain-button ${styles['address-search-btn']}`}
-            onClick={() => setIsSearchOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={isSearchOpen}
-          >
-            주소 검색
           </button>
         </div>
       </div>
@@ -266,7 +253,16 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
 
         {/* 주소(필수) + 우편번호/상세주소(선택) */}
         <div className={styles['form-field']}>
-          <label htmlFor="address">주소 *</label>
+          <div>
+            <label className={styles['address-text']}>주소 *</label>
+            <button
+              type="button"
+              className={`${styles['btn']} ${styles['address-search-btn']}`}
+              onClick={() => setIsSearchOpen(true)}
+            >
+              주소 검색
+            </button>
+          </div>
           <div className={styles['address-row']}>
             <input
               id="address"
@@ -274,14 +270,6 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
               placeholder="주소를 선택하거나 입력해 주세요"
               {...register('address')}
             />
-            {/* 위의 상단 버튼으로도 검색 가능하지만, 행 내 버튼이 필요하면 유지 */}
-            {/* <button
-              type="button"
-              className={`plain-button ${styles['address-search-btn']}`}
-              onClick={() => setIsSearchOpen(true)}
-            >
-              주소 검색
-            </button> */}
           </div>
           {errors.address && <p className={styles['error']}>{errors.address.message}</p>}
         </div>
@@ -306,6 +294,13 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
           {errors.addressDetail && <p className={styles['error']}>{errors.addressDetail.message}</p>}
         </div>
       </div>
+      
+      {isSearchOpen && (
+        <AddressSearchModal
+          onComplete={handleAddressCompleteFromDaum}
+          onClose={() => setIsSearchOpen(false)}
+        />
+      )}
     </form>
   )
 }

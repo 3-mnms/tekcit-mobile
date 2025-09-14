@@ -1,5 +1,4 @@
 // src/pages/payment/wallet/WalletPointPage.tsx
-// 목적: 모바일 UI 유지 + 웹 버전의 API 연동(잔액/내역/충전확정) 동일 적용
 
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'

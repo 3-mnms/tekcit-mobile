@@ -1,5 +1,4 @@
 // src/pages/payment/BookingPaymentPage.tsx
-// 주석: 결제 페이지 - 제한 시간/카운트다운 완전 제거, 진행바(결제 단계 3) 유지 멍
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import SockJS from 'sockjs-client'
@@ -90,6 +89,13 @@ const BookingPaymentPage: React.FC = () => {
   const [err, setErr] = useState<string | null>(null)
   const [paymentId, setPaymentId] = useState<string | null>(null)
 
+  const toYMD = (input: Date) => {
+    const y = input.getFullYear()
+    const m = String(input.getMonth() + 1).padStart(2, '0')
+    const d = String(input.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+
   // 주석: 최초 paymentId 생성 + 세션 저장 멍
   useEffect(() => {
     if (!paymentId) {
@@ -110,7 +116,7 @@ const BookingPaymentPage: React.FC = () => {
 
   // 주석: sellerId 확보 - 예매 상세 조회 멍
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         const res = await fetchBookingDetail({
           festivalId: checkout.festivalId,
@@ -138,7 +144,7 @@ const BookingPaymentPage: React.FC = () => {
 
     const connectWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://localhost:10000/ws'), // 포트/경로는 기존 설정 멍
+        webSocketFactory: () => new SockJS('/ws'), // 포트/경로는 기존 설정 멍
         connectHeaders: {},
         debug: (str) => console.log('[STOMP Debug]', str),
         reconnectDelay: 5000,
@@ -156,7 +162,7 @@ const BookingPaymentPage: React.FC = () => {
             } else if (data.status === 'CANCELED') {
               navigate('/payment/result?type=booking&status=fail')
             }
-          } catch {}
+          } catch { }
         })
       }
 
@@ -191,14 +197,11 @@ const BookingPaymentPage: React.FC = () => {
   const callReleaseOnce = (why: string) => {
     if (releasedOnceRef.current) return
     if (!checkout?.festivalId || !reservationDate) return
+
     releasedOnceRef.current = true
     releaseMut.mutate({
       festivalId: String(checkout.festivalId),
-      reservationDate,
-    })
-    console.log('[waiting.release] fired:', why, {
-      festivalId: checkout.festivalId,
-      reservationDate: reservationDate.toISOString(),
+      reservationDate: toYMD(reservationDate), // ← 문자열로 변경
     })
   }
 
