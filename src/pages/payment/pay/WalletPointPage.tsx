@@ -160,7 +160,7 @@ const WalletPointPage: React.FC = () => {
   }, [filteredItems, page])
 
   const fmt = (n: number) => n.toLocaleString('ko-KR')
-  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge')
+  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge', {replace: true});
 
   return (
     <div className={styles.container}>
