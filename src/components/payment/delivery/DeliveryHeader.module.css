@@ -12,14 +12,14 @@
 
 .title {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 15px;
   margin-top:10px;
 }
 
 .close-button {
   position: absolute;
   right: 5%;
-  top: 50%;
+  top: 60%;
   transform: translateY(-50%);
   background: none;
   border: none;
@@ -29,8 +29,8 @@
 }
 
 .close-icon {
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   object-fit: contain;
   display: block;
 }
