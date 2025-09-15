@@ -1,0 +1,67 @@
+/* 컨테이너 */
+.box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f6fb;
+  /* 그룹 배경 - hex */
+  border: 1px solid #e8edf5;
+  /* 테두리 - hex */
+  border-radius: 12px;
+  padding: 6px 10px;
+  position: relative;
+}
+
+/* 라벨 */
+.label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #475569;
+}
+
+.selectWrap {
+  position: relative;       /* ::after 기준 */
+  display: inline-flex;     /* 높이·정렬 안정화 */
+  align-items: center;
+  width: max-content;       /* 래퍼가 쓸데없이 늘어나지 않게 */
+  vertical-align: middle;
+}
+
+/* 셀렉트 */
+.select {
+  height: 34px;
+  min-width: 120px;
+  padding: 0 30px 0 12px;   /* 오른쪽 화살표 공간 */
+  border-radius: 10px;
+  border: 1px solid #dbe6f7;
+  background: #fff;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+
+  appearance: none;         /* 기본 화살표 제거 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  line-height: 34px;        /* 텍스트 수직 중앙 보정 */
+}
+
+.select::-ms-expand { display: none; }
+
+/* 화살표 아이콘 */
+.selectWrap::after {
+  content: "▾";             /* 또는 "▼" */
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #4D9AFD;
+  pointer-events: none;
+}
+
+.select:hover {
+  border-color: #c6dbff;
+  background-color: #f0f6ff;
+}
