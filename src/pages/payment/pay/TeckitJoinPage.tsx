@@ -4,19 +4,24 @@ import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query' // 주석: useQuery 제거 멍
+import { useMutation } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
+
 import styles from './TeckitJoinPage.module.css'
 import Header from '@/components/common/header/Header'
 
 import { useAuthStore } from '@/shared/storage/useAuthStore'
+import { useUIStore } from '@/shared/store/uiStore'
 import {
   CreateAccountRequestSchema,
   createTekcitPayAccount,
-} from '@/shared/api/payment/join' // 주석: 계좌 생성 API 멍
+} from '@/shared/api/payment/join'
 
-/* ───────────────────────── 폼 스키마 ───────────────────────── */
-// 주석: 화면 폼은 password 두 번 입력 + 약관 동의 멍
+/* ───────────────────────── 폼 스키마 ─────────────────────────
+   - 결제 PIN: 숫자 6자리
+   - 확인 입력과의 일치 검사
+   - 약관 동의 필수
+---------------------------------------------------------------- */
 const joinSchema = z
   .object({
     payPin: z.string().regex(/^\d{6}$/, '결제 PIN은 숫자 6자리여야 합니다.'),
@@ -34,9 +39,16 @@ type JoinFormValues = z.infer<typeof joinSchema>
 export default function TeckitJoinPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { authReady, isLoggedIn, user } = useAuthStore() // 주석: 훅은 컴포넌트 내부에서만 호출 멍
 
-  // ✅ 진입 가드 멍
+  // 인증 스토어: 로그인 여부 판단 및 사용자 표시명 사용
+  const { authReady, isLoggedIn, user } = useAuthStore()
+
+  // UI 스토어: 헤더 타이틀/아이콘 제어
+  const { setHeader, setBaseHeader } = useUIStore()
+
+  /* 진입 가드
+     - 스토어 복원되면 로그인 상태 확인
+     - 비로그인 시 로그인 페이지로 리다이렉트 */
   useEffect(() => {
     if (!authReady) return
     if (!isLoggedIn) {
@@ -44,17 +56,26 @@ export default function TeckitJoinPage() {
     }
   }, [authReady, isLoggedIn, navigate, location.pathname])
 
-  // 주석: 스토어 복원 전/비로그인 중엔 렌더 방지 멍
+  // 스토어 복원 전/비로그인 중에는 렌더 방지
   if (!authReady || !isLoggedIn) return null
 
-  // 🔹 표시용 이름: 스토어 기반(없으면 '사용자') 멍
+  // 헤더 구성: 좌측 뒤로가기, 중앙 타이틀 "계정 생성"
+  useEffect(() => {
+    setHeader({ leftIcon: 'back', centerMode: 'title', title: '계정 생성' })
+    // 언마운트 시 기본 헤더로 원복(필요 없으면 제거 가능)
+    return () => setBaseHeader()
+  }, [setHeader, setBaseHeader])
+
+  // 표시용 이름(스토어 기반)
   const displayName = user?.name ?? '사용자'
 
+  // 폼 초기값
   const defaultValues = useMemo<Partial<JoinFormValues>>(
     () => ({ payPin: '', payPinConfirm: '', agree: false }),
     []
   )
 
+  // react-hook-form + zod
   const {
     register,
     handleSubmit,
@@ -65,30 +86,37 @@ export default function TeckitJoinPage() {
     defaultValues,
   })
 
-  // ✅ 계좌 개설 뮤테이션 — Join.ts 사용 멍
+  /* 계좌 개설 뮤테이션
+     - API 스펙: { password: string }
+     - 성공 시: 지갑 내역 페이지로 이동 */
   const createMutation = useMutation({
     mutationFn: async (payload: { payPin: string; agree: boolean }) => {
-      // 주석: API 스펙에 맞춰 { password: string }으로 전달 멍
       const requestBody = CreateAccountRequestSchema.parse({
         password: payload.payPin,
       })
-      await createTekcitPayAccount(requestBody) // 주석: X-User-Id는 인터셉터에서 부착 멍
+      await createTekcitPayAccount(requestBody)
     },
     onSuccess: () => {
       navigate('/payment/wallet-point', { replace: true })
     },
   })
 
-  // 🔹 제출 핸들러 멍
+  // 제출 핸들러
   const onSubmit = (v: JoinFormValues) => {
     createMutation.mutate({ payPin: v.payPin, agree: v.agree })
   }
 
+  // 서버 에러 상태 코드 추출 헬퍼
+  const getErrorStatus = () =>
+    (createMutation.error as any)?.response?.status as number | undefined
+
   return (
     <>
+      {/* Header는 전역 스토어를 읽기 때문에 props 없이 그대로 사용 */}
       <Header />
+
       <main className={styles.page}>
-        {/* 상단 안내 — 대표색(#4D9AFD)은 CSS에서 처리 가정 멍 */}
+        {/* 상단 안내 섹션 */}
         <section className={styles.header}>
           <h1 className={styles.title}>테킷 페이 계정 개설</h1>
           <p className={styles.subtitle}>
@@ -96,9 +124,9 @@ export default function TeckitJoinPage() {
           </p>
         </section>
 
-        {/* 카드 레이아웃 멍 */}
+        {/* 카드 레이아웃 */}
         <section className={styles.card}>
-          {/* 읽기 전용 프로필 박스 멍 */}
+          {/* 읽기 전용 프로필 정보 */}
           <div className={styles.profileBox}>
             <div className={styles.pair}>
               <span className={styles.pairKey}>이름</span>
@@ -106,7 +134,7 @@ export default function TeckitJoinPage() {
             </div>
           </div>
 
-          {/* 개설 폼 멍 */}
+          {/* 개설 폼 */}
           <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* 결제 PIN */}
             <div className={styles.field}>
@@ -172,12 +200,12 @@ export default function TeckitJoinPage() {
               </button>
             </div>
 
-            {/* 서버 에러 노출(401/409/기타) */}
+            {/* 서버 에러 메시지 */}
             {createMutation.isError && (
               <p className={styles.serverError}>
-                {(createMutation.error as any)?.response?.status === 401
+                {getErrorStatus() === 401
                   ? '세션이 만료되었어요. 다시 로그인해 주세요.'
-                  : (createMutation.error as any)?.response?.status === 409
+                  : getErrorStatus() === 409
                     ? '이미 테킷 페이 계정이 존재합니다.'
                     : '계정 개설 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'}
               </p>
