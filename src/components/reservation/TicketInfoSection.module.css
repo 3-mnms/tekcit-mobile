@@ -93,9 +93,11 @@
 }
 .label {
   opacity: 0.8;
+  white-space: nowrap;
 }
 .value {
   font-weight: 500;
+  white-space: nowrap;
 }
 .subtotal {
   font-size: 1rem;  /* text-base */
