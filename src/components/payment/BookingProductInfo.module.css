@@ -1,99 +1,151 @@
-.card {
-  background: #ffffff;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* ================== 섹션 베이스 ================== */
+/* 주석: 섹션 외곽 여백과 타이틀 톤 조정 */
+.productSection {
+  margin: 0;
+  padding: 0 0 8px;
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
-  box-sizing: border-box;
-  height: 100%;       
+  color: #0f172a;
 }
 
-/* ─ 헤더 ─ */
+.sectionTitle {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.2px;
+  /* 주석: 좌측 포인트 바로 정보 구조 강조 */
+  position: relative;
+  padding-left: 10px;
+}
+
+/* ================== 카드 ================== */
+/* 주석: 카드의 보더/섀도우 톤 통일, 상단 포인트 라인 추가 */
+.card {
+  background: #ffffff;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+/* ================== 상단 정보 블록 ================== */
+/* 주석: 포스터 유무와 무관하게 정갈한 레이아웃 유지 */
+.infoBlock {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+/* 주석: 제목은 2줄까지 클램프, 긴 제목 대응 */
+.title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.45;
+  margin: 0;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
+/* 주석: 일시/장소 메타는 잔잔하게, 자간은 살짝 줄임 */
+.meta {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: -0.2px;
+}
+
+/* ================== 상세 행 ================== */
+/* 주석: 라벨-값 수평 정렬, 각 행에 미세한 구분선 */
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eef2f7;
+}
+.detailRow:first-of-type {
+  padding-top: 6px;
+}
+.detailRow:last-of-type {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* 주석: 라벨은 흐리게, 값은 또렷하게 */
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+}
+.value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* 주석: 마지막 행(대개 가격정보)은 살짝 강조 */
+.detailRow:last-of-type .value {
+  color: #1e40af;
+}
+
+/* ================== 포스터 옵션(안 쓰면 영향 없음) ================== */
+/* 주석: 추후 포스터를 쓰고 싶을 때 대비한 스타일 */
 .header {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-
 .posterBox {
-  width: 70px;
-  height: 93px;
-  border-radius: 6px;
-  background: #f3f4f6;
+  width: 68px;
+  height: 92px;
+  border-radius: 8px;
+  background: #f3f6fb;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
 }
-
 .poster {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .posterPlaceholder {
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
-.titleBox {
-  display: flex;
-  flex-direction: column;
-  gap: 6px; /* 배지 포함 간격 약간 확대 멍 */
-}
-
-.title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1f2937;
-  line-height: 1.4;
-  margin: 0;
-}
-
-.sub {
-  font-size: 0.78rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-/* 수령 방법 배지 멍 */
+/* ================== 배지 옵션(필요 시) ================== */
+/* 주석: 수령/좌석 등 작은 정보 강조용 배지 */
 .badge {
   display: inline-flex;
   align-items: center;
   height: 20px;
   padding: 0 8px;
   font-size: 11px;
-  font-weight: 700;
-  color: #4D9AFD;              /* 대표색 텍스트 멍 */
-  background: #eaf4ff;         /* 연한 배경 멍 */
-  border: 1px solid #d6e9ff;   /* 옅은 보더 멍 */
-  border-radius: 999px;        /* pill 형태 멍 */
+  font-weight: 800;
+  color: #4D9AFD;
+  background: #eaf4ff;
+  border: 1px solid #d6e9ff;
+  border-radius: 999px;
   width: fit-content;
 }
 
-/* ─ 표 영역 ─ */
+/* ================== 표 레이아웃 옵션(현재 미사용) ================== */
+/* 주석: 혹시 표 형태가 필요하면 사용할 수 있도록 유지 */
 .table {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
 .row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   font-size: 0.85rem;
   color: #374151;
-}
-
-.label {
-  font-weight: 500;
-  color: #6b7280;
-}
-
-.value {
-  font-weight: 700;
-  color: #111827;
 }
