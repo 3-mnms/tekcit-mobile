@@ -32,6 +32,6 @@
 }
 
 .special {
-  font-size: 16px;
-  color: #ccc;
+  font-size: 12px;      /* 기존 18px에서 축소 */
+  line-height: 1;       /* 높이 보정 */
 }

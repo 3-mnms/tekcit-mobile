@@ -1,4 +1,5 @@
 import { api } from '@/shared/config/axios'
+import { useAuthStore } from '@/shared/storage/useAuthStore'
 
 // 🔹 백엔드 DTO
 export type AddressDTO = {
@@ -7,6 +8,7 @@ export type AddressDTO = {
   address: string            // 단일 주소(도로명/지번 등)
   zipCode?: string           // 우편번호
   default: boolean           // 기본 배송지 여부
+  isDefault?: boolean
 }
 
 // 🔹 공통 응답 래퍼 
@@ -24,24 +26,79 @@ function unwrapOrThrow<T>(resp: ApiResponse<T>): T {
   return resp.data
 }
 
+function getAuthHeaders() {
+  const { accessToken } = useAuthStore.getState()
+
+  if (!accessToken) {
+    throw new Error('로그인이 필요합니다.')
+  }
+
+  return {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  }
+}
+
+function DefaultAddress(raw: any): AddressDTO {
+  return {
+    id: raw.id,
+    name: raw.name || '',
+    phone: raw.phone || '',
+    address: raw.address || '',
+    zipCode: raw.zipCode,
+    default: Boolean(raw.default || raw.isDefault),
+    isDefault: Boolean(raw.default || raw.isDefault), // 호환성
+  }
+}
+
 // 주소 목록 조회
 export async function getAddress(): Promise<AddressDTO[]> {
-  // 🔹 발급받은 실제 JWT 토큰 그대로 넣기
-  const token =
-    "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmZXN0aXZhbC11c2VyLXNlcnZpY2UiLCJzdWIiOiIxIiwicm9sZSI6IlVTRVIiLCJuYW1lIjoiXHVBRTQwXHVCQkZDXHVDODE1IiwiaWF0IjoxNzU2MTgwODIwLCJleHAiOjE4MTc1NjE4MDgyMH0.Uof_5MBYlOX7C63Fg7o2wCGA-DGikJf6reNcyUaHwO0AzeN02mI1jl04Y2CFe1d3eSGIP73hYB6IHpbLiRcosuZjfiM9k2kFCWjF5NnX3unh01r5lfrof52igJhzbR0-6wujeM6BSfyCAU_JclrXqczGxFwXeQ-dCKhHJ9FmA3eNv1AiL0cwJ5He1hfJW6gfL-5h5P9-hlxGKSbvlHYcfHhgKuiTT1Gf5ufpXiLZV21OHK7UKHDnqhvF48PloCd4YFCW7_a50PT5poNGGazAGVGDwEkLp6kMbI2Fk33MR1uZ_sMCJjT1KrQn_bSuvYF2xS9DALh8vs-b2T--3tqvVg"
-  
-    console.log('[getAddress] calling with token:', token?.slice(0, 12), '...');
-  
-    // 백엔드 api 엔드포인트 호출
-    const { data } = await api.get<ApiResponse<AddressDTO[]>>('/addresses/allAddress', {
+
+  // 백엔드 api 엔드포인트 호출
+  const { data } = await api.get<ApiResponse<any[]>>('/addresses/allAddress', {
+    headers: getAuthHeaders(),
     params: { _: Date.now() },
-    headers: { Authorization: `Bearer ${token}` }, // 👈 토큰 직접 삽입
   })
 
-  return unwrapOrThrow(data)
+  const addresses = unwrapOrThrow(data)
+  const normalized = addresses.map(DefaultAddress)
+
+
+  return normalized
+}
+
+export async function getDefaultAddress(): Promise<AddressDTO | null> {
+  try {
+    console.log('[getDefaultAddress] API 호출 시작')
+
+    const { data } = await api.get<ApiResponse<any | null>>('/addresses/defaultAddress', {
+      headers: getAuthHeaders(),
+    })
+
+    console.log('[getDefaultAddress] 서버 응답:', data)
+
+    const address = unwrapOrThrow(data)
+    return address ? DefaultAddress(address) : null
+
+  } catch (error: any) {
+    console.error('[getDefaultAddress] 오류 발생:', error)
+
+    if (error.response?.status === 401) {
+      useAuthStore.getState().clearAuth()
+      throw new Error('로그인이 만료되었습니다. 다시 로그인해주세요.')
+    }
+
+    // 기본 배송지가 없는 경우는 null 반환
+    if (error.response?.status === 404) {
+      return null
+    }
+
+    throw error
+  }
 }
 
 export const AddressQueryKeys = {
   all: ['addresses'] as const,
   list: () => ['addresses'] as const,
+  default: () => ['addresses', 'default'] as const,
 }

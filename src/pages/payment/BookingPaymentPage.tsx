@@ -56,6 +56,7 @@ const BookingPaymentPage: React.FC = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
   const checkout = state as CheckoutState
+  const reconnect = useRef(0); 
 
   // 주석: 결제 금액/상품 정보 캐싱 멍
   const unitPrice = checkout?.unitPrice ?? 0
@@ -133,7 +134,7 @@ const BookingPaymentPage: React.FC = () => {
     })()
   }, [checkout?.festivalId, checkout?.performanceDate, checkout?.bookingId, navigate])
 
-  // 주석: 웹소켓 연결 - 결제 완료/취소 알림 수신 멍
+  // 주석: 웹소켓 연결 - 결제 완료/취소 알림 수신
   useEffect(() => {
     if (!checkout?.bookingId) return
 
@@ -143,11 +144,17 @@ const BookingPaymentPage: React.FC = () => {
     }
 
     const connectWebSocket = () => {
+      if (reconnect.current >= 1) {
+        return;
+      }
+
+      reconnect.current += 1;
+
       const client = new Client({
-        webSocketFactory: () => new SockJS('/ws'), // 포트/경로는 기존 설정 멍
+        webSocketFactory: () => new SockJS('http://localhost:10000/ws'), // 포트/경로는 기존 설정 멍
         connectHeaders: {},
         debug: (str) => console.log('[STOMP Debug]', str),
-        reconnectDelay: 5000,
+        reconnectDelay: 0,
         heartbeatIncoming: 10000,
         heartbeatOutgoing: 10000,
       })

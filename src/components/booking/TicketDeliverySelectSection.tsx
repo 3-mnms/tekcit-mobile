@@ -56,9 +56,16 @@ const TicketDeliverySelectSection: React.FC<Props> = ({
       .filter(Boolean)
       .join(' ');
 
+  const splitLabel = (s: string) => {
+    const m = s.match(/^(.*?)(?:\s*\((.*)\))?$/)
+    return { main: (m?.[1] ?? s).trim(), sub: (m?.[2] ?? '').trim() }
+  }
+
   const renderItem = (m: DeliveryMethod, label: string) => {
     const allowed = isAllowed(m);
     if (hideUnavailable && !allowed) return null;
+
+    const { main, sub } = splitLabel(label)
 
     return (
       <label key={m} className={itemCls(current === m, allowed)}>
@@ -71,8 +78,10 @@ const TicketDeliverySelectSection: React.FC<Props> = ({
           disabled={disabled || loading || !allowed}
         />
         <span className={styles.labelText}>
-          {label}
-          {!allowed && !loading && <span className={styles.unavailableTag}>(미지원)</span>}
+          {/* 메인 라인 멍 */}
+          <span className={styles.labelMain}>{main}</span>
+          {/* 서브 라인 — 있으면 줄바꿈으로 표시 멍 */}
+          {sub && <span className={styles.labelSub}>({sub})</span>}
         </span>
       </label>
     );

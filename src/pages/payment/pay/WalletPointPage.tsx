@@ -10,6 +10,9 @@ import WalletHistory, { type WalletHistoryViewItem } from '@/components/payment/
 import { useWalletBalance, useWalletHistory } from '@/shared/api/payment/tekcitHistory'
 import { confirmPointCharge } from '@/shared/api/payment/pointToss'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
+import MonthDropdown from '@/components/payment/dropdown/MonthDropdown'
+import { useUIStore } from '@/shared/store/uiStore'
+import Header from '@/components/common/header/Header'
 
 import styles from './WalletPointPage.module.css'
 
@@ -91,6 +94,7 @@ function useChargeResultHandler() {
 
 const WalletPointPage: React.FC = () => {
   const navigate = useNavigate()
+  const { setHeader } = useUIStore()
 
   // 월 선택 초기값(YYYY-MM)
   const thisMonth = useMemo(() => {
@@ -98,6 +102,16 @@ const WalletPointPage: React.FC = () => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
   }, [])
   const [month, setMonth] = useState<string>(thisMonth)
+
+  // Header 설정 - 검색 버튼 숨김
+  useEffect(() => {
+    setHeader({
+      leftIcon: 'back',
+      centerMode: 'title',
+      title: '킷페이 내역',
+      showSearch: false // 검색 버튼 숨김
+    })
+  }, [setHeader])
 
   // 최근 6개월 칩(모바일 UI 그대로)
   const monthChips = useMemo(() => {
@@ -149,7 +163,7 @@ const WalletPointPage: React.FC = () => {
       const type: 'charge' | 'refund' | 'use' =
         rawMethod.includes('CHARGE') ? 'charge'
           : rawMethod.includes('REFUND') ? 'refund'
-          : 'use'
+            : 'use'
       return {
         id: String(row.paymentId ?? row.id ?? `tx-${page}-${idx}`),
         createdAt: String(row.payTime ?? row.time ?? new Date().toISOString()),
@@ -160,106 +174,69 @@ const WalletPointPage: React.FC = () => {
   }, [filteredItems, page])
 
   const fmt = (n: number) => n.toLocaleString('ko-KR')
-  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge')
+  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge', { replace: true });
 
   return (
-    <div className={styles.container}>
-      {/* 상단 고정바: 모바일 UI 그대로 */}
-      <header className={styles.topbar}>
-        <div className={`${styles.shell} ${styles.topbarInner}`}>
-          <button
-            type="button"
-            className={styles.backBtn}
-            aria-label="뒤로가기"
-            onClick={() => navigate(-1)}
-          >
-            ←
-          </button>
-          <h1 className={styles.pageTitle}>킷페이 내역</h1>
-          <span className={styles.topbarSpacer} />
-        </div>
-      </header>
+    <>
+      <Header />
+      <div className={styles.container}>
+        {/* 본문 */}
+        <main className={styles.main}>
+          <div className={styles.shell}>
+            {/* 잔액 카드: 웹과 동일 데이터 연동 */}
+            <section className={styles.summaryCard}>
+              <div className={styles.summaryLeft}>
+                <div className={styles.summaryLabel}>현재 잔액</div>
+                <div className={styles.summaryValue}>
+                  {isBalanceLoading
+                    ? <span className={styles.skeleton} />
+                    : `${fmt(balanceData?.availableBalance ?? 0)}원`}
+                </div>
+              </div>
+              <div className={styles.summaryRight}>
+                <Button className={styles.chargeBtn} onClick={handleChargeClick}>충전</Button>
+              </div>
+            </section>
 
-      {/* 본문: 모바일 UI 그대로 */}
-      <main className={styles.main}>
-        <div className={styles.shell}>
-          {/* 잔액 카드: 웹과 동일 데이터 연동 */}
-          <section className={styles.summaryCard}>
-            <div className={styles.summaryLeft}>
-              <div className={styles.summaryLabel}>현재 잔액</div>
-              <div className={styles.summaryValue}>
-                {isBalanceLoading
-                  ? <span className={styles.skeleton} />
-                  : `${fmt(balanceData?.availableBalance ?? 0)}원`}
+            {/* 월 선택 칩 */}
+            <div className={styles.filterBar}>
+              <MonthDropdown value={month} onChange={setMonth} months={6} />
+              
+              {/* 페이지 이동 컨트롤(웹 연동 그대로 적용) */}
+              <div className={styles.pager}>
+                <button
+                  className={styles.pagerBtn}
+                  disabled={!historyPage || historyPage.first}
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                >
+                  {"<"}
+                </button>
+                <span className={styles.pageInfo}>
+                  {(historyPage?.number ?? 0) + 1} / {Math.max(1, historyPage?.totalPages ?? 1)}
+                </span>
+                <button
+                  className={styles.pagerBtn}
+                  disabled={!historyPage || historyPage.last}
+                  onClick={() => setPage(p => p + 1)}
+                >
+                  {">"}
+                </button>
               </div>
             </div>
-            <div className={styles.summaryRight}>
-              <Button className={styles.chargeBtn} onClick={handleChargeClick}>충전</Button>
-            </div>
-          </section>
 
-          {/* 월 선택 칩: 모바일 UI 그대로 */}
-          <div className={styles.filterBar}>
-            <div className={styles.monthChips} role="tablist" aria-label="월 선택">
-              {monthChips.map((m) => (
-                <button
-                  key={m.value}
-                  role="tab"
-                  aria-selected={month === m.value}
-                  className={`${styles.chip} ${month === m.value ? styles.chipActive : ''}`}
-                  onClick={() => setMonth(m.value)}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            {/* 페이지 이동 컨트롤(웹 연동 그대로 적용) */}
-            <div className={styles.pager}>
-              <button
-                className={styles.pagerBtn}
-                disabled={!historyPage || historyPage.first}
-                onClick={() => setPage(p => Math.max(0, p - 1))}
-              >
-                이전
-              </button>
-              <span className={styles.pageInfo}>
-                {(historyPage?.number ?? 0) + 1} / {Math.max(1, historyPage?.totalPages ?? 1)}
-              </span>
-              <button
-                className={styles.pagerBtn}
-                disabled={!historyPage || historyPage.last}
-                onClick={() => setPage(p => p + 1)}
-              >
-                다음
-              </button>
-            </div>
+            {/* 내역: 웹과 동일 데이터 바인딩(아이템/로딩/에러) */}
+            <section className={styles.historySection}>
+              <WalletHistory
+                month={month}
+                items={viewItems}
+                loading={isHistoryLoading}
+                error={historyError ? '내역을 불러오지 못했어요 (서버 오류)' : null}
+              />
+            </section>
           </div>
-
-          {/* 내역: 웹과 동일 데이터 바인딩(아이템/로딩/에러) */}
-          <section className={styles.historySection}>
-            <WalletHistory
-              month={month}
-              items={viewItems}
-              loading={isHistoryLoading}
-              error={historyError ? '내역을 불러오지 못했어요 (서버 오류)' : null}
-            />
-            <div className={styles.emptyAction}>
-              <Button
-                onClick={() => {
-                  const d = new Date(`${month}-01`)
-                  d.setMonth(d.getMonth() - 1)
-                  const v = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-                  setMonth(v)
-                }}
-              >
-                지난달 내역 보기
-              </Button>
-            </div>
-          </section>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   )
 }
 

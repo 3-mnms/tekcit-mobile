@@ -9,6 +9,8 @@ import PortOne, { Currency, PayMethod } from '@portone/browser-sdk/v2'
 import styles from './WalletChargePage.module.css'
 import Input from '@/components/common/input/Input'
 import Button from '@/components/common/button/Button'
+import Header from '@/components/common/header/Header'
+import { useUIStore } from '@/shared/store/uiStore'
 
 import { requestTossPointCharge, type PointChargeRequest } from '@/shared/api/payment/pointToss'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
@@ -34,7 +36,18 @@ const WalletChargePage: React.FC = () => {
   // 입력 금액(문자열로 관리 → 숫자만 허용)
   const [amount, setAmount] = useState('')
   const navigate = useNavigate()
+  const { setHeader } = useUIStore()
   const orderName = '지갑 포인트 충전'
+
+  // Header 설정
+  useEffect(() => {
+    setHeader({
+      leftIcon: 'back',
+      centerMode: 'title',
+      title: '포인트 충전하기',
+      showSearch: false // 검색 버튼 숨김
+    })
+  }, [setHeader])
 
   // 사용자 토큰 정보(웹과 동일)
   const { data: tokenInfo } = useTokenInfoQuery()
@@ -151,72 +164,64 @@ const WalletChargePage: React.FC = () => {
   const disabled = !amountNumber || preRequestMutation.isPending
 
   return (
-    <div className={styles.container}>
-      {/* 상단 바: 모바일 UI 그대로 */}
-      <header className={styles.topbar} aria-label="상단 탐색 바">
-        <button
-          type="button"
-          className={styles.backBtn}
-          onClick={() => navigate(-1)}
-          aria-label="뒤로가기"
-        >
-          ←
-        </button>
-        <h1 className={styles.title}>포인트 충전하기</h1>
-        <span className={styles.topbarSpacer} />
-      </header>
+    <>
+      <Header />
+      <div className={styles.container}>
+        {/* 기존 topbar 삭제 - Header 컴포넌트 사용 */}
 
-      {/* 본문: 모바일 UI 그대로 */}
-      <div className={styles.wrapper}>
-        <section className={styles.section}>
-          <div className={styles.labelRow}>
-            <div className={styles.label}>포인트 충전 금액</div>
-            <div className={styles.helper}>{formattedAmount}</div>
-          </div>
+        {/* 본문 */}
+        <div className={styles.wrapper}>
+          <section className={styles.section}>
+            <div className={styles.labelRow}>
+              <div className={styles.label}>포인트 충전 금액</div>
+              <div className={styles.helper}>{formattedAmount}</div>
+            </div>
 
-          <div className={styles.inputWrapper}>
-            <Input
-              type="text"
-              placeholder="금액 입력"
-              value={amount}
-              onChange={handleInputChange}
-              aria-label="충전 금액"
-            />
-          </div>
+            <div className={styles.inputWrapper}>
+              <Input
+                type="text"
+                placeholder="금액 입력"
+                value={amount}
+                onChange={handleInputChange}
+                aria-label="충전 금액"
+                className={styles.amountInput}
+              />
+            </div>
 
-          <div className={styles.presetGroup}>
-            {AMOUNT_PRESETS.map((preset) => (
-              <button
-                key={preset.value}
-                type="button"
-                className={styles.presetBtn}
-                onClick={() => handlePresetClick(preset.value)}
-              >
-                +{preset.label}
-              </button>
-            ))}
-          </div>
-        </section>
+            <div className={styles.presetGroup}>
+              {AMOUNT_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  className={styles.presetBtn}
+                  onClick={() => handlePresetClick(preset.value)}
+                >
+                  +{preset.label}
+                </button>
+              ))}
+            </div>
+          </section>
 
-        {/* 기존 모바일 UI의 결제 섹션은 유지하되,
-            실제 결제는 PortOne.requestPayment로 처리하므로 별도 컴포넌트는 생략 */}
-        <section className={styles.section}>
-          <div className={styles.pgInfo} aria-live="polite">
-            신용/체크카드로 결제가 진행됩니다.
-          </div>
-        </section>
+          {/* 기존 모바일 UI의 결제 섹션은 유지하되,
+              실제 결제는 PortOne.requestPayment로 처리하므로 별도 컴포넌트는 생략 */}
+          <section className={styles.section}>
+            <div className={styles.pgInfo} aria-live="polite">
+              신용/체크카드로 결제가 진행됩니다.
+            </div>
+          </section>
 
-        <Button
-          type="button"
-          className={styles.chargeBtn}
-          onClick={handleCharge}
-          disabled={disabled}
-          aria-disabled={disabled}
-        >
-          {preRequestMutation.isPending ? '요청 중…' : '충전하기'}
-        </Button>
+          <Button
+            type="button"
+            className={styles.chargeBtn}
+            onClick={handleCharge}
+            disabled={disabled}
+            aria-disabled={disabled}
+          >
+            {preRequestMutation.isPending ? '요청 중…' : '충전하기'}
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -21,9 +21,34 @@ const toNumber = (v: unknown): number => {
 
 const formatKRW = (n: number) => `${n.toLocaleString('ko-KR')}원`
 
+const formatDateTime = (s?: string) => {
+  if (!s) return '-'
+
+  // 정규식으로 "YYYY-MM-DD HH:mm"만 추출
+  const m = s.replace('T', ' ').match(
+    /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/ // 초 이전까지만 캡처
+  )
+  if (m) return `${m[1]} ${m[2]}`
+
+  // 폴백: 브라우저 Date 파싱 후 초 제외 포맷
+  const d = new Date(s)
+  if (!isNaN(d.getTime())) {
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    const hh = String(d.getHours()).padStart(2, '0')
+    const mi = String(d.getMinutes()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`
+  }
+
+  // 그래도 안 되면 T만 공백으로 바꾼 원문 반환
+  return s.replace('T', ' ')
+}
+
 const BookingProductInfo: React.FC<{ info?: Info }> = ({ info }) => {
   const priceNumber = toNumber(info?.price)
   const priceDisplay = formatKRW(priceNumber)
+  const dateTimeDisplay = formatDateTime(info?.datetime)
 
   return (
     <section className={styles.productSection}>
@@ -35,7 +60,7 @@ const BookingProductInfo: React.FC<{ info?: Info }> = ({ info }) => {
           {/* {info?.posterFile && <img src={info.posterFile} alt="" className={styles.poster} />} */}
           <h3 className={styles.title}>{info?.title ?? '-'}</h3>
           <p className={styles.meta}>
-            {info?.datetime ?? '-'} · {info?.location ?? '-'}
+            {dateTimeDisplay} · {info?.location ?? '-'}
           </p>
         </div>
 

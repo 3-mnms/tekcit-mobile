@@ -1,6 +1,8 @@
+/* ===== 컨테이너/그리드 기본 ===== */
 .container {
   min-height: 100svh;
-  background: white;
+  background: #f7f9fc;
+  /* 배경 톤 업으로 카드 대비 강화 */
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -9,19 +11,24 @@
 .shell {
   width: min(960px, 100%);
   margin: 0 auto;
-  padding: 0 12px;
+  padding: 0 14px;
+  /* 살짝 여백 확대 */
 }
 
 .main {
-  padding: 12px 0 80px;
+  padding: 14px 0 88px;
+  /* 하단 버튼·토스트 여유 */
 }
 
+/* ===== 상단바 ===== */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 10;
   background: #fff;
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgba(17, 24, 39, 0.04);
+  /* 아주 옅은 그림자 */
 }
 
 .topbarInner {
@@ -42,6 +49,19 @@
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
+  color: var(--text);
+  border: 1px solid transparent;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.backBtn:hover {
+  background: #f3f6fb;
+}
+
+.backBtn:focus-visible {
+  outline: none;
+  border-color: #4D9AFD;
+  box-shadow: 0 0 0 3px rgba(77, 154, 253, .25);
 }
 
 .pageTitle {
@@ -49,6 +69,8 @@
   font-weight: 900;
   text-align: center;
   margin: 0;
+  letter-spacing: -.01em;
+  color: var(--text);
 }
 
 .topbarSpacer {
@@ -56,15 +78,18 @@
   height: 36px;
 }
 
+/* ===== 요약 카드(잔액) ===== */
 .summaryCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 22px 18px;
-  margin-top: 12px;
+  margin-top: 14px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(17, 24, 39, 0.04);
 }
 
 .summaryLeft {
@@ -80,9 +105,13 @@
 
 .summaryValue {
   font-weight: 900;
-  font-size: 38px;
+  font-size: 28px;
+  /* 숫자 가독성 강화 */
   letter-spacing: -.02em;
   color: var(--text);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  /* 숫자 자릿수 정렬 */
 }
 
 .summaryRight {
@@ -90,25 +119,55 @@
   align-items: center;
 }
 
+/* 충전 버튼: 브랜드 프라이머리 */
 .chargeBtn {
-  height: 44px;
-  min-width: 124px;
+  height: 30%;
+  min-width: 50%;
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 600;
+  font-size: 15px;
+  background: #4D9AFD;
+  color: #fff;
+  border: 1px solid #4D9AFD;
+  transition: transform .05s ease, box-shadow .15s ease, background .15s ease;
 }
 
-/* ✅ 월 칩: 한 줄 스크롤(넘치면 자연스러운 가로 스크롤) */
+.chargeBtn:hover {
+  background: #3f86e6;
+}
+
+.chargeBtn:active {
+  transform: translateY(1px);
+}
+
+.chargeBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(77, 154, 253, .25);
+}
+
+/* ===== 월 칩/필터 바 ===== */
 .filterBar {
-  margin: 14px 0 8px;
+  /* 기존 margin 유지 */
+  margin: 16px 0 8px;
+  /* 가로 정렬 */
+  display: flex;           /* 한 줄 배치 */
+  align-items: center;     /* 수직 중앙 정렬 */
+  gap: 10px;               /* 드롭다운과 pager 간격 */
 }
 
 .monthChips {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 6px;
+  background: #f3f6fb;
+  /* 그룹 배경 */
+  border: 1px solid #e8edf5;
+  /* 그룹 테두리 */
+  border-radius: 12px;
   scrollbar-width: none;
-  margin-left:10px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
 .monthChips::-webkit-scrollbar {
@@ -117,57 +176,118 @@
 
 .chip {
   height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: #111;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe6f7;
+  /* 옅은 테두리 */
+  background: #ffffff;
+  /* 화이트 필 */
+  color: #111827;
+  /* 진한 텍스트 */
   font-weight: 700;
   font-size: 13.5px;
+  letter-spacing: -0.01em;
   cursor: pointer;
   white-space: nowrap;
+  scroll-snap-align: start;
+  transition: border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.chip:hover {
+  background: #f0f6ff;
+  /* 살짝 블루 톤 */
+  border-color: #c6dbff;
+  color: #2f6fd6;
 }
 
 .chipActive {
-  background: #e9f3ff;
-  border-color: #cfe3ff;
-  color: #1e60d8;
-  box-shadow: inset 0 0 0 2px #d8e7ff;
+  background: #4D9AFD;
+  border-color: #4D9AFD;
+  color: #ffffff;
+  box-shadow: inset 0 -2px 0 #3a7be0; /* 살짝 눌린 느낌 */
 }
 
+/* ===== 페이지네이션(이전/다음) ===== */
+.pager {
+  margin: 0 0 0 auto;      /* 오른쪽 정렬 핵심 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+  font-size: 13px;
+}
+
+.pagerBtn {
+  height: 32px;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.pagerBtn:hover:not(:disabled) {
+  background: #f5f9ff;
+  border-color: #cfe0fb;
+  color: #2f6fd6;
+}
+
+.pagerBtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* ===== 내역 섹션 ===== */
 .historySection {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 16px;
   min-height: 240px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 10px;
+  box-shadow: 0 6px 24px rgba(17, 24, 39, 0.04);
 }
 
+/* 빈 상태 보조 액션을 링크 느낌으로 */
 .emptyAction {
-  margin-top: 12px;
+  margin-top: 6px;
   text-align: center;
 }
 
+.emptyAction :where(button, a) {
+  background: transparent;
+  border: none;
+  color: #4D9AFD;
+  font-weight: 800;
+  text-decoration: underline;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+/* ===== 로딩 스켈레톤 ===== */
 .skeleton {
   display: inline-block;
-  width: 120px;
+  width: 140px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+  background: linear-gradient(90deg, #e6ebf3 25%, #f3f6fb 37%, #e6ebf3 63%);
   background-size: 400% 100%;
-  animation: shimmer 1.2s infinite;
+  animation: shimmer 1.1s infinite;
 }
 
 @keyframes shimmer {
   0% {
-    background-position: 100% 0
+    background-position: 100% 0;
   }
 
   100% {
-    background-position: 0 0
+    background-position: 0 0;
   }
 }
