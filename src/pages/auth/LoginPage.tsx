@@ -13,7 +13,6 @@ import { useForm } from 'react-hook-form'
 import { setAuthHeaderToken } from '@/shared/config/axios'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginForm } from '@/models/auth/schema/loginSchema'
-import { useLoginMutation } from '@/models/auth/tanstack-query/useLogin'
 import { useAuthStore } from '@/shared/storage/useAuthStore'
 import { getAndSaveFcmToken } from '@/shared/api/auth/fcrmToken'
 import type { AxiosError } from 'axios'
@@ -41,8 +40,6 @@ const LoginPage: React.FC = () => {
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
   })
-
-  const loginMut = useLoginMutation()
 
   const onSubmit = async (form: LoginForm) => {
     setLoading(true)
@@ -132,7 +129,7 @@ const LoginPage: React.FC = () => {
           <Button
             className="w-full h-12 mt-2"
             type="submit"
-            disabled={!isValid || loginMut.isPending}
+            disabled={!isValid || loading}
           >
             로그인
           </Button>
