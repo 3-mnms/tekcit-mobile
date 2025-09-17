@@ -30,8 +30,8 @@ const WalletHistory: React.FC<WalletHistoryProps> = ({ month, items, loading, er
       case 'charge':       return { title: '충전',     sign: '+', cls: styles.chargeText }
       case 'use':          return { title: '사용',     sign: '-', cls: styles.useText }
       case 'refund':       return { title: '환불',     sign: '+', cls: styles.refundText }
-      case 'transfer_in':  return { title: '양도받음', sign: '+', cls: styles.transferInText }
-      case 'transfer_out': return { title: '양도보냄', sign: '-', cls: styles.transferOutText }
+      case 'transfer_in':  return { title: '양도보냄', sign: '+', cls: styles.transferInText }
+      case 'transfer_out': return { title: '양도받음', sign: '-', cls: styles.transferOutText }
       default:             return { title: '기타',     sign: '-', cls: styles.unknownText }
     }
   }
