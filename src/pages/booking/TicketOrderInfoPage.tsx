@@ -156,7 +156,7 @@ const TicketOrderInfoPage: React.FC = () => {
 
       <div className={styles.stack}>
         {/* 예매 정보 카드 */}
-        <section className={styles.card}>
+        <section>
           <TicketInfoSection
             compact
             posterUrl={display.posterUrl}
@@ -170,7 +170,7 @@ const TicketOrderInfoPage: React.FC = () => {
         </section>
 
         {/* 수령방법 */}
-        <section className={styles.card}>
+        <section>
           <TicketDeliverySelectSection
             value={method}
             onChange={handleMethodChange}
@@ -192,12 +192,12 @@ const TicketOrderInfoPage: React.FC = () => {
         )}
 
         {/* 예매자 정보 */}
-        <section className={styles.card}>
+        <section>
           <TicketBookerInfoSection className={styles.noScroll} />
         </section>
 
         {/* 합계 / 결제 버튼 */}
-        <section className={`${styles.card} ${styles.confirm}`}>
+        <section className={`${styles.confirm}`}>
           <OrderConfirmSection
             unitPrice={display.unitPrice}
             quantity={display.quantity}
