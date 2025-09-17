@@ -104,11 +104,6 @@ api.interceptors.request.use((cfg) => {
     headers.set('X-User-Id', uid)
   } else {
     headers.delete('X-User-Id')
-    // 주석: 개발 중 빠르게 원인 파악용 경고 멍 (운영 배포 시 제거해도 OK)
-    if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.warn('[axios] X-User-Id 누락 — store/localStorage/JWT 어디에서도 userId를 찾지 못했습니다.')
-    }
   }
 
   // 주석: FormData/JSON 헤더 처리 (기존) 멍
@@ -141,7 +136,6 @@ api.interceptors.response.use(
       if (!refreshPromise) {
         refreshPromise = (async () => {
           const data = await reissue()
-          console.log('[401 reissue]', data)
           const newAccess = (data as ReissueResponseDTO)?.accessToken ?? null
           if (newAccess) { setAuthHeaderToken(newAccess); return newAccess }
           return null

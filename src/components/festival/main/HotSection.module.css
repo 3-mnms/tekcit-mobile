@@ -6,6 +6,7 @@
   padding: 2rem;
   background-color: #000;
   overflow: hidden;
+  min-height: 400px;
 }
 
 .bgImage {

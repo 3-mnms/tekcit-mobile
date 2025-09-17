@@ -13,10 +13,12 @@ const Header: React.FC = () => {
 
   const isHome = location.pathname === '/';
   const isNearBy = location.pathname === '/nearby';
+  const isSearchPage = location.pathname.startsWith('/search');
 
   useEffect(() => {
     if (isHome) {
-      setHeader({ leftIcon: undefined, title: '' });
+      setHeader({ leftIcon: undefined, title: '', centerMode: 'title' });
+      setKeyword('');
     }
   }, [isHome, setHeader]);
 
@@ -28,6 +30,10 @@ const Header: React.FC = () => {
     }
     navigate(`/search?keyword=${encodeURIComponent(q)}&page=1`);
   };
+
+  const showSearchBar = centerMode === 'searchBar' && !isHome;
+  const showTitle = centerMode === 'title' && !!headerTitle && !isHome;
+  const showRightSearchIcon = isHome || (!isSearchPage && centerMode !== 'searchBar');
 
   return (
     <header className={styles.header}>
@@ -49,7 +55,7 @@ const Header: React.FC = () => {
 
       {/* 가운데 영역 */}
       <div className={styles.center}>
-        {centerMode === 'searchBar' && (
+        {showSearchBar  && (
           <div className={styles.searchWrapper}>
             <input
               type="text"
@@ -65,14 +71,14 @@ const Header: React.FC = () => {
             </button>
           </div>
         )}
-        {centerMode === 'title' && headerTitle && (
+        {showTitle && (
           <h1 className={`${styles.title} ${styles.titleWithEllipsis}`}>{headerTitle}</h1>
         )}
       </div>
 
       {/* 오른쪽 영역 */}
       <div className={styles.right}>
-        {centerMode !== 'searchBar' && (
+        {showRightSearchIcon && (
           <button type="button" onClick={() => navigate('/search')} className={styles.iconButton}>
             <i className="fa-solid fa-magnifying-glass" />
           </button>
