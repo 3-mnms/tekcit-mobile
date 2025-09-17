@@ -1,4 +1,5 @@
 // src/pages/payment/wallet/WalletPointPage.tsx
+// 목적: 모바일 UI 유지 + 웹 버전과 동일한 API/매핑 규칙 적용
 
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -18,14 +19,14 @@ import styles from './WalletPointPage.module.css'
 
 const PAGE_SIZE = 10
 
-// 결제 결과 쿼리 파싱 스키마(redirect 후 ?type=wallet-charge&paymentId=...&success=true/false)
+// 결제 결과 쿼리 파싱 스키마
 const ResultQuerySchema = z.object({
   type: z.literal('wallet-charge').optional(),
   paymentId: z.string().min(10).optional(),
   success: z.enum(['true', 'false']).optional(),
 })
 
-// 충전 결과 처리 훅: 웹 버전 동작과 동일하게 적용
+// 충전 결과 처리 훅: 웹과 동일 동작
 function useChargeResultHandler() {
   const [params] = useSearchParams()
   const { data: tokenInfo } = useTokenInfoQuery()
@@ -38,7 +39,7 @@ function useChargeResultHandler() {
   })
   const qs = parsed.success ? parsed.data : {}
 
-  // 실패로 돌아온 경우: 안내 후 쿼리 제거되도록 리로드 이동
+  // 실패 안내 후 리로드(쿼리 제거)
   useEffect(() => {
     if (qs.type === 'wallet-charge' && qs.success === 'false') {
       alert('결제가 완료되지 않았습니다.')
@@ -46,15 +47,13 @@ function useChargeResultHandler() {
     }
   }, [qs.type, qs.success])
 
-  // 확정 API 호출 뮤테이션 (X-User-Id 필요 시 서버 인터셉터가 주입)
+  // 서버 확정 폴링
   const confirmMutation = useMutation({
     mutationFn: (pid: string) => confirmPointCharge(pid, userId),
   })
 
-  // 승인 지연 대비 2초 폴링: userId가 준비된 뒤 시작
   const pollRef = useRef<number | null>(null)
-  const shouldConfirm =
-    qs.type === 'wallet-charge' && !!qs.paymentId && qs.success === 'true'
+  const shouldConfirm = qs.type === 'wallet-charge' && !!qs.paymentId && qs.success === 'true'
 
   useEffect(() => {
     if (!shouldConfirm || !userId) return
@@ -64,7 +63,7 @@ function useChargeResultHandler() {
       confirmMutation.mutate(qs.paymentId!)
     }
 
-    // 폴링 시작
+    // 2초 주기 폴링
     if (pollRef.current == null) {
       pollRef.current = window.setInterval(() => {
         if (!confirmMutation.isSuccess && !confirmMutation.isPending) {
@@ -109,11 +108,11 @@ const WalletPointPage: React.FC = () => {
       leftIcon: 'back',
       centerMode: 'title',
       title: '킷페이 내역',
-      showSearch: false // 검색 버튼 숨김
+      showSearch: false,
     })
   }, [setHeader])
 
-  // 최근 6개월 칩(모바일 UI 그대로)
+  // 최근 6개월 칩
   const monthChips = useMemo(() => {
     return Array.from({ length: 6 }).map((_, i) => {
       const d = new Date()
@@ -124,18 +123,25 @@ const WalletPointPage: React.FC = () => {
     })
   }, [])
 
-  // 결제 결과 핸들러: redirect로 돌아온 경우 확정 처리
+  // 결제 결과 확정 처리
   useChargeResultHandler()
 
-  // 잔액/내역 API: 웹과 동일 훅 사용
+  // 잔액/내역 API
   const { data: balanceData, isLoading: isBalanceLoading, refetch: refetchBalance } = useWalletBalance()
   const [page, setPage] = useState(0)
-  const { data: historyPage, isLoading: isHistoryLoading, error: historyError, refetch: refetchHistory } =
-    useWalletHistory({ page, size: PAGE_SIZE })
+  const {
+    data: historyPage,
+    isLoading: isHistoryLoading,
+    error: historyError,
+    refetch: refetchHistory,
+  } = useWalletHistory({ page, size: PAGE_SIZE })
 
-  // 탭 포커스/가시성 변경 시 데이터 동기화
+  // 포커스/가시성 변경 시 데이터 동기화
   useEffect(() => {
-    const sync = () => { refetchBalance(); refetchHistory() }
+    const sync = () => {
+      refetchBalance()
+      refetchHistory()
+    }
     window.addEventListener('focus', sync)
     document.addEventListener('visibilitychange', sync)
     return () => {
@@ -155,26 +161,68 @@ const WalletPointPage: React.FC = () => {
     return list.filter((it: any) => toYM(it.payTime ?? it.time) === month)
   }, [historyPage, month])
 
-  // 뷰모델 변환: WalletHistoryViewItem으로 매핑
+  // 뷰모델 변환: 웹과 동일한 규칙으로 타입 매핑
   const viewItems: WalletHistoryViewItem[] = useMemo(() => {
     return filteredItems.map((row: any, idx: number) => {
       const rawMethod = String(row.payMethod ?? row.method ?? '').toUpperCase()
-      // 규칙: 'CHARGE' 포함 → 충전(+), 'REFUND' 포함 → 환불(+), 그 외 사용(-)
-      const type: 'charge' | 'refund' | 'use' =
-        rawMethod.includes('CHARGE') ? 'charge'
-          : rawMethod.includes('REFUND') ? 'refund'
-            : 'use'
+      const transactionType = String(row.transactionType ?? '').toUpperCase() // CREDIT/DEBIT/UNKNOWN
+      const paymentStatus = String(row.paymentStatus ?? '').toUpperCase()
+      const buyerId = row.buyerId
+
+      const type:
+        | 'charge'
+        | 'refund'
+        | 'use'
+        | 'transfer_in'
+        | 'transfer_out'
+        | 'unknown' = (() => {
+        // 0) 환불 우선: 상태에 CANCEL/CANCELLED 포함
+        if (paymentStatus.includes('CANCELLED') || paymentStatus.includes('CANCEL')) {
+          return 'refund'
+        }
+        // 1) 충전: POINT_CHARGE/CHARGE 키워드
+        if (rawMethod.includes('POINT_CHARGE') || rawMethod.includes('CHARGE')) {
+          return 'charge'
+        }
+        // 2) 양도: TRANSFER 키워드 → CREDIT=transfer_in, DEBIT=transfer_out
+        if (rawMethod.includes('TRANSFER')) {
+          if (transactionType === 'CREDIT') return 'transfer_in'
+          if (transactionType === 'DEBIT') return 'transfer_out'
+          return 'unknown'
+        }
+        // 3) 결제: POINT_PAYMENT
+        if (rawMethod.includes('POINT_PAYMENT')) {
+          // buyerId가 null → 정산/대금수취 맥락
+          if (buyerId === null) {
+            if (transactionType === 'DEBIT') return 'transfer_in' // 증가
+            if (transactionType === 'CREDIT') return 'use'        // 감소
+          }
+          // buyerId 존재 → 일반 사용
+          return 'use'
+        }
+        // 4) 기타 환불 키워드
+        if (rawMethod.includes('REFUND') || rawMethod.includes('CANCEL')) {
+          return 'refund'
+        }
+        // 5) 기타: DEBIT=use, 그 외 unknown
+        if (transactionType === 'DEBIT') return 'use'
+        return 'unknown'
+      })()
+
       return {
         id: String(row.paymentId ?? row.id ?? `tx-${page}-${idx}`),
         createdAt: String(row.payTime ?? row.time ?? new Date().toISOString()),
         type,
         amount: Math.abs(Number(row.amount ?? 0)),
+        // 아래 두 필드는 웹 WalletHistory에 맞춰 전달(스타일/표시 커스터마이즈 용도)
+        transactionType: (transactionType as 'CREDIT' | 'DEBIT' | 'UNKNOWN'),
+        paymentStatus: String(row.paymentStatus ?? ''),
       }
     })
   }, [filteredItems, page])
 
   const fmt = (n: number) => n.toLocaleString('ko-KR')
-  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge', { replace: true });
+  const handleChargeClick = () => navigate('/payment/wallet-point/money-charge', { replace: true })
 
   return (
     <>
@@ -183,33 +231,36 @@ const WalletPointPage: React.FC = () => {
         {/* 본문 */}
         <main className={styles.main}>
           <div className={styles.shell}>
-            {/* 잔액 카드: 웹과 동일 데이터 연동 */}
+            {/* 잔액 카드 */}
             <section className={styles.summaryCard}>
               <div className={styles.summaryLeft}>
                 <div className={styles.summaryLabel}>현재 잔액</div>
                 <div className={styles.summaryValue}>
-                  {isBalanceLoading
-                    ? <span className={styles.skeleton} />
-                    : `${fmt(balanceData?.availableBalance ?? 0)}원`}
+                  {isBalanceLoading ? (
+                    <span className={styles.skeleton} />
+                  ) : (
+                    `${fmt(balanceData?.availableBalance ?? 0)}원`
+                  )}
                 </div>
               </div>
               <div className={styles.summaryRight}>
-                <Button className={styles.chargeBtn} onClick={handleChargeClick}>충전</Button>
+                <Button className={styles.chargeBtn} onClick={handleChargeClick}>
+                  충전
+                </Button>
               </div>
             </section>
 
-            {/* 월 선택 칩 */}
+            {/* 월 선택 + 페이지 이동 */}
             <div className={styles.filterBar}>
               <MonthDropdown value={month} onChange={setMonth} months={6} />
-              
-              {/* 페이지 이동 컨트롤(웹 연동 그대로 적용) */}
+
               <div className={styles.pager}>
                 <button
                   className={styles.pagerBtn}
                   disabled={!historyPage || historyPage.first}
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
                 >
-                  {"<"}
+                  {'<'}
                 </button>
                 <span className={styles.pageInfo}>
                   {(historyPage?.number ?? 0) + 1} / {Math.max(1, historyPage?.totalPages ?? 1)}
@@ -217,14 +268,14 @@ const WalletPointPage: React.FC = () => {
                 <button
                   className={styles.pagerBtn}
                   disabled={!historyPage || historyPage.last}
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => setPage((p) => p + 1)}
                 >
-                  {">"}
+                  {'>'}
                 </button>
               </div>
             </div>
 
-            {/* 내역: 웹과 동일 데이터 바인딩(아이템/로딩/에러) */}
+            {/* 내역: 웹과 동일 규칙으로 가공된 데이터 바인딩 */}
             <section className={styles.historySection}>
               <WalletHistory
                 month={month}
