@@ -11,11 +11,9 @@ interface MenuItemProps {
   showArrow?: boolean
   reload?: 'assign' | 'replace'
   newTab?: boolean
-
-  /** 아래 3개가 추가된 스타일 props */
   icon?: LucideIcon
-  iconColor?: string           // 예: '#3b82f6'
-  description?: string         // 서브텍스트
+  iconColor?: string           
+  description?: string         
 }
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url)
@@ -55,7 +53,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
       type="button"
       className={styles.item}
       onClick={handleClick}
-      style={iconColor ? ({ ['--icon-color' as any]: iconColor } as React.CSSProperties) : undefined}
+      style={iconColor ? ({ ['--icon-color']: iconColor } as React.CSSProperties) : undefined}
     >
       <div className={styles.left}>
         {Icon ? <Icon className={styles.icon} aria-hidden /> : null}

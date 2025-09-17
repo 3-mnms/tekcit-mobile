@@ -13,7 +13,7 @@
   background: linear-gradient(90deg, rgba(77, 154, 253, 0.10), rgba(77, 154, 253, 0.05));
   border: 1px solid rgba(77, 154, 253, 0.25);
   border-radius: 14px;
-  padding: 14px 14px;
+  padding: 18px;
   cursor: pointer;
   transition: transform .08s ease, box-shadow .2s ease;
   margin: 10px 10px;

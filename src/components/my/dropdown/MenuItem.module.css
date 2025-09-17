@@ -13,12 +13,17 @@
   padding: 12px 12px;
   background: transparent;
   border: none;
-  border-top: 1px solid var(--border);
   cursor: pointer;
   transition: background-color .15s ease;
 }
-.item:first-of-type { border-top: none; }
-.item:hover { background: #f8fafc; }
+
+.item:first-of-type {
+  border-top: none;
+}
+
+.item:hover {
+  background: #f8fafc;
+}
 
 .left {
   display: flex;
@@ -30,7 +35,8 @@
 .icon {
   width: 20px;
   height: 20px;
-  color: var(--icon-color, #6b7280); /* props로 넣은 색상 */
+  color: var(--icon-color, #6b7280);
+  /* props로 넣은 색상 */
   flex: 0 0 auto;
 }
 
@@ -48,7 +54,8 @@
 
 .desc {
   font-size: 12px;
-  color: #94a3b8; /* muted-foreground 느낌 */
+  color: #94a3b8;
+  /* muted-foreground 느낌 */
   line-height: 1.2;
 }
 

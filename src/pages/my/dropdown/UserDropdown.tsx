@@ -2,13 +2,13 @@ import React, { useState, useMemo } from 'react'
 import styles from './UserDropdown.module.css'
 import PointBox from '@components/my/dropdown/PointBox'
 import MenuItem from '@components/my/dropdown/MenuItem'
-import {  User, Lock, MapPin, UserX, Ticket, ArrowRightLeft, Heart } from 'lucide-react'
+import { User, Lock, MapPin, UserX, Ticket, ArrowRightLeft, Heart, LogOut } from 'lucide-react'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 
 import { logout as logoutApi } from '@/shared/api/auth/login'
 import { useAuthStore } from '@/shared/storage/useAuthStore'
-
+import Spinner from '@/components/common/spinner/Spinner'
 import { sidebarItems } from '@/components/my/sidebar/Sidebar'
 
 const UserDropdown: React.FC = () => {
@@ -98,9 +98,9 @@ const UserDropdown: React.FC = () => {
                                 undefined
                 }
                 description={
-                  it.label === '예매 / 취소 내역' ? '최근 예매 내역' :
-                    it.label === '양도' ? '양도 가능한 티켓' :
-                      it.label === '관심목록' ? '저장한 아이템' :
+                  it.label === '예매 / 취소 내역' ? '' :
+                    it.label === '양도' ? '' :
+                      it.label === '관심목록' ? '' :
                         undefined
                 }
               />
@@ -118,14 +118,15 @@ const UserDropdown: React.FC = () => {
         ))}
       </div>
 
-      {/* 로그아웃 */}
+      {loading && <Spinner />}
       <button
         className={styles.logoutButton}
         onClick={handleLogout}
         disabled={loading}
         aria-busy={loading}
       >
-        {loading ? '로그아웃 중...' : '로그아웃'}
+        <LogOut />
+        로그아웃
       </button>
     </div>
   )
