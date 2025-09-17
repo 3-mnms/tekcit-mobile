@@ -8,6 +8,7 @@ import MyHeader from '@/components/my/hedaer/MyHeader';
 import styles from './AddressListPage.module.css';
 import { useAddressesQuery, useDeleteAddressMutation } from '@/models/auth/tanstack-query/useAddress'
 import { useQueryClient } from '@tanstack/react-query'
+import Spinner from '@/components/common/spinner/Spinner'
 
 const AddressListPage: React.FC = () => {
   const navigate = useNavigate()
@@ -41,10 +42,7 @@ const AddressListPage: React.FC = () => {
         {(isLoading || isError) && (
           <div className={styles.card}>
             {isLoading && (
-              <>
-                <div className={styles.skeletonTitle} />
-                <div className={styles.skeletonLine} />
-              </>
+              <Spinner />
             )}
             {isError && (
               <div className={styles.errorText}>

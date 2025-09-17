@@ -13,6 +13,7 @@ import {
 } from '@/models/auth/tanstack-query/useAddress';
 import { useQueryClient } from '@tanstack/react-query';
 import { FaMapMarkerAlt } from 'react-icons/fa';
+import Spinner from '@/components/common/spinner/Spinner'
 
 const AddressDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -221,12 +222,13 @@ const AddressDetailPage: React.FC = () => {
                   >
                     취소
                   </Button>
+                  {updateAddressMut.isPending && <Spinner /> }
                   <Button
                     className={styles.actionButton}
                     onClick={saveEdit}
                     disabled={updateAddressMut.isPending}
                   >
-                    {updateAddressMut.isPending ? '저장 중…' : '저장'}
+                    저장
                   </Button>
                 </>
               )}
