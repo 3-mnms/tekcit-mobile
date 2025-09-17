@@ -4,6 +4,7 @@ import styles from './BookmarkPage.module.css';
 import BookmarkCard from '@/components/my/myinfo/BookmarkCard';
 import MyHeader from '@/components/my/hedaer/MyHeader';
 import { useFavoriteToggle, useMyFavoritesInfinite } from '@/models/bookmark/useFavorite';
+import Spinner from '@/components/common/spinner/Spinner'
 
 const PAGE_SIZE = 20;
 
@@ -37,11 +38,15 @@ const BookmarkPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className={styles.empty}>불러오는 중…</div>
+        <Spinner />
       ) : isError ? (
         <div className={styles.empty}>불러오기에 실패했어요.</div>
       ) : items.length === 0 ? (
-        <div className={styles.empty}>아직 북마크한 공연이 없어요</div>
+        <div className={styles.emptyBox}>
+          <span className={styles.emptyIcon}>💙</span>
+          <h3 className={styles.emptyTitle}>저장된 북마크가 없습니다</h3>
+          <p className={styles.emptyDesc}>관심있는 공연을 북마크에 추가해보세요.</p>
+        </div>
       ) : (
         <>
           <div className={styles.grid}>

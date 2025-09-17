@@ -47,6 +47,35 @@
   color: #9ca3af;
 }
 
+.emptyBox {
+  border: 1px solid #e2e8f0;
+  border-left: 6px solid #4D9AFD;
+  background: #fff;
+  border-radius: 12px;
+  text-align: center;
+  padding: 3rem 1rem;
+  margin: 10px;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.emptyTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+  color: #0f172a;
+}
+
+.emptyDesc {
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
 .removedHead {
   margin: 10px 16px 8px;
   font-size: 14px;
