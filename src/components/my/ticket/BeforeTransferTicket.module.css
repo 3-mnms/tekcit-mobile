@@ -9,6 +9,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   background: #fff;
+   box-shadow: 0 4px 5px rgba(0,0,0,.2);
 }
 
 @media (min-width: 480px) {
@@ -108,25 +109,4 @@
   font-weight: 700;
   font-size: 15px;
   white-space: nowrap;
-}
-
-@media (prefers-color-scheme: dark) {
-  .card {
-    border-color: #374151;
-    background: #111827;
-  }
-
-  .k {
-    color: #9ca3af;
-  }
-
-  .v {
-    color: #e5e7eb;
-  }
-
-  .transferredBadge {
-    background: #1f2349;
-    border-color: #3b47a2;
-    color: #c7d2fe;
-  }
 }
