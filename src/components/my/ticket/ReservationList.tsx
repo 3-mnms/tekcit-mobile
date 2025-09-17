@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useTicketsQuery } from '@/models/my/ticket/tanstack-query/useTickets'
 import type { TicketListItem } from '@/models/my/ticket/ticketTypes'
+import Spinner from '@/components/common/spinner/Spinner'
 
 interface Props {
   filter: '전체' | '예매완료' | '예매취소' | '관람일정 조회'
@@ -53,9 +54,7 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
 
   if (isLoading) {
     return (
-      <div className={styles.list}>
-        <p className={styles.empty}>불러오는 중…</p>
-      </div>
+      <Spinner />
     )
   }
   if (isError) {
@@ -69,8 +68,11 @@ const ReservationList: React.FC<Props> = ({ filter, viewDate }) => {
   }
   if (!items.length) {
     return (
-      <div className={styles.list}>
-        <p className={styles.empty}>조건에 맞는 내역이 없어요.</p>
+      <div className={`${styles.card} ${styles.empty}`}>
+        <div className={styles.emptyIcon} aria-hidden />
+        <h3 className={styles.emptyTitle}>예매 내역이 없습니다</h3>
+        <p className={styles.emptyDesc}>선택한 조건에 해당하는 예매 내역이 없습니다.</p>
+        <button className={styles.primaryBtn} onClick={() => navigate('/')}>티켓 예매하기</button>
       </div>
     )
   }

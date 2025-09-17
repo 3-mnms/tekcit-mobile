@@ -8,6 +8,7 @@ export const usePaymentOrdersQuery = (bookingId?: string) => {
     queryFn: () => getPaymentOrdersByBookingId(bookingId!),
     enabled: !!bookingId,
     staleTime: 60_000,
+    retry: 1,
   });
 };
 
