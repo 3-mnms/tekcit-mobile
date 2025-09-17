@@ -1,99 +1,169 @@
+:root {
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --text: #111827;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --brand: #4d9afd;
+  --destructive: #e11d48;
+  --soft: #f3f4f6;
+}
+
 .dropdown {
   width: 100%;
   background-color: #fff;
   border-radius: 12px;
-  padding: 20px;
   padding-bottom: calc(20px + var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
-
   box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
-  height: 100%;
-  display: flex;    
+  height: 100vh;
+  display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
+
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  justify-content: space-between;
+  padding: 6px 4px 10px;
+  border-bottom: 1px solid var(--border);
+  margin: 0 2px 10px;
+  padding: 10px;
+}
+
+.userBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dbeafe;
+}
+
+.avatarIcon {
+  width: 20px;
+  height: 20px;
+  color: #1d4ed8;
 }
 
 .usernameWrap {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
 }
 
 .username {
-  font-size: 20px;
   font-weight: 700;
+  color: var(--text);
+  font-size: 15px;
 }
 
-.alarmButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* 알림 버튼 */
+.iconBtn {
   position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease;
 }
 
-.alarmIcon {
-  font-size: 20px;
+.iconBtn:hover {
+  background: #f8fafc;
+  border-color: var(--border);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  color: #334155;
 }
 
 .unreadDot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 4px;
+  right: 4px;
   width: 8px;
   height: 8px;
-  border-radius: 9999px;
   background: #ef4444;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  opacity: 0;
+  transform: scale(.8);
+  transition: opacity .15s ease, transform .15s ease;
 }
 
+.hasUnread .unreadDot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 섹션 카드 */
 .menuGroupWrap {
-}
-
-.menuSection {
+  padding: 8px 2px;
   display: grid;
-  gap: 4px;
-}
-
-.sectionDivider {
-  height: 8px;
-  background: #f5f5f5;
-  border-radius: 6px;
-  margin: 10px 0;
-}
-
-.logoutButton {
-  font-size: 12px;
-  color: gray;
-  text-align: right;
-  margin-top: 30px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: block;
-  margin-left: auto;
-  text-decoration: underline;
-}
-
-.logoutButton:hover {
-  color: #555;
+  gap: 12px;
 }
 
 .menuSection {
-  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+  overflow: hidden;
 }
 
 .parentLabel {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #000000;
-  padding: 6px 0;
-  cursor: default;      
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: var(--text);
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+}
+
+.parentChevron {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+
+/* 로그아웃 버튼 */
+.logoutButton {
+  width: 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px auto 2px;
+  padding: 10px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--destructive);
+  font-weight: 700;
+  border-radius: 10px;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.logoutButton:hover {
+  background: rgba(225, 29, 72, 0.08);
+  color: #be123c;
+  border-color: #be123d18;
+}
+
+.logoutButton:disabled {
+  opacity: .6;
+  cursor: default;
 }

@@ -1,32 +1,80 @@
+:root {
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --brand: #4d9afd;
+}
+
 .box {
-  border: 1px solid #ccc;
-  border-radius: 0.75rem;
-  padding: 0.5rem 1rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 50px;
-  margin-left: -5px;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(90deg, rgba(77, 154, 253, 0.10), rgba(77, 154, 253, 0.05));
+  border: 1px solid rgba(77, 154, 253, 0.25);
+  border-radius: 14px;
+  padding: 14px 14px;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .2s ease;
+  margin: 10px 10px;
+}
+
+.box:active {
+  transform: translateY(1px);
+}
+
+.left {
+  display: grid;
+  gap: 6px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+}
+
+.coinIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--brand);
 }
 
 .label {
-  color: #a0a0a0;
-}
-
-.right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.amount {
+  font-size: 13px;
   font-weight: 600;
 }
 
+.amount {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+}
+
 .charge {
-  font-size: 0.875rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: black;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  transition: filter .15s ease, opacity .15s ease;
+}
+
+.charge:hover {
+  filter: brightness(0.95);
+}
+
+.charge:disabled {
+  opacity: .7;
+  cursor: default;
+}
+
+.plusIcon {
+  width: 16px;
+  height: 16px;
 }

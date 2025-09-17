@@ -1,17 +1,24 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './MenuItem.module.css';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import styles from './MenuItem.module.css'
+import type { LucideIcon } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 
 interface MenuItemProps {
-  label: string;
-  to?: string;
-  onClick?: () => void | Promise<void>;
-  showArrow?: boolean;
-  reload?: 'assign' | 'replace';
-  newTab?: boolean;
+  label: string
+  to?: string
+  onClick?: () => void | Promise<void>
+  showArrow?: boolean
+  reload?: 'assign' | 'replace'
+  newTab?: boolean
+
+  /** 아래 3개가 추가된 스타일 props */
+  icon?: LucideIcon
+  iconColor?: string           // 예: '#3b82f6'
+  description?: string         // 서브텍스트
 }
 
-const isExternal = (url: string) => /^https?:\/\//i.test(url);
+const isExternal = (url: string) => /^https?:\/\//i.test(url)
 
 const MenuItem: React.FC<MenuItemProps> = ({
   label,
@@ -20,35 +27,46 @@ const MenuItem: React.FC<MenuItemProps> = ({
   showArrow = false,
   reload = 'assign',
   newTab = false,
+  icon: Icon,
+  iconColor,
+  description,
 }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
     if (onClick) {
-      try { await onClick(); } catch {/* noop */}
+      try { await onClick() } catch { /* noop */ }
     }
-
-    if (!to) return;
+    if (!to) return
 
     if (newTab) {
-      window.open(to, '_blank', 'noopener');
-      return;
+      window.open(to, '_blank', 'noopener')
+      return
     }
-
     if (isExternal(to)) {
-      window.location.assign(to);
-      return;
+      window.location.assign(to)
+      return
     }
-
-    navigate(to, { replace: reload === 'replace' });
-  };
+    navigate(to, { replace: reload === 'replace' })
+  }
 
   return (
-    <button type="button" className={styles.item} onClick={handleClick}>
-      <span>{label}</span>
-      {showArrow && <span className={styles.arrow}>›</span>}
+    <button
+      type="button"
+      className={styles.item}
+      onClick={handleClick}
+      style={iconColor ? ({ ['--icon-color' as any]: iconColor } as React.CSSProperties) : undefined}
+    >
+      <div className={styles.left}>
+        {Icon ? <Icon className={styles.icon} aria-hidden /> : null}
+        <div className={styles.meta}>
+          <span className={styles.label}>{label}</span>
+          {description ? <span className={styles.desc}>{description}</span> : null}
+        </div>
+      </div>
+      {showArrow && <ChevronRight className={styles.chev} aria-hidden />}
     </button>
-  );
-};
+  )
+}
 
-export default MenuItem;
+export default MenuItem

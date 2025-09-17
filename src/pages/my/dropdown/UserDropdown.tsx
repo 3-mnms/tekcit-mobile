@@ -1,8 +1,8 @@
-// src/components/my/dropdown/UserDropdown.tsx
 import React, { useState, useMemo } from 'react'
 import styles from './UserDropdown.module.css'
 import PointBox from '@components/my/dropdown/PointBox'
 import MenuItem from '@components/my/dropdown/MenuItem'
+import {  User, Lock, MapPin, UserX, Ticket, ArrowRightLeft, Heart } from 'lucide-react'
 import { HiOutlineSpeakerphone } from 'react-icons/hi'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,8 +17,11 @@ const UserDropdown: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const userName = useAuthStore((s) => s.user?.name) || '사용자명'
 
+  // TODO: 실제 안읽음 여부 연동
+  const hasUnread = false
+
   const handleAlarmClick = () => {
-    navigate('./notification');
+    navigate('./notification')
   }
 
   const handleLogout = async () => {
@@ -45,31 +48,83 @@ const UserDropdown: React.FC = () => {
   }, [])
 
   return (
-    <div className={styles.dropdown}>
+    <div className={styles.dropdown} role="menu" aria-label="사용자 드롭다운">
+      {/* 헤더 */}
       <div className={styles.header}>
-        <div className={styles.usernameWrap}>
-          <span className={styles.username}>{userName}</span>
+        <div className={styles.userBox}>
+          <div className={styles.avatar} aria-hidden>
+            <User className={styles.avatarIcon} />
+          </div>
+          <div className={styles.usernameWrap}>
+            <span className={styles.username}>{userName}</span>
+          </div>
         </div>
-        <button className={styles.alarmButton} onClick={handleAlarmClick} aria-label="알림">
-          <HiOutlineSpeakerphone className={styles.alarmIcon} />
+
+        <button
+          className={`${styles.iconBtn} ${hasUnread ? styles.hasUnread : ''}`}
+          onClick={handleAlarmClick}
+          aria-label="알림"
+        >
+          <HiOutlineSpeakerphone className={styles.icon} />
+          <span className={styles.unreadDot} aria-hidden />
         </button>
       </div>
 
+      {/* 포인트 카드 */}
       <PointBox />
 
+      {/* 섹션 + 아이템 */}
       <div className={styles.menuGroupWrap}>
         {sections.map((sec) => (
           <div key={sec.parent} className={styles.menuSection}>
-            <div className={styles.parentLabel}>{sec.parent}</div>
-            {sec.items?.map((it) => (
-              <MenuItem key={it.label} label={it.label} to={it.path} showArrow />
+            <div className={styles.parentLabel}>
+              <span>{sec.parent}</span>
+            </div>
+
+            {sec.items?.map((it, idx) => (
+              <MenuItem
+                key={`${it.label}-${idx}`}
+                label={it.label}
+                to={it.path}
+                showArrow
+                icon={
+                  it.label === '기본정보' ? User :
+                    it.label === '비밀번호 변경' ? Lock :
+                      it.label === '배송지 관리' ? MapPin :
+                        it.label === '회원 탈퇴' ? UserX :
+                          it.label === '예매 / 취소 내역' ? Ticket :
+                            it.label === '양도' ? ArrowRightLeft :
+                              it.label === '관심목록' ? Heart :
+                                undefined
+                }
+                description={
+                  it.label === '예매 / 취소 내역' ? '최근 예매 내역' :
+                    it.label === '양도' ? '양도 가능한 티켓' :
+                      it.label === '관심목록' ? '저장한 아이템' :
+                        undefined
+                }
+              />
             ))}
-            {!sec.items && <MenuItem key={sec.parent} label={sec.parent} to={sec.path} showArrow />}
+
+            {!sec.items && (
+              <MenuItem
+                key={sec.parent}
+                label={sec.parent}
+                to={sec.path}
+                showArrow
+              />
+            )}
           </div>
         ))}
       </div>
 
-      <button className={styles.logoutButton} onClick={handleLogout} disabled={loading}>
+      {/* 로그아웃 */}
+      <button
+        className={styles.logoutButton}
+        onClick={handleLogout}
+        disabled={loading}
+        aria-busy={loading}
+      >
         {loading ? '로그아웃 중...' : '로그아웃'}
       </button>
     </div>

@@ -1,49 +1,55 @@
-// src/components/my/dropdown/PointBox.tsx
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './PointBox.module.css';
-import { getTekcitPayAccount } from '@/shared/api/my/tekcitPay';
+import React, { useState, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styles from './PointBox.module.css'
+import { getTekcitPayAccount } from '@/shared/api/my/tekcitPay'
+import { Coins, Plus } from 'lucide-react'
 
 const PointBox: React.FC = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState<number | null>(null);
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [balance, setBalance] = useState<number | null>(null)
 
   const fetchBalance = useCallback(async () => {
     try {
-      const account = await getTekcitPayAccount();
-      setBalance(account.availableBalance ?? 0);
-    } catch (e: any) {
-      const code = e?.response?.data?.errorCode;
+      const account = await getTekcitPayAccount()
+      setBalance(account.availableBalance ?? 0)
+    } catch (e: unknown) {
+      const code = (e as { response?: { data?: { errorCode?: string } } })?.response?.data?.errorCode
       if (code === 'NOT_FOUND_TEKCIT_PAY_ACCOUNT') {
-        setBalance(null); // 계정 없으면 null 유지
+        setBalance(null) 
       }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    fetchBalance();
-  }, [fetchBalance]);
+    fetchBalance()
+  }, [fetchBalance])
 
   const goByAccount = useCallback(async () => {
-    if (loading) return;
-    setLoading(true);
+    if (loading) return
+    setLoading(true)
     try {
-      const account = await getTekcitPayAccount();
-      setBalance(account.availableBalance ?? 0); // ✅ 조회 시 갱신
-      navigate('/payment/wallet-point');
-    } catch (e: any) {
-      const code = e?.response?.data?.errorCode;
+      const account = await getTekcitPayAccount()
+      setBalance(account.availableBalance ?? 0)
+      navigate('/payment/wallet-point')
+    } catch (e: unknown) {
+      const code = (e as { response?: { data?: { errorCode?: string } } })?.response?.data?.errorCode
       if (code === 'NOT_FOUND_TEKCIT_PAY_ACCOUNT') {
-        alert('테킷페이 계정이 없습니다. 계정 생성 페이지로 이동합니다.');
-        navigate('/payment/wallet/join');
+        alert('테킷페이 계정이 없습니다. 계정 생성 페이지로 이동합니다.')
+        navigate('/payment/wallet/join')
       } else {
-        alert('잔액/계정 조회 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.');
+        alert('잔액/계정 조회 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.')
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [loading, navigate]);
+  }, [loading, navigate])
+
+  const displayPoint = loading
+    ? '- P'
+    : `${(balance ?? 0).toLocaleString('ko-KR')}P`
+
+  const btnLabel = balance !== null ? '충전하기' : '테킷페이 가입하기'
 
   return (
     <div
@@ -54,28 +60,27 @@ const PointBox: React.FC = () => {
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && goByAccount()}
       aria-disabled={loading}
     >
-      <span className={styles.label}>포인트</span>
-      <div className={styles.right}>
-        <span className={styles.amount}>
-          {loading
-            ? '0P'
-            : balance !== null
-              ? `${balance.toLocaleString('ko-KR')}P`
-              : '0P'}
-        </span>
-        <button
-          className={styles.charge}
-          onClick={(e) => {
-            e.stopPropagation();
-            goByAccount();
-          }}
-          disabled={loading}
-        >
-          충전하기 &gt;
-        </button>
+      <div className={styles.left}>
+        <div className={styles.titleRow}>
+          <Coins className={styles.coinIcon} />
+          <span className={styles.label}>포인트</span>
+        </div>
+        <div className={styles.amount}>{displayPoint}</div>
       </div>
-    </div>
-  );
-};
 
-export default PointBox;
+      <button
+        className={styles.charge}
+        onClick={(e) => {
+          e.stopPropagation()
+          void goByAccount()
+        }}
+        disabled={loading}
+      >
+        <Plus className={styles.plusIcon} />
+        {btnLabel}
+      </button>
+    </div>
+  )
+}
+
+export default PointBox
