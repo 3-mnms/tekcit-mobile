@@ -12,8 +12,11 @@
 }
 
 .message {
+  display: flex;
   padding: 16px;
   color: var(--text);
+  place-items: center;
+  justify-content: center;
 }
 
 .header {

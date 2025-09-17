@@ -26,19 +26,15 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  margin-right: 6rem;
+  justify-content: center;
 }
 
-.tabButton {
-  padding: 0.4rem 0.9rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background-color: #f3f4f6;
-  color: #374151;
-  transition: all 0.2s ease;
+.subTab {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .tabButton:hover {
@@ -76,6 +72,58 @@
   border-radius: 0.75rem;
   overflow: hidden;
 }
+
+.section {
+  --skel-base: #f3f4f6;
+  --skel-highlight: #e5e7eb;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ✅ 스켈레톤 카드 */
+.skeletonCard {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.skeletonCard::before {
+  content: '';
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;       
+  background: linear-gradient(90deg, var(--skel-base) 0%, var(--skel-highlight) 50%, var(--skel-base) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s linear infinite;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.skeletonCard::after {
+  content: '';
+  display: block;
+  padding: 12px;
+  height: 86px;               
+  background:
+    linear-gradient(90deg, var(--skel-base) 0%, var(--skel-highlight) 50%, var(--skel-base) 100%) 0 0 / 200% 14px no-repeat,
+    linear-gradient(var(--skel-base) 0 0) 0 0 / 70% 14px no-repeat,
+    linear-gradient(var(--skel-base) 0 0) 0 28px / 50% 12px no-repeat,
+    linear-gradient(var(--skel-base) 0 0) 0 50px / 40% 12px no-repeat;
+  animation: skeleton-shimmer 1.2s linear infinite;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonCard::before,
+  .skeletonCard::after {
+    animation: none;
+  }
+}
+
 
 .imageWrapper {
   width: 100%;
