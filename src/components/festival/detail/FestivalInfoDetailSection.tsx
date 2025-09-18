@@ -4,17 +4,18 @@ import styles from './FestivalInfoDetailSection.module.css';
 import { FaRegGrinStars } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { useFestivalDetail } from '@/models/festival/tanstack-query/useFestivalDetail';
+import Spinner from '@/components/common/spinner/Spinner'
 
 const FestivalInfoDetailSection: React.FC = () => {
   const { fid } = useParams<{ fid: string }>();
-  const { data: detail, isLoading, isError, status } = useFestivalDetail(fid ?? '');
+  const { data: detail, isLoading, isError } = useFestivalDetail(fid ?? '');
 
   let body: React.ReactNode = null;
 
   if (!fid) {
     body = <p className={styles.description}>잘못된 경로입니다.</p>;
-  } else if (isLoading || status === 'idle') {
-    body = <p className={styles.description}>불러오는 중…</p>;
+  } else if (isLoading) {
+    <Spinner />
   } else if (isError || !detail) {
     body = <p className={styles.description}>공연 정보를 불러오지 못했어요 ㅠㅠ</p>;
   } else {

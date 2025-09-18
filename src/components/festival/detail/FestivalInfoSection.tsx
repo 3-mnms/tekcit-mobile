@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import styles from './FestivalInfoSection.module.css';
 import type { FestivalDetail } from '@/models/festival/festivalType';
-
+import Spinner from '@/components/common/spinner/Spinner'
 // ✅ 추가: 찜 상태/카운트 훅 & 토글 뮤테이션, 로그인 스토어
 import {
   useIsFavorite,
@@ -57,18 +57,7 @@ const FestivalInfoSection: React.FC<Props> = ({ detail, loading }) => {
 
   if (loading && !detail) {
     return (
-      <section className={styles.container}>
-        <div className={styles.left}>
-          <div className={styles.posterPlaceholder}>Loading…</div>
-          {/* 디자인 유지, 버튼만 비활성화 */}
-          <button className={styles.likeBtn} type="button" disabled>
-            <i className="fa-heart fa-regular" /> 0
-          </button>
-        </div>
-        <div className={styles.right}>
-          <h1 className={styles.title}>로딩 중…</h1>
-        </div>
-      </section>
+      <Spinner />
     );
   }
 

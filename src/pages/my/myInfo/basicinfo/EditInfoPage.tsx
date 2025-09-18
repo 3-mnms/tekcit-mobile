@@ -113,7 +113,7 @@ const EditInfoPage: React.FC = () => {
                           전화번호
                         </span>
                       }
-                      placeholder="010-1234-5678"
+                      placeholder="010-1234-5678 (숫자만 입력)"
                       className={styles.input}
                       value={value ?? ''}
                       onChange={handleChange}

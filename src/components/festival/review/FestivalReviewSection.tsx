@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Button from '@/components/common/button/Button'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import Spinner from '@/components/common/spinner/Spinner'
 
 type Props = { fid: string }
 
