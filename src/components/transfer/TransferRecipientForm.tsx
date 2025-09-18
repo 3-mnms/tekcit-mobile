@@ -7,23 +7,13 @@ import IdSearchModal, { type AccountMini } from './IdSearchModal';
 import { useVerifyFamilyCert, useTransferor, useRequestTransfer } from '@/models/transfer/tanstack-query/useTransfer';
 import { normalizeRrn7 } from '@/shared/api/transfer/userApi';
 import type { PersonInfo } from '@/models/transfer/transferTypes';
-import { FaTrash } from 'react-icons/fa';
-// ⬇️ 테킷페이
 import { useTekcitPayAccountQuery } from '@/models/transfer/tanstack-query/useTekcitPay';
 import { isNoTekcitPayAccountError } from '@/shared/api/transfer/tekcitPay';
-import PdfCanvasPreview from './PdfCanvasPreview';
+import { Users } from 'lucide-react'
+
 
 type Relation = 'FAMILY' | 'FRIEND' | null;
 
-/** 'YYMMDD-#' 또는 'YYMMDD#' → {front6, back1} */
-function parseRrn7(input?: string): { front6?: string; back1?: string } {
-  const raw = (input ?? '').toString().trim();
-  const m = raw.match(/^(\d{6})-?(\d)$/);
-  if (!m) return {};
-  return { front6: m[1], back1: m[2] };
-}
-
-/** 'YYMMDD-#'로 강제 표준화 */
 function toRrn7WithHyphen(input?: string): string {
   const raw = (input ?? '').toString().trim();
   const m = raw.match(/^(\d{6})-?(\d)$/);
@@ -59,20 +49,6 @@ function hasMatch(people: PersonInfo[], name: string, rrn7: { front6?: string; b
   });
 }
 
-/** 모바일/에뮬에서 인라인 PDF가 막혀 있는지 감지 */
-function canInlinePdf(): boolean {
-  // 크롬에선 pdfViewerEnabled가 꽤 정확, 그 외엔 mimeTypes로 폴백
-  const enabled = (navigator as any).pdfViewerEnabled;
-  const hasMime = navigator.mimeTypes?.["application/pdf"];
-  const ua = navigator.userAgent || "";
-  const isMobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
-
-  // 모바일 UA면 대부분 불가로 본다
-  if (isMobileUA) return false;
-  if (typeof enabled === "boolean") return enabled;
-  return !!hasMime;
-}
-
 type Props = {
   currentName?: string;
   currentRrn7?: string;
@@ -89,7 +65,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
   const propName = props.currentName?.trim();
   const propRrn7 = props.currentRrn7?.trim();
   const navigate = useNavigate();
-  const inlineOk = useMemo(canInlinePdf, []);
+
   const needFetchMe = !(propName && propRrn7);
   const { data: me, isLoading: meLoading, isError: meError, error: meErr } = useTransferor({ enabled: needFetchMe });
 
@@ -147,8 +123,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     return () => { document.body.style.overflow = prev || ''; };
   }, [modalOpen]);
 
-  const isPdf = !!tempFile && /^application\/pdf$/.test(tempFile.type);
-  const isImage = !!tempFile && /^image\//.test(tempFile.type);
+  const isPdf = !!tempFile && tempFile.type === 'application/pdf';
   const needProof = relation === 'FAMILY';
 
   const safeLoginId = loginId ?? '';
@@ -288,8 +263,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
       '%c[TransferRecipientForm] Request → /api/transfer/request',
       'color:#2563eb;font-weight:700'
     );
-    console.log('timestamp:', new Date().toISOString());
-    console.log('payload:', payload);
     console.groupEnd();
 
     try {
@@ -439,10 +412,10 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     }
   };
 
-
   return (
     <form className={styles.card} onSubmit={handleSubmit}>
-      <h2 className={styles.title}>양도자 선택</h2>
+      <h2 className={styles.title}><Users className={styles.iconTitle} aria-hidden />
+        양도/환불 안내</h2>
 
       <div className={styles.radioRow}>
         <label className={styles.radio}>
@@ -474,7 +447,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
           <input
             className={`${styles.inputShort} ${styles.inputAttached}`}
             value={safeLoginId}
-            placeholder="검색으로만 입력됩니다."
+            placeholder="이메일 검색으로만 입력됩니다"
             readOnly
             aria-readonly="true"
             onKeyDown={(e) => e.preventDefault()}
@@ -507,7 +480,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/pdf,image/*"  // ← 이미지 허용
+              accept="application/pdf"
               className={styles.fileInput}
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -517,10 +490,8 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
                     alert('파일은 10MB 이하만 가능합니다.');
                     return;
                   }
-                  // 타입 가드: pdf 또는 image만 허용
-                  const ok = /^application\/pdf$/.test(f.type) || /^image\//.test(f.type);
-                  if (!ok) {
-                    alert('PDF 또는 이미지 파일만 업로드할 수 있습니다.');
+                  if (!/^application\/pdf$/.test(f.type)) {
+                    alert('PDF만 업로드할 수 있습니다.');
                     return;
                   }
                 }
@@ -533,23 +504,17 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
                 파일 선택
               </button>
               <span className={styles.fileHelp}>PDF 가능 · 10MB 이하</span>
-              {proofFile && (
-                <div className={styles.fileMeta}>
-                  <span className={styles.fileName}>{proofFile.name}</span>
-
-                  <button
-                    type="button"
-                    className={styles.clearBtn}
-                    onClick={() => setProofFile(null)}
-                    aria-label="제거"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
+          {proofFile && (
+            <div className={styles.fileMeta}>
+              <span className={styles.fileName}>{proofFile.name}</span>
+              <button type="button" className={styles.clearBtn} onClick={() => setProofFile(null)}>
+                제거
+              </button>
+            </div>
+          )}
         </>
       )}
 
@@ -569,67 +534,64 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
               첨부파일 등록 · 인증 진행
             </div>
 
-            {/* 스크롤/리사이즈에 안전한 flex 레이아웃 */}
-            <div className={styles.modalContent}>
-              <div className={styles.previewBox}>
-                <div className={styles.previewArea}>
-                  {isPdf ? (
-                    inlineOk ? (
-                      <embed
-                        title="가족증명서 미리보기"
-                        src={`${tempUrl}#view=FitH&zoom=page-width`}
-                        type="application/pdf"
-                        className={styles.previewPdf}
-                        onLoad={() => setPreviewLoading(false)}
-                      />
-                    ) : (
-                      <PdfCanvasPreview
-                        fileUrl={tempUrl}
-                        onReady={() => setPreviewLoading(false)}
-                        className={styles.previewPdf}
-                      />
-                    )
-                  ) : isImage ? (
-                    <img
-                      src={tempUrl}
-                      alt="첨부 이미지 미리보기"
-                      className={styles.previewImg}
-                      onLoad={() => setPreviewLoading(false)}
-                      onError={() => setPreviewLoading(false)}
-                    />
-                  ) : tempFile ? (
-                    <div className={styles.previewFallback}>
-                      <p>미리보기를 지원하지 않는 형식이에요.</p>
-                      <p className={styles.previewFilename}>{tempFile.name}</p>
-                    </div>
-                  ) : null}
-                </div>
+            <div className={styles.previewBox}>
+              <div className={styles.previewArea}>
+                {isPdf ? (
+                  <iframe
+                    title="가족증명서 미리보기"
+                    src={tempUrl}
+                    className={styles.previewPdf}
+                    onLoad={() => setPreviewLoading(false)}
+                  />
+                ) : tempFile ? (
+                  <div className={styles.previewFallback}>
+                    <p>미리보기를 지원하지 않는 형식이에요.</p>
+                    <p className={styles.previewFilename}>{tempFile.name}</p>
+                  </div>
+                ) : null}
               </div>
-
-              {/* 진행률 */}
-              <div
-                className={styles.progressBar}
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={progress}
-                aria-label={extracting ? '인증 진행률' : '로딩 진행률'}
-              >
-                <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-              </div>
-              <div className={styles.progressText} aria-live="polite">
-                {verifyDone
-                  ? (verifyOk ? '두 인원 매칭 완료' : (hintMsg ?? '일치하는 인원을 찾지 못했어요'))
-                  : (extracting ? '인증 중…' : '로딩 중…')}
-              </div>
-              {!!errorMsg && (
-                <div className={styles.progressError} role="alert">
-                  {errorMsg}
-                </div>
-              )}
             </div>
 
-            {/* 푸터 버튼: 밖으로 안 튀게 */}
+            {/* 하단 슬림 진행률 바 */}
+            <div
+              style={{
+                marginTop: 8,
+                position: 'relative',
+                height: 4,
+                background: '#e5e7eb',
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={progress}
+              aria-label={extracting ? '인증 진행률' : '로딩 진행률'}
+            >
+              <div
+                style={{
+                  width: `${progress}%`,
+                  height: '100%',
+                  background: extracting ? '#3b82f6' : '#9ca3af',
+                  transition: 'width 0.2s ease',
+                }}
+              />
+            </div>
+
+            {/* 상태 텍스트 */}
+            <div style={{ marginTop: 4, fontSize: 12, color: '#6b7280' }} aria-live="polite">
+              {verifyDone
+                ? (verifyOk ? '두 인원 매칭 완료' : (hintMsg ?? '일치하는 인원을 찾지 못했어요'))
+                : (extracting ? '인증 중…' : '로딩 중…')}
+            </div>
+
+            {/* 통신/서버 에러만 붉은 경고 */}
+            {!!errorMsg && (
+              <div className={styles.progressText} style={{ color: '#b91c1c', marginTop: 6 }} role="alert">
+                {errorMsg}
+              </div>
+            )}
+
             <div className={styles.modalBtns}>
               <Button
                 className={`${styles.modalBtn} ${!verifyOk ? styles.modalBtnDisabled : ''}`}
