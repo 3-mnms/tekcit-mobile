@@ -1,5 +1,5 @@
 // src/pages/my/myinfo/address/AddressListPage.tsx
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddressItem from '@/components/my/myinfo/address/AddressItem';
 import AddressEmpty from '@/components/my/myinfo/address/AddressEmpty';
@@ -28,12 +28,35 @@ const AddressListPage: React.FC = () => {
         qc.invalidateQueries({ queryKey: ['addresses'] })
         qc.invalidateQueries({ queryKey: ['addresses', 'default'] })
       },
-      onError: (e: any) => {
-        alert(e?.response?.data?.message || '배송지 삭제에 실패했습니다.')
+      onError: (e: unknown) => {
+        const msg =
+          (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          '배송지 삭제에 실패했습니다.'
+        alert(msg)
       },
     })
   }
-  
+
+  const isBlank = (v?: string | null) => {
+    const t = (v ?? '').trim().toLowerCase();
+    return t === '' || t === 'null';
+  };
+
+  const valid = useMemo(
+    () => (data ?? []).filter(a => !isBlank(a.address)),
+    [data]
+  );
+
+  const hasAny = valid.length > 0;
+
+  const sorted = useMemo(
+    () => valid.slice().sort(
+      (a, b) => Number(b?.isDefault ?? false) - Number(a?.isDefault ?? false)
+    ),
+    [valid]
+  );
+
+
   return (
     <section className={styles.page}>
       <MyHeader title="배송지 관리" />
@@ -46,7 +69,7 @@ const AddressListPage: React.FC = () => {
             )}
             {isError && (
               <div className={styles.errorText}>
-                {(error as any)?.message ?? '주소 목록을 불러오지 못했어요.'}
+                {error?.message ?? '주소 목록을 불러오지 못했어요.'}
               </div>
             )}
           </div>
@@ -54,23 +77,23 @@ const AddressListPage: React.FC = () => {
 
         {!isLoading && !isError && (
           <>
-            {!(data && data.some((addr) => addr.address && addr.address.trim() !== '')) ? (
+            {!hasAny ? (
               <AddressEmpty />
             ) : (
-              <div className={styles.card}>
-                {(data ?? []).map((addr) => (
+              <div className={styles.list}>
+                {sorted.map((addr) => (
                   <AddressItem
-                  key={addr.id}
-                  id={Number(addr.id)}
-                  name={addr.name}
-                  phone={addr.phone}
-                  zipCode={addr.zipCode}
-                  address={addr.address}
-                  isDefault={addr.isDefault}
-                  onEdit={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
-                  onClick={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
-                  onDelete={() => handleDelete(Number(addr.id))}
-                />
+                    key={addr.id}
+                    id={Number(addr.id)}
+                    name={addr.name}
+                    phone={addr.phone}
+                    zipCode={addr.zipCode}
+                    address={addr.address}
+                    isDefault={addr.isDefault}
+                    onEdit={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
+                    onClick={() => navigate(`/mypage/myinfo/address/${addr.id}`)}
+                    onDelete={() => handleDelete(Number(addr.id))}
+                  />
                 ))}
               </div>
             )}

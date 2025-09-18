@@ -255,7 +255,7 @@ const TransferTicketPage: React.FC = () => {
             )
           })}
           {(!afterList || afterList.length === 0) && (
-            <div className={styles.empty}>현재 진행 중인 양도 요청이 없어요.</div>
+            <div className={styles.empty}>현재 진행 중인 양도 요청이 없습니다.</div>
           )}
         </div>
 

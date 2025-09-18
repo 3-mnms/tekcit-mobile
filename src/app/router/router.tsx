@@ -64,6 +64,7 @@ import OrderInfoPage from '@/pages/booking/TicketOrderInfoPage'
 // ai
 import NearbyShowsPage from '@/pages/ai/nearby/NearbyShowsPage'
 import NotFound from '@/components/shared/NotFound'
+import NearbySpotPage from '@/pages/ai/nearby/NearbySpotPage'
 
 export const router = createBrowserRouter([
   { path: '/', element: <MainPage /> },
@@ -187,7 +188,7 @@ export const router = createBrowserRouter([
     path: 'nearby',
     children: [
       { path: '', element: <NearbyShowsPage /> },
-      // { path: 'spot', element: <NearbySpotPage  /> },
+      { path: 'spot/:fid', element: <NearbySpotPage  /> },
     ],
   },
   {

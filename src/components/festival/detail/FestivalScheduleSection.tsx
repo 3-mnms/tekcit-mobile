@@ -10,6 +10,7 @@ import { useFestivalDetail } from '@/models/festival/tanstack-query/useFestivalD
 import { useAuthStore } from '@/shared/storage/useAuthStore'
 import { useUserAgeQuery } from '@/models/festival/tanstack-query/useUserAgeDetail'
 import { useEnterWaitingMutation } from '@/models/waiting/tanstack-query/useWaiting'
+import Spinner from '@/components/common/spinner/Spinner'
 
 /** YYYY-MM-DD */
 const ymd = (d: Date) => {
@@ -230,11 +231,11 @@ const FestivalScheduleSection: React.FC = () => {
       <div className={styles.container}>
         {!fid && <div className={styles.notice}>잘못된 경로입니다.</div>}
 
-        {(isLoading || status === 'idle') && (
-          <div className={styles.notice}>일정을 불러오는 중… ⏳</div>
+        {(isLoading) && (
+          <Spinner />
         )}
 
-        {(isError || (!isLoading && status !== 'idle' && !detail)) && (
+        {(isError || (!isLoading && !detail)) && (
           <div className={styles.notice}>일정을 불러오지 못했어요 ㅠㅠ</div>
         )}
 

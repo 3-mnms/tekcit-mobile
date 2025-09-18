@@ -1,7 +1,7 @@
 .fab {
   position: fixed;
   right: 5px;
-  bottom: 50px;
+  bottom: 70px;
   width: 50px;
   height: 50px;
   border-radius: 9999px;
@@ -12,7 +12,7 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  z-index: 10020; /* 채팅창(10030)보다 낮게, 페이지 요소보다 높게 */
+  z-index: 10020; 
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
