@@ -6,6 +6,7 @@ import type { FestivalItem } from '@/models/festival/festivalSearchTypes';
 import styles from './ResultPanel.module.css';
 import FilterModal from '@/components/festival/search/FilterModal';
 import { FiFilter } from 'react-icons/fi';
+import Spinner from '@/components/common/spinner/Spinner'
 
 const CHUNK = 6;
 type Sale = '공연중' | '공연예정' | '공연종료' | undefined;
@@ -100,7 +101,7 @@ const ResultPanel: React.FC = () => {
   const canLoadMore = visibleCount < total;
 
   if (!keyword && !selectedGenres.length) return <div className={styles.message}>검색어 또는 장르를 선택해 주세요.</div>;
-  if (isLoading) return <div className={styles.message}>로딩 중…</div>;
+  if (isLoading) return <Spinner />;
   if (isError) return <div className={styles.message}>검색 중 오류가 발생했어요.</div>;
 
   return (
@@ -202,7 +203,7 @@ const ResultPanel: React.FC = () => {
             )}
           </>
         ) : (
-          <div className={styles.message}>표시할 결과가 없어요.</div>
+          <div className={styles.message}>표시할 결과가 없습니다.</div>
         )
       }
     </section >

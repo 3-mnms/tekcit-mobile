@@ -102,11 +102,9 @@ const TicketInfoCard: React.FC<Props> = ({
             <span className={styles.k}>티켓수령</span>
             <span className={styles.v}>
               {deliveryLabel(deliveryMethod)}
-              {deliveryMethod === 'MOBILE' && (
               <button className={styles.linkBtn} type="button" onClick={() => setShowQR(true)}>
                 QR 보기
               </button>
-              )}
             </span>
           </div>
 

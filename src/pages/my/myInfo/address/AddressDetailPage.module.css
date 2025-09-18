@@ -145,7 +145,10 @@
   font-size: 0.95rem;
   color: #374151;
   user-select: none;
+  margin-top: 0.25rem;
+  color-scheme: light;
 }
+
 .checkboxLabel input[type="checkbox"] {
   accent-color: #4D9AFD;
   width: 1rem;

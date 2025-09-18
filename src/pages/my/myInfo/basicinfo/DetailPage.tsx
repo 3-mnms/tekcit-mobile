@@ -6,6 +6,7 @@ import DetailInfoField from '@/components/my/myinfo/DetailInfoField'
 import { useMyPageUserQuery } from '@/models/my/useMyPage'
 import { isUser, isHost } from '@/models/my/userTypes'
 import styles from './DetailPage.module.css'
+import Spinner from '@/components/common/spinner/Spinner'
 
 function toDotDate(input?: string): string | undefined {
   if (!input) return undefined
@@ -50,9 +51,7 @@ const DetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <section className={styles.container}>
-        <div className={styles.card}>불러오는 중…</div>
-      </section>
+      <Spinner />
     )
   }
   if (isError || !data) {

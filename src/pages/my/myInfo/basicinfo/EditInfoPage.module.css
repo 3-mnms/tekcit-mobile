@@ -119,6 +119,22 @@
   }
 }
 
+.labelWithIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+  margin-left: 5px;
+}
+
+.labelIcon {
+  width: 14px;
+  height: 14px;
+  color: #4D9AFD;
+}
+
 .btnPrimary,
 .btnGhost {
   height: 44px;

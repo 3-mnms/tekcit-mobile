@@ -7,10 +7,8 @@ import { useNavigate } from 'react-router-dom'
 import { useNearbyFestivalsQuery } from '@/models/ai/tanstack-query/useNearbyFestivals'
 import { useDefaultAddressQuery } from '@/models/auth/tanstack-query/useAddress'
 import NearbySpotEmbed, { type NearbyFestivalMini } from '@/components/ai/nearby/NearbySpotEmbed'
-
-declare global {
-  interface Window { kakao: any }
-}
+import { loadKakaoMapSdk } from '@/shared/config/loadKakaoMap'
+import { ExternalLink, Utensils } from 'lucide-react'
 
 type UiShow = {
   id: string
@@ -22,94 +20,199 @@ type UiShow = {
   poster?: string | null
 }
 
-const toUi = (raw: any): UiShow => ({
-  id: String(raw.festivalDetailId ?? raw.id ?? crypto.randomUUID()),
-  title: raw.name ?? raw.festivalName ?? '-',
-  venue: raw.venue ?? raw.hallName ?? raw.address ?? '-',
-  distanceKm:
-    typeof raw.distance === 'number'
-      ? Number(raw.distance)
-      : typeof raw.distanceKm === 'number'
-        ? Number(raw.distanceKm)
-        : null,
-  lat: raw.latitude ?? raw.lat ?? null,
-  lng: raw.longitude ?? raw.lng ?? null,
-  poster: raw.poster ?? raw.posterFile ?? null,
-})
+/* ===== 기능 보강: 안전 파서 ===== */
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+const asStr = (v: unknown): string | null => (typeof v === 'string' ? v : null)
+const asNum = (v: unknown): number | null => {
+  if (typeof v === 'number' && Number.isFinite(v)) return v
+  if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v)
+  return null
+}
+
+/* ===== toUi: 타입 안전 변환 ===== */
+const toUi = (raw: unknown): UiShow => {
+  const r = isObj(raw) ? raw : {}
+  const id = asStr(r.festivalDetailId) ?? asStr(r.id) ?? crypto.randomUUID()
+  const title = asStr(r.name) ?? asStr(r.festivalName) ?? '-'
+  const venue = asStr(r.venue) ?? asStr(r.hallName) ?? asStr(r.address) ?? '-'
+  const distanceKm = asNum(r.distance) ?? asNum(r.distanceKm)
+  const lat = asNum(r.latitude) ?? asNum(r.lat)
+  const lng = asNum(r.longitude) ?? asNum(r.lng)
+  const poster = asStr(r.poster) ?? asStr(r.posterFile)
+  return {
+    id,
+    title,
+    venue,
+    distanceKm: distanceKm ?? null,
+    lat: lat ?? null,
+    lng: lng ?? null,
+    poster: poster ?? null,
+  }
+}
 
 const NearbyShowsPage: React.FC = () => {
   const navigate = useNavigate()
+
   const mapRef = useRef<HTMLDivElement | null>(null)
-  const mapObjRef = useRef<any>(null)
+  const mapObjRef = useRef<kakao.maps.Map | null>(null)
+  const markersRef = useRef<kakao.maps.Marker[]>([])         // ✅ 마커 보관
+  const infoWindowsRef = useRef<kakao.maps.InfoWindow[]>([])  // ✅ 인포윈도우 보관
+  const mapContainerRef = useRef<HTMLDivElement | null>(null) // ✅ 컨테이너 변경 감지
 
   const [sheetOpen, setSheetOpen] = useState(true)
   const [selected, setSelected] = useState<NearbyFestivalMini | null>(null)
 
-  const { data: defaultAddr } = useDefaultAddressQuery()
+  const { data: defaultAddr, isLoading: isAddrLoading } = useDefaultAddressQuery()
   const { data, isLoading, isError, refetch } = useNearbyFestivalsQuery()
 
-  const shows = useMemo<UiShow[]>(() => (data?.festivalList ?? []).map(toUi), [data])
+  // ✅ Kakao SDK 사전 로드
+  const [sdkLoaded, setSdkLoaded] = useState(false)
+  useEffect(() => {
+    let mounted = true
+    loadKakaoMapSdk()
+      .then(() => mounted && setSdkLoaded(true))
+      .catch(() => mounted && setSdkLoaded(false))
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const shows = useMemo<UiShow[]>(() => (Array.isArray(data?.festivalList) ? data!.festivalList.map(toUi) : []), [data])
 
   const userCenter = useMemo(() => {
-    const lat = data?.userGeocodeInfo?.latitude ?? null
-    const lng = data?.userGeocodeInfo?.longitude ?? null
-    return lat && lng ? { lat, lng } : null
+    const lat = asNum(data?.userGeocodeInfo?.latitude)
+    const lng = asNum(data?.userGeocodeInfo?.longitude)
+    return lat != null && lng != null ? { lat, lng } : null
   }, [data])
 
+  const hasDefaultAddress = useMemo(() => {
+    if (!defaultAddr) return false
+    const candidate = defaultAddr.address ?? ''
+    return typeof candidate === 'string' && candidate.trim().length > 0
+  }, [defaultAddr])
+
+  useEffect(() => {
+    if (isAddrLoading) return
+    if (!hasDefaultAddress) {
+      const confirmAdd = window.confirm(
+        '이 서비스는 기본 배송지가 필요합니다.\n현재 등록된 배송지가 없습니다. 추가하시겠습니까?',
+      )
+      if (confirmAdd) {
+        navigate('/mypage/myinfo/address', {
+          replace: true,
+          state: { from: 'nearby-shows' },
+        })
+      } else {
+        return
+      }
+    }
+  }, [isAddrLoading, hasDefaultAddress, navigate])
+
+  /* 선택 해제 시 맵 객체/컨테이너 정리 (원 코드 동작 반영) */
+  useEffect(() => {
+    if (selected === null) {
+      mapObjRef.current = null
+      mapContainerRef.current = null
+    }
+  }, [selected])
+
+  /* ===== bounds 맞추기: 사용자 위치 + 모든 마커, 패딩 포함 ===== */
   const fitToBounds = useCallback(() => {
     if (!mapObjRef.current || !window.kakao?.maps) return
     const map = mapObjRef.current
     const bounds = new window.kakao.maps.LatLngBounds()
-
     let added = false
-    shows.forEach((s) => {
-      if (!s.lat || !s.lng) return
-      bounds.extend(new window.kakao.maps.LatLng(s.lat, s.lng))
-      added = true
+
+    markersRef.current.forEach((m) => {
+      const pos = m.getPosition()
+      if (pos) {
+        bounds.extend(pos)
+        added = true
+      }
     })
+
     if (userCenter) {
       bounds.extend(new window.kakao.maps.LatLng(userCenter.lat, userCenter.lng))
       added = true
     }
-    if (added) map.setBounds(bounds)
-  }, [shows, userCenter])
 
-  // 지도 렌더링
+    if (added && !bounds.isEmpty()) {
+      // 패딩(좌/상/우/하)을 충분히 줘서 여백 확보
+      if ((map as any).setBounds.length >= 5) {
+        (map as any).setBounds(bounds, 40, 40, 40, 40)
+      } else {
+        map.setBounds(bounds)
+      }
+    }
+  }, [userCenter])
+
+  /* ===== 지도 렌더링/갱신 ===== */
   useEffect(() => {
     if (!mapRef.current) return
-    if (!window.kakao?.maps) return
+    if (!sdkLoaded) return
 
-    const render = () => {
-      const centerLat = userCenter?.lat ?? shows.find((s) => s.lat && s.lng)?.lat ?? 37.566826
-      const centerLng = userCenter?.lng ?? shows.find((s) => s.lat && s.lng)?.lng ?? 126.9786567
+    let cancelled = false
 
-      const mapOption = {
-        center: new window.kakao.maps.LatLng(centerLat, centerLng),
-        level: 6,
+    const render = async () => {
+      const kakaoNS = await loadKakaoMapSdk()
+      if (cancelled || !mapRef.current) return
+
+      // 센터 계산 (유저 위치 > 첫 좌표 존재 공연 > 서울 기본값)
+      const firstWithPos = shows.find((s) => s.lat != null && s.lng != null)
+      const centerLat = userCenter?.lat ?? firstWithPos?.lat ?? 37.566826
+      const centerLng = userCenter?.lng ?? firstWithPos?.lng ?? 126.9786567
+
+      const containerChanged = mapContainerRef.current !== mapRef.current
+
+      if (!mapObjRef.current || containerChanged) {
+        mapObjRef.current = new kakaoNS.maps.Map(mapRef.current, {
+          center: new kakaoNS.maps.LatLng(centerLat, centerLng),
+          level: 6,
+        })
+        mapContainerRef.current = mapRef.current
+      } else {
+        mapObjRef.current.setCenter(new kakaoNS.maps.LatLng(centerLat, centerLng))
       }
 
-      const map = mapObjRef.current ?? new window.kakao.maps.Map(mapRef.current as any, mapOption)
-      if (!mapObjRef.current) mapObjRef.current = map
-      else map.setCenter(mapOption.center)
+      const map = mapObjRef.current!
 
-      // 마커 클리어
-      ;(map.__markers ?? []).forEach((m: any) => m.setMap(null))
-      map.__markers = []
+      // 이전 마커/인포윈도우 정리
+      markersRef.current.forEach((m) => m.setMap(null))
+      markersRef.current = []
+      infoWindowsRef.current.forEach((iw) => iw.close())
+      infoWindowsRef.current = []
 
+      // 공연 마커 + 인포윈도우
       shows.forEach((s) => {
-        if (!s.lat || !s.lng) return
-        const pos = new window.kakao.maps.LatLng(s.lat, s.lng)
-        const marker = new window.kakao.maps.Marker({ position: pos, map })
-        map.__markers.push(marker)
+        if (s.lat == null || s.lng == null) return
+        const pos = new kakaoNS.maps.LatLng(s.lat, s.lng)
+        const marker = new kakaoNS.maps.Marker({ position: pos, map })
+        markersRef.current.push(marker)
 
-        const iw = new window.kakao.maps.InfoWindow({
-          content: `<div style="padding:8px 12px;font-size:13px;max-width:200px;line-height:1.4;border-radius:8px;">
-              <b style="color:#1f2937;">${s.title}</b><br/>
-              <span style="color:#6b7280;">${s.venue}</span>
-            </div>`,
+        const iw = new kakaoNS.maps.InfoWindow({
+          content: `
+            <div style="
+              box-sizing:border-box;
+              max-width: 260px;
+              padding: 8px 10px;
+              font-size: 13px;
+              line-height: 1.4;
+              white-space: normal;
+              word-break: break-word;
+              overflow-wrap: anywhere;
+            ">
+              <b style="display:block;margin-bottom:4px;font-weight:600;">
+                ${s.title}
+              </b>
+              <span style="color:#666">${s.venue}</span>
+            </div>
+          `,
         })
+        infoWindowsRef.current.push(iw)
 
-        window.kakao.maps.event.addListener(marker, 'click', () =>
+        kakaoNS.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker))
+        kakaoNS.maps.event.addListener(marker, 'mouseout', () => iw.close())
+        kakaoNS.maps.event.addListener(marker, 'click', () =>
           setSelected({
             id: s.id,
             name: s.title,
@@ -118,27 +221,33 @@ const NearbyShowsPage: React.FC = () => {
             lng: s.lng ?? null,
           }),
         )
-        window.kakao.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker))
-        window.kakao.maps.event.addListener(marker, 'mouseout', () => iw.close())
       })
 
+      // 사용자 위치 마커
       if (userCenter) {
-        const userMarker = new window.kakao.maps.Marker({
-          position: new window.kakao.maps.LatLng(userCenter.lat, userCenter.lng),
+        const userMarker = new kakaoNS.maps.Marker({
+          position: new kakaoNS.maps.LatLng(userCenter.lat, userCenter.lng),
           map,
         })
-        map.__markers.push(userMarker)
+        markersRef.current.push(userMarker)
       }
 
       fitToBounds()
     }
 
-    if (window.kakao?.maps?.load) window.kakao.maps.load(render)
-    else render()
-  }, [shows, userCenter, fitToBounds])
+    void render()
+
+    return () => {
+      cancelled = true
+      markersRef.current.forEach((m) => m.setMap(null))
+      markersRef.current = []
+      infoWindowsRef.current.forEach((iw) => iw.close())
+      infoWindowsRef.current = []
+    }
+  }, [sdkLoaded, shows, userCenter, fitToBounds])
 
   // 맵 컨트롤
-  const zoomIn = () => { if (mapObjRef.current) mapObjRef.current.setLevel(mapObjRef.current.getLevel() - 1) }
+  const zoomIn = () => { if (mapObjRef.current) mapObjRef.current.setLevel(Math.max(1, mapObjRef.current.getLevel() - 1)) }
   const zoomOut = () => { if (mapObjRef.current) mapObjRef.current.setLevel(mapObjRef.current.getLevel() + 1) }
   const recenter = () => {
     if (!mapObjRef.current || !window.kakao?.maps) return
@@ -156,7 +265,7 @@ const NearbyShowsPage: React.FC = () => {
   return (
     <div className={styles.pageWrapper}>
       <Header />
-      {/* 상단 주소 바 (첨부파일 스타일) */}
+      {/* 상단 주소 바 (스타일 그대로 유지) */}
       <div className={styles.addrBar}>
         <div className={styles.addrMain}>
           <i className={`fa-solid fa-location-dot ${styles.addrIcon}`} />
@@ -203,9 +312,6 @@ const NearbyShowsPage: React.FC = () => {
               <h1>내 주변 공연</h1>
             </div>
 
-            {!isLoading && !isError && (
-              <span className={styles.badgeCount}>{shows.length}개</span>
-            )}
             {isLoading && <span className={styles.badgeMuted}>불러오는 중…</span>}
             {isError && (
               <button className={styles.badgeError} onClick={() => refetch()}>
@@ -226,44 +332,41 @@ const NearbyShowsPage: React.FC = () => {
             {!isLoading && !isError && shows.map((s) => (
               <div key={s.id} className={styles.card}>
                 <div className={styles.poster} aria-hidden>
-                  {s.poster ? (
-                    <img src={s.poster} alt={`${s.title} 포스터`} />
-                  ) : (
-                    <span>포스터</span>
-                  )}
+                  {s.poster ? <img src={s.poster} alt={`${s.title} 포스터`} /> : <span>포스터</span>}
                 </div>
 
                 <div className={styles.meta}>
                   <h3 className={`${styles.cardTitle} ${styles.clamp2}`}>{s.title}</h3>
                   <div className={`${styles.venue} ${styles.clamp1}`}>{s.venue}</div>
-                  {s.distanceKm != null && (
-                    <span className={styles.badgeOutline}>{s.distanceKm}km</span>
-                  )}
-
-                  <div className={styles.actions}>
-                    <Button
-                      className={styles.btnGhost}
-                      onClick={() =>
-                        setSelected({
-                          id: s.id,
-                          name: s.title,
-                          venue: s.venue,
-                          lat: s.lat ?? null,
-                          lng: s.lng ?? null,
-                        })
-                      }
-                    >
-                      주변 볼거리
-                    </Button>
-
-                    <Button
-                      className={styles.btnPrimary}
-                      onClick={() => navigate(`/festival/${s.id}`)}
-                    >
-                      상세 보기
-                    </Button>
-                  </div>
+                  {s.distanceKm != null && <span className={styles.badgeOutline}>{s.distanceKm}km</span>}
                 </div>
+
+                <div className={styles.actions}>
+                  <Button
+                    className={styles.btnGhost}
+                    onClick={() =>
+                      setSelected({
+                        id: s.id,
+                        name: s.title,
+                        venue: s.venue,
+                        lat: s.lat ?? null,
+                        lng: s.lng ?? null,
+                      })
+                    }
+                  >
+                    <Utensils className={styles.linkIcon} />
+                    주변 볼거리 & 먹거리
+                  </Button>
+
+                  <Button
+                    className={styles.btnPrimary}
+                    onClick={() => navigate(`/festival/${s.id}`)}
+                  >
+                    <ExternalLink className={styles.linkIcon} />
+                    공연 상세 페이지
+                  </Button>
+                </div>
+
               </div>
             ))}
           </div>

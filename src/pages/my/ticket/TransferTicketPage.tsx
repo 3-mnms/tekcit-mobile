@@ -266,7 +266,12 @@ const TransferTicketPage: React.FC = () => {
             <BeforeTransferTicket key={t.reservationNumber} item={t} onTransfer={handleTransfer} />
           ))}
           {visibleTickets.length === 0 && (
-            <div className={styles.empty}>양도 가능한 티켓이 없어요.</div>
+            <div className={`${styles.card} ${styles.empty}`}>
+              <div className={styles.emptyIcon} aria-hidden />
+              <h3 className={styles.emptyTitle}>예매 내역이 없습니다</h3>
+              <p className={styles.emptyDesc}>양도 가능한 티켓 내역이 없습니다.</p>
+              <button className={styles.primaryBtn} onClick={() => navigate('/')}>티켓 예매하기</button>
+            </div>
           )}
         </div>
       </div>

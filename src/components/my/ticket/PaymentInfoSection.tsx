@@ -2,7 +2,8 @@
 import React, { useMemo } from 'react'
 import { usePaymentOrdersQuery } from '@/models/my/ticket/tanstack-query/usePaymentOrders'
 import styles from './PaymentInfoSection.module.css'
-import { useNavigate } from 'react-router-dom' 
+import { useNavigate } from 'react-router-dom'
+import Spinner from '@/components/common/spinner/Spinner'
 
 type Props = {
   bookingId: string
@@ -61,7 +62,6 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
   const { data, isLoading, isError, error } = usePaymentOrdersQuery(bookingId)
 
   const order = useMemo(() => normalizeOrder(data), [data])
-  console.log(order)
 
   const fee = 0
   const delivery = 0
@@ -81,8 +81,8 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
     navigate(`/payment/refund/${paymentId}`, {
       state: {
         paymentId,
-        paymentAmount: order?.amount,      
-        currency: order?.currency ?? 'KRW' 
+        paymentAmount: order?.amount,
+        currency: order?.currency ?? 'KRW'
       },
     })
   }
@@ -90,25 +90,17 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
   if (isLoading) {
     return (
       <section className={styles.card} aria-label="결제 내역">
-        <div className={styles.rows}>
-          <div className={styles.row}>
-            <span className={styles.v}>불러오는 중…</span>
-          </div>
-        </div>
+        <Spinner />
       </section>
     )
   }
   if (isError) {
     return (
-      <section className={styles.card} aria-label="결제 내역">
-        <div className={styles.rows}>
-          <div className={styles.row}>
-            <span className={styles.v}>
-              불러오기 실패: {(error as Error)?.message ?? '알 수 없는 오류'}
-            </span>
-          </div>
-        </div>
-      </section>
+      <div className={`${styles.card2} ${styles.empty}`}>
+        <div className={styles.emptyIcon} aria-hidden />
+        <h3 className={styles.emptyTitle}>결제 내역이 없습니다</h3>
+        <p className={styles.emptyDesc}>양도 받은 티켓은 결제 내역에서 제외됩니다.</p>
+      </div>
     )
   }
   if (!order) {

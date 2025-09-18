@@ -1,65 +1,76 @@
-/* src/components/festival/search/FilterModal.module.css */
 .backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(15, 23, 42, 0.45);
-    display: grid;
-    place-items: end;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.45);
+  display: grid;
+  place-items: end;
+  /* iOS에서 하단 시트 드래그 시 배경 스크롤 방지 */
+  touch-action: none;
 }
 
 .sheet {
-    width: 100%;
-    max-height: 85%;
-    background: #fff;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
-    padding: 10px 12px 14px;
-    overflow: hidden;
-    /* 내부 body가 스크롤 담당 */
-    animation: slideUp 180ms ease-out;
+  width: 100%;
+  max-height: 85%;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px 12px 14px;
+  overflow: hidden;
+  animation: slideUp 180ms ease-out;
+  transition: transform 160ms ease-out; /* 드래그 복귀/종료 애니메이션 */
+  will-change: transform;
+}
+
+.dragging {
+  /* 드래그 중에는 즉시 따라오게(스냅 끔) */
+  transition: none;
 }
 
 @keyframes slideUp {
-    from {
-        transform: translateY(12px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .handle {
-    width: 40px;
-    height: 4px;
-    border-radius: 999px;
-    background: #e5e7eb;
-    margin: 6px auto 8px;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  margin: 6px auto 8px;
+  position: relative;
+}
+.handle::after {
+  content: '';
+  position: absolute;
+  inset: -10px -20px;
 }
 
 .sheetHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 10px 8px;
 }
 
 .sheetBody {
-    max-height: calc(85vh - 56px);
-    /* 헤더 제외 영역 */
-    overflow: auto;
-    /* ← 스크롤 이쪽에서! */
-    padding: 0 2px 4px;
+  max-height: calc(85vh - 56px); 
+  overflow: auto;                
+  padding: 0 2px 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .closeBtn {
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    border-radius: 8px;
-    padding: 4px 8px;
-    font-weight: 600;
-    font-size: 15px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: 15px;
 }
