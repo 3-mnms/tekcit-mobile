@@ -22,6 +22,11 @@ const FestivalDetailPage: React.FC = () => {
 
   const { mutate: increaseViews } = useIncreaseViews();
   const firedRef = useRef(false);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0
+  }, [fid])
   
 useEffect(() => {
   if (detail) {
