@@ -205,14 +205,14 @@ const AddressForm: React.FC<AddressFormProps> = ({ onValidChange }) => {
 
         {/* 받는 사람 */}
         <div className={styles['form-field']}>
-          <label htmlFor="name">받는 사람</label>
+          <label htmlFor="name">받는 사람 *</label>
           <input id="name" type="text" {...register('name')} placeholder="예) 홍길동" />
           {errors.name && <p className={styles['error']}>{errors.name.message}</p>}
         </div>
 
         {/* 연락처 */}
         <div className={styles['form-field']}>
-          <label>연락처</label>
+          <label>연락처 *</label>
           <div className={styles['phone-inputs']}>
             <select {...register('phonePrefix')} aria-label="연락처 앞자리" className={styles['phone-prefix']}>
               <option value="010">010</option>
