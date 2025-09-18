@@ -61,6 +61,8 @@ const NearbyShowsPage: React.FC = () => {
 
   const [sheetOpen, setSheetOpen] = useState(true)
   const [selected, setSelected] = useState<NearbyFestivalMini | null>(null)
+  const [gateOpen, setGateOpen] = useState(false);
+  const askedRef = useRef(false);
 
   const { data: defaultAddr, isLoading: isAddrLoading } = useDefaultAddressQuery()
   const { data, isLoading, isError, refetch } = useNearbyFestivalsQuery()
@@ -96,22 +98,29 @@ const NearbyShowsPage: React.FC = () => {
 
   useEffect(() => {
     if (isAddrLoading) return
-    if (!hasDefaultAddress) {
-      const confirmAdd = window.confirm(
-        '이 서비스는 기본 배송지가 필요합니다.\n현재 등록된 배송지가 없습니다. 추가하시겠습니까?',
-      )
-      if (confirmAdd) {
-        navigate('/mypage/myinfo/address', {
-          replace: true,
-          state: { from: 'nearby-shows' },
-        })
-      } else {
-        return
-      }
+    if (askedRef.current) return;
+    if (hasDefaultAddress) {
+      askedRef.current = true;
+      setGateOpen(true);
+      return;
     }
-  }, [isAddrLoading, hasDefaultAddress, navigate])
+    askedRef.current = true;
 
-  /* 선택 해제 시 맵 객체/컨테이너 정리 (원 코드 동작 반영) */
+    const ok = window.confirm(
+      '이 서비스는 기본 배송지가 필요합니다.\n현재 등록된 배송지가 없습니다. 추가하시겠습니까?'
+    );
+
+    if (ok) {
+      navigate('/mypage/myinfo/address', {
+        replace: true,
+        state: { from: 'nearby-shows' },
+      });
+    } else {
+      if (window.history.length > 1) navigate(-1);
+      else navigate('/', { replace: true });
+    }
+  }, [isAddrLoading, hasDefaultAddress, navigate]);
+
   useEffect(() => {
     if (selected === null) {
       mapObjRef.current = null
@@ -142,7 +151,7 @@ const NearbyShowsPage: React.FC = () => {
     if (added && !bounds.isEmpty()) {
       // 패딩(좌/상/우/하)을 충분히 줘서 여백 확보
       if ((map as any).setBounds.length >= 5) {
-        ;(map as any).setBounds(bounds, 40, 40, 40, 40)
+        ; (map as any).setBounds(bounds, 40, 40, 40, 40)
       } else {
         map.setBounds(bounds)
       }
@@ -270,24 +279,25 @@ const NearbyShowsPage: React.FC = () => {
   const addrText = defaultAddr ? `${defaultAddr?.address || ''}`.trim() : ''
 
   return (
+
     <div className={styles.pageWrapper}>
       <Header />
-      {/* 상단 주소 바 (스타일 그대로 유지) */}
+      {isLoading && <Spinner />}
+
       <div className={styles.addrBar}>
         <div className={styles.addrMain}>
-          <i className={`fa-solid fa-location-dot ${styles.addrIcon}`} />
-          <span className={styles.addrText}>{defaultAddr ? addrText : <Spinner />}</span>
+          {defaultAddr ? <i className={`fa-solid fa-location-dot ${styles.addrIcon}`} /> : ''}
+          <span className={styles.addrText}>{defaultAddr ? addrText : ''}</span>
         </div>
-        <Button className={styles.addrBtn} onClick={() => navigate('/mypage/myinfo/address')}>
+        {defaultAddr ? <Button className={styles.addrBtn} onClick={() => navigate('/mypage/myinfo/address')}>
           주소 변경
-        </Button>
+        </Button> : ''}
       </div>
 
       {/* 지도 영역 */}
       <div className={styles.mapStage}>
         <div ref={mapRef} className={styles.mapArea} />
 
-        {/* 맵 FAB (동그란 버튼 3종) */}
         <div className={styles.mapFabCol}>
           <button className={styles.fab} aria-label="확대" onClick={zoomIn}>
             <i className="fa-solid fa-plus" />
@@ -306,19 +316,16 @@ const NearbyShowsPage: React.FC = () => {
 
         {/* 바텀시트 */}
         <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}>
-          {/* 핸들 */}
           <button className={styles.sheetHandle} onClick={() => setSheetOpen((v) => !v)}>
             <span className={styles.handleBar} />
           </button>
 
-          {/* 헤더 */}
           <div className={styles.sheetHeader}>
             <div className={styles.titleWrap}>
               <i className="fa-solid fa-map" />
               <h1>내 주변 공연</h1>
             </div>
 
-            {isLoading && <Spinner />}
             {isError && (
               <button className={styles.badgeError} onClick={() => refetch()}>
                 불러오기 실패 — 다시 시도

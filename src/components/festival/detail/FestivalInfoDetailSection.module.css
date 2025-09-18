@@ -3,6 +3,7 @@
   background-color: white;
   border-radius: 1rem;
   border: none;
+  min-height: 500px;
 }
 
 .title {

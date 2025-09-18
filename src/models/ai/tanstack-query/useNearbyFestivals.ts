@@ -10,6 +10,7 @@ export const useNearbyFestivalsQuery = () =>
     queryKey: QK.nearbyFestivals,
     queryFn: getNearbyFestivals,
     staleTime: 60_000,
+    retry: 1,
   });
 
 export const qkNearbyActivities = () => ['nearby', 'activities'] as const;
