@@ -32,7 +32,7 @@ const FestivalStatisticsSection: React.FC = () => {
   // DTO -> 성별 데이터
   const genderData: Datum[] = useMemo(() => {
     const gc = data?.genderCount ?? {};
-    const male   = gc.male   ?? gc.MALE   ?? gc['남'] ?? gc['남성'] ?? 0;
+    const male = gc.male ?? gc.MALE ?? gc['남'] ?? gc['남성'] ?? 0;
     const female = gc.female ?? gc.FEMALE ?? gc['여'] ?? gc['여성'] ?? 0;
     return [
       { label: '남', value: male },
@@ -52,15 +52,23 @@ const FestivalStatisticsSection: React.FC = () => {
     () => genderData.reduce((s, d) => s + d.value, 0),
     [genderData]
   );
+
   const genderPercent = useMemo(() => {
+    if (genderTotal === 0) {
+      return genderData.map(() => 0); // → [0, 0]
+    }
     const p = genderData.map((d) =>
-      genderTotal === 0 ? 0 : Math.round((d.value / genderTotal) * 100)
+      Math.round((d.value / genderTotal) * 100)
     );
     const diff = 100 - p.reduce((a, b) => a + b, 0);
     if (diff !== 0 && p.length > 0) p[p.length - 1] += diff;
     return p;
   }, [genderData, genderTotal]);
+
   const genderGradient = useMemo(() => {
+    if (genderTotal === 0) {
+      return 'conic-gradient(#e5e7eb 0% 100%)'; // 데이터 없음 표시
+    }
     const colors = ['#4D9AFD', '#FF7EB9'];
     let start = 0;
     const stops: string[] = [];
@@ -70,7 +78,7 @@ const FestivalStatisticsSection: React.FC = () => {
       start = end;
     });
     return `conic-gradient(${stops.join(', ')})`;
-  }, [genderPercent]);
+  }, [genderPercent, genderTotal]);
 
   const ageTotal = useMemo(
     () => ageData.reduce((s, d) => s + d.value, 0),
