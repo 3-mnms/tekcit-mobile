@@ -36,7 +36,7 @@
 .imageItem {
   width: 100%;
   margin: 0;                /* figure 기본 여백 제거 */
-  border-radius: 12px;
+  /* border-radius: 12px; */
   border: 1px solid #e5e7eb;
   overflow: hidden;         /* 둥근 모서리 유지 */
   background: #fff;

@@ -5,7 +5,6 @@ import Info from '@/components/festival/detail/FestivalInfoSection';
 import Scheduler from '@/components/festival/detail/FestivalScheduleSection';
 import InfoDetail from '@/components/festival/detail/FestivalInfoDetailSection';
 import Statistics from '@/components/festival/detail/FestivalStatisticsSection';
-import Spinner from '@/components/common/spinner/Spinner'
 import { useFestivalDetail, useIncreaseViews } from '@/models/festival/tanstack-query/useFestivalDetail';
 import { useUIStore } from '@/shared/store/uiStore';
 import styles from './FestivalDetailPage.module.css';
