@@ -7,7 +7,7 @@ import SpotCard, { type PlayEatSpot, type BaseSpot } from '@/components/ai/nearb
 import Spinner from '@/components/common/spinner/Spinner'
 import Header from '@/components/common/header/Header'
 import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
-import { PartyPopper, Utensils, MapPin } from 'lucide-react'
+import { PartyPopper, Utensils, MapPin, UtensilsCrossed } from 'lucide-react'
 import {
   useNearbyActivities,
   pickRecommendForFestival,
@@ -144,53 +144,69 @@ const NearbySpotPage: React.FC = () => {
     <div className={styles.page}>
       <Header />
 
-      <header className={styles.headerRow}>
-        <div className={styles.titleWrap}>
+      <header className={styles.sectionHeader}>
+        <div className={styles.sectionHeadTop}>
+          <h2 className={styles.sectionTitle}><UtensilsCrossed className={styles.titleIcon} />주변 놀거리 &amp; 먹거리 추천</h2>
           <div className={styles.headerActions}>
             <Button className={styles.backBtn} onClick={() => navigate(-1)}>
-              ← 공연 목록으로
+              공연 목록으로
             </Button>
           </div>
-          <h2 className={styles.pageTitle}>{festival.name}</h2>
-          {festival.venue && <div className={styles.subtitle}>{festival.venue}</div>}
         </div>
+
+        <div className={styles.tabBar} role="tablist" aria-label="추천 탭">
+          <Button
+            type="button"
+            onClick={() => setActive('play')}
+            className={`${styles.tabBtn} ${active === 'play' ? styles.tabBtnActive : ''}`}
+            aria-selected={active === 'play'}
+          >
+            <PartyPopper className={styles.tabBtnIcon} size={16} />
+            놀거리
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => setActive('eat')}
+            className={`${styles.tabBtn} ${active === 'eat' ? styles.tabBtnActive : ''}`}
+            aria-selected={active === 'eat'}
+          >
+            <Utensils className={styles.tabBtnIcon} size={16} />
+            먹거리
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => setActive('course')}
+            className={`${styles.tabBtn} ${active === 'course' ? styles.tabBtnActive : ''}`}
+            aria-selected={active === 'course'}
+          >
+            <MapPin className={styles.tabBtnIcon} size={16} />
+            추천 코스
+          </Button>
+        </div>
+
       </header>
 
-      {/* Tabs */}
-      <div className={styles.tabs} role="tablist" aria-label="추천 탭">
-        <TabButton
-          icon={<PartyPopper size={16} />}
-          label="놀거리"
-          active={active === 'play'}
-          onClick={() => setActive('play')}
-        />
-        <TabButton
-          icon={<Utensils size={16} />}
-          label="먹거리"
-          active={active === 'eat'}
-          onClick={() => setActive('eat')}
-        />
-        <TabButton
-          icon={<MapPin size={16} />}
-          label="추천 코스"
-          active={active === 'course'}
-          onClick={() => setActive('course')}
-        />
-      </div>
+      <section className={styles.venuePanel} aria-label="공연장 정보">
+        <h3 className={styles.venueName}>{festival.name}</h3>
+        {festival.venue && (
+          <p className={styles.venueAddr}>
+            <MapPin className={styles.addrIcon} size={14} />
+            {festival.venue}
+          </p>
+        )}
+      </section>
 
-      {/* Loading/Error/Empty */}
       {isLoading && <Spinner />}
       {isError && (
         <div className={styles.error}>
           불러오기에 실패했어요.
-          <button className={styles.retry} onClick={() => refetch()}>
-            다시 시도
-          </button>
+          <button className={styles.retry} onClick={() => refetch()}>다시 시도</button>
         </div>
       )}
       {!isLoading && !isError && !rec && <div className={styles.empty}>추천 데이터가 없어요.</div>}
 
-      {/* Body */}
       {!isLoading && !isError && rec && (
         <div className={styles.body}>
           <ul className={styles.list} role="list">
@@ -223,18 +239,25 @@ const NearbySpotPage: React.FC = () => {
                           <div className={styles.courseNodes}>
                             {steps.map((spot, idx) => {
                               const cls =
-                                idx === 0
-                                  ? styles.nodeGreen
-                                  : idx === steps.length - 1
-                                    ? styles.nodePurple
-                                    : styles.nodeBlue
+                                idx === 0 ? styles.nodeGreen :
+                                  idx === steps.length - 1 ? styles.nodePurple : styles.nodeBlue
+
+                              const displayName = idx === 0 ? '공연장' : spot.name
+
                               return (
                                 <React.Fragment key={spot.id}>
-                                  <span className={`${styles.node} ${cls}`}>{spot.name}</span>
+                                  <span
+                                    className={`${styles.node} ${cls}`}
+                                    title={idx === 0 ? spot.name : undefined}
+                                    aria-label={displayName}
+                                  >
+                                    {displayName}
+                                  </span>
                                   {idx < steps.length - 1 && <span className={styles.dash} />}
                                 </React.Fragment>
                               )
                             })}
+
                           </div>
                         </button>
                       )
@@ -263,28 +286,3 @@ const NearbySpotPage: React.FC = () => {
 }
 
 export default NearbySpotPage
-
-function TabButton({
-  icon,
-  label,
-  active,
-  onClick,
-}: {
-  icon: React.ReactNode
-  label: string
-  active: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      role="tab"
-      aria-selected={active}
-      className={`${styles.tab} ${active ? styles.tabActive : ''}`}
-      onClick={onClick}
-      type="button"
-    >
-      <span className={styles.tabIcon}>{icon}</span>
-      {label}
-    </button>
-  )
-}
