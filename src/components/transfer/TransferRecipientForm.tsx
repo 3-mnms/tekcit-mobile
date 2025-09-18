@@ -447,7 +447,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
           <input
             className={`${styles.inputShort} ${styles.inputAttached}`}
             value={safeLoginId}
-            placeholder="이메일 검색으로만 입력됩니다"
+            placeholder="이메일 검색을 해주세요."
             readOnly
             aria-readonly="true"
             onKeyDown={(e) => e.preventDefault()}
@@ -480,7 +480,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/pdf"
+              accept="application/pdf,.pdf"
               className={styles.fileInput}
               onChange={(e) => {
                 const f = e.target.files?.[0];
