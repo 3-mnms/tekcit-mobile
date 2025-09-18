@@ -316,10 +316,10 @@
   inset: 0;
   background: #fff;
   z-index: 30;
- overflow-y: auto;                 
- -webkit-overflow-scrolling: touch;
- display: flex;                    
- flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Line Clamp helpers */

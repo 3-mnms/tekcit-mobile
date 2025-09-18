@@ -1,15 +1,18 @@
-// src/components/ai/nearby/NearbySpotEmbed.tsx
-import React, { useMemo, useState, useEffect } from 'react'
-import styles from './NearbySpotEmbed.module.css'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import styles from '@/components/ai/nearby/NearbySpotEmbed.module.css'
 import Button from '@/components/common/Button'
+import MapView from '@/components/ai/nearby/MapView'
+import SpotCard, { type PlayEatSpot, type BaseSpot } from '@/components/ai/nearby/SpotCard'
+import Spinner from '@/components/common/spinner/Spinner'
+import Header from '@/components/common/header/Header'
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
+import { PartyPopper, Utensils, MapPin } from 'lucide-react'
 import {
   useNearbyActivities,
+  useNearbyFestivalsQuery,
   pickRecommendForFestival,
 } from '@/models/ai/tanstack-query/useNearbyFestivals'
-import MapView from './MapView'
-import SpotCard, { type PlayEatSpot, type BaseSpot } from './SpotCard'
-import Spinner from '@/components/common/spinner/Spinner'
-import { PartyPopper, Utensils, MapPin } from 'lucide-react'
 
 type TabKey = 'play' | 'eat' | 'course'
 
@@ -21,18 +24,73 @@ export type NearbyFestivalMini = {
   lng?: number | null
 }
 
-// CourseSpot은 BaseSpot 그대로 사용
-type CourseSpot = BaseSpot
+/* -------------------- 안전 가드 유틸 -------------------- */
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+const asStr = (v: unknown): string | null => (typeof v === 'string' ? v : null)
+const asNum = (v: unknown): number | null => {
+  if (typeof v === 'number' && Number.isFinite(v)) return v
+  if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v)
+  return null
+}
+function toMini(raw: unknown): NearbyFestivalMini | null {
+  if (!isObj(raw)) return null
+  const id = asStr(raw.festivalDetailId) ?? asStr(raw.id)
+  if (!id) return null
+  return {
+    id,
+    name: asStr(raw.name) ?? asStr(raw.festivalName) ?? '주변 장소',
+    venue: asStr(raw.venue) ?? asStr(raw.hallName) ?? asStr(raw.address) ?? '',
+    lat: asNum(raw.latitude) ?? asNum(raw.lat),
+    lng: asNum(raw.longitude) ?? asNum(raw.lng),
+  }
+}
 
-export default function NearbySpotEmbed({
-  festival,
-  onBack,
-}: {
-  festival: NearbyFestivalMini
-  onBack: () => void
-}) {
+/* =========================================================
+   전용 페이지
+========================================================= */
+const NearbySpotPage: React.FC = () => {
+  const { fid } = useParams<{ fid: string }>()
+  const navigate = useNavigate()
+  const loc = useLocation() as { state?: { festival?: NearbyFestivalMini } }
+
+  // 1) 이전 페이지에서 넘겨준 festival 우선
+  const passed = loc.state?.festival
+
+  // 2) 목록 쿼리에서 동일 id 찾아 fallback
+  const { data: listData } = useNearbyFestivalsQuery()
+  const fallback = useMemo(() => {
+    const arr = Array.isArray(listData?.festivalList) ? listData!.festivalList : []
+    const hit = arr.find((x) => {
+      const rid = isObj(x) ? (asStr(x.festivalDetailId) ?? asStr(x.id)) : null
+      return rid === (fid ?? null)
+    })
+    return toMini(hit)
+  }, [listData, fid])
+
+  // 최종 대상 축제
+  const festival: NearbyFestivalMini | null =
+    passed ??
+    fallback ??
+    (fid
+      ? {
+          id: fid,
+          name: '주변 장소',
+          venue: '',
+          lat: null,
+          lng: null,
+        }
+      : null)
+
+  // 축제가 없으면 안전히 뒤로가기
+  useEffect(() => {
+    if (!festival) navigate(-1, { replace: true })
+  }, [festival, navigate])
+
   const { data, isLoading, isError, refetch } = useNearbyActivities()
-  const rec = useMemo(() => pickRecommendForFestival(data, festival.id), [data, festival.id])
+  const rec = useMemo(
+    () => (festival ? pickRecommendForFestival(data, festival.id) : null),
+    [data, festival],
+  )
 
   // 놀거리
   const playItems: PlayEatSpot[] = useMemo(
@@ -42,10 +100,10 @@ export default function NearbySpotEmbed({
         kind: 'play',
         name: a.activityName,
         address: a.addressName,
-        lat: a.latitude ?? festival.lat ?? 37.566826,
-        lng: a.longitude ?? festival.lng ?? 126.9786567,
+        lat: a.latitude ?? festival?.lat ?? 37.566826,
+        lng: a.longitude ?? festival?.lng ?? 126.9786567,
       })),
-    [rec?.hotPlaces, festival.lat, festival.lng],
+    [rec?.hotPlaces, festival?.lat, festival?.lng],
   )
 
   // 먹거리
@@ -56,13 +114,13 @@ export default function NearbySpotEmbed({
         kind: 'eat',
         name: a.activityName,
         address: a.addressName,
-        lat: a.latitude ?? festival.lat ?? 37.566826,
-        lng: a.longitude ?? festival.lng ?? 126.9786567,
+        lat: a.latitude ?? festival?.lat ?? 37.566826,
+        lng: a.longitude ?? festival?.lng ?? 126.9786567,
       })),
-    [rec?.restaurants, festival.lat, festival.lng],
+    [rec?.restaurants, festival?.lat, festival?.lng],
   )
 
-  // 추천코스 문자열 파싱
+  // 추천 코스 파싱 (제한 없이 전부 표시)
   const courseRows = useMemo(() => {
     const c = rec?.courseDTO
     const raws = [c?.course1, c?.course2, c?.course3, c?.course4, c?.course5].filter(
@@ -72,16 +130,16 @@ export default function NearbySpotEmbed({
       raw
         .split('→')
         .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 3),
+        .filter(Boolean),
     )
   }, [rec?.courseDTO])
 
   // 문자열 매칭 유틸
   const norm = (s: string) => s.replace(/\s+/g, '').replace(/[()]/g, '').toLowerCase()
 
+  type CourseSpot = BaseSpot
   const courseSpots: CourseSpot[][] = useMemo(() => {
-    if (!courseRows.length) return []
+    if (!festival || !courseRows.length) return []
     const pool = [...playItems, ...eatItems]
 
     return courseRows.map((row, rowIdx) =>
@@ -118,40 +176,35 @@ export default function NearbySpotEmbed({
 
   const [active, setActive] = useState<TabKey>('play')
   const [selectedId, setSelectedId] = useState<string | null>(null)
-
-  // ✅ 코스에서 선택된 row 인덱스 (null이면 아직 선택 안 함)
   const [selectedCourseIdx, setSelectedCourseIdx] = useState<number | null>(null)
 
-  // 탭 변경 시 선택 리셋
   useEffect(() => {
     setSelectedId(null)
-    if (active !== 'course') {
-      setSelectedCourseIdx(null)
-    } else {
-      // 코스 탭 들어올 때 기본으로 0번 선택하고 싶으면 주석 해제
-      // if (selectedCourseIdx === null && courseSpots.length > 0) setSelectedCourseIdx(0)
-    }
-  }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (active !== 'course') setSelectedCourseIdx(null)
+  }, [active])
 
-  // 현재 리스트 아이템
   const items: BaseSpot[] =
     active === 'play'
       ? playItems
       : active === 'eat'
-      ? eatItems
-      : selectedCourseIdx !== null
-      ? courseSpots[selectedCourseIdx] // ✅ 선택된 코스 row만
-      : [] // 아직 row 선택 안 했으면 빈 배열
+        ? eatItems
+        : selectedCourseIdx !== null
+          ? courseSpots[selectedCourseIdx]
+          : []
+
+  if (!festival) return null
 
   return (
-    <section className={styles.page} aria-label="주변 추천">
+    <div className={styles.page}>
+      <Header />
+
       <header className={styles.headerRow}>
         <div className={styles.titleWrap}>
           <h2 className={styles.pageTitle}>{festival.name}</h2>
           {festival.venue && <div className={styles.subtitle}>{festival.venue}</div>}
         </div>
         <div className={styles.headerActions}>
-          <Button className={styles.backBtn} onClick={onBack}>
+          <Button className={styles.backBtn} onClick={() => navigate(-1)}>
             공연 목록으로
           </Button>
         </div>
@@ -189,9 +242,7 @@ export default function NearbySpotEmbed({
           </button>
         </div>
       )}
-      {!isLoading && !isError && !rec && (
-        <div className={styles.empty}>추천 데이터가 없어요.</div>
-      )}
+      {!isLoading && !isError && !rec && <div className={styles.empty}>추천 데이터가 없어요.</div>}
 
       {/* Body */}
       {!isLoading && !isError && rec && (
@@ -200,7 +251,6 @@ export default function NearbySpotEmbed({
             {active !== 'course' ? (
               items.slice(0, 5).map((spot) => (
                 <li key={spot.id}>
-                  {/* 놀거리/먹거리 카드 */}
                   <SpotCard
                     spot={spot as PlayEatSpot}
                     active={spot.id === selectedId}
@@ -218,12 +268,10 @@ export default function NearbySpotEmbed({
                         <button
                           key={rowIdx}
                           type="button"
-                          className={`${styles.courseRow} ${styles.courseAccent} ${
-                            isActiveRow ? styles.cardActive : ''
-                          }`}
+                          className={`${styles.courseRow} ${styles.courseAccent} ${isActiveRow ? styles.cardActive : ''}`}
                           onClick={() => {
-                            setSelectedCourseIdx(rowIdx)   // ✅ 이 row 선택
-                            setSelectedId(null)            // 선택 리셋(옵션)
+                            setSelectedCourseIdx(rowIdx)
+                            setSelectedId(null)
                           }}
                         >
                           <div className={styles.courseNodes}>
@@ -232,16 +280,12 @@ export default function NearbySpotEmbed({
                                 idx === 0
                                   ? styles.nodeGreen
                                   : idx === steps.length - 1
-                                  ? styles.nodePurple
-                                  : styles.nodeBlue
+                                    ? styles.nodePurple
+                                    : styles.nodeBlue
                               return (
                                 <React.Fragment key={spot.id}>
-                                  <span className={`${styles.node} ${cls}`}>
-                                    {spot.name}
-                                  </span>
-                                  {idx < steps.length - 1 && (
-                                    <span className={styles.dash} />
-                                  )}
+                                  <span className={`${styles.node} ${cls}`}>{spot.name}</span>
+                                  {idx < steps.length - 1 && <span className={styles.dash} />}
                                 </React.Fragment>
                               )
                             })}
@@ -259,16 +303,20 @@ export default function NearbySpotEmbed({
 
           <MapView
             festival={festival}
-            items={items} // ✅ 코스면 선택된 row만 전달
+            items={items}
             active={active}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
           />
         </div>
       )}
-    </section>
+
+      <BottomNav />
+    </div>
   )
 }
+
+export default NearbySpotPage
 
 function TabButton({
   icon,
