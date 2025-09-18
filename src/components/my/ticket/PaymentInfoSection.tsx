@@ -8,6 +8,7 @@ import Spinner from '@/components/common/spinner/Spinner'
 type Props = {
   bookingId: string
   reservationNumber: string
+  qrUsed: boolean
 }
 
 const methodLabel = (m?: string) => {
@@ -57,9 +58,9 @@ function normalizeOrder(input: any): any | undefined {
   return undefined
 }
 
-const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) => {
+const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber, qrUsed }) => {
   const navigate = useNavigate() // ✅ 추가
-  const { data, isLoading, isError, error } = usePaymentOrdersQuery(bookingId)
+  const { data, isLoading, isError } = usePaymentOrdersQuery(bookingId)
 
   const order = useMemo(() => normalizeOrder(data), [data])
 
@@ -83,6 +84,33 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
         paymentId,
         paymentAmount: order?.amount,
         currency: order?.currency ?? 'KRW'
+      },
+    })
+  }
+
+  const status = (order?.paymentStatus ?? '').toLowerCase()
+  const isCanceled = status === 'canceled' || status === 'cancelled'
+  console.log(isCanceled)
+  const isPaid = status === 'paid'
+
+  const isQrUsed = useMemo(() => {
+    const v = String(qrUsed ?? '')
+      .trim()
+      .toLowerCase()
+    return v === 'true' || v === 'y' || v === 'yes' || v === '1'
+  }, [qrUsed])
+
+  const canRefund = Boolean(order?.paymentId) && isPaid && !isCanceled && !isQrUsed
+
+  const onRefund = () => {
+    if (!canRefund) return
+    const paymentId = order.paymentId ?? order.id ?? order.paymentid
+    if (!paymentId) return
+    navigate(`/payment/refund/${paymentId}`, {
+      state: {
+        paymentId,
+        paymentAmount: order.amount,
+        currency: order.currency ?? 'KRW',
       },
     })
   }
@@ -141,16 +169,20 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber }) =
         </div>
       </div>
 
-      {/* 환불하기 버튼 */}
-      <button
-        type="button"
-        className={styles.refundButton}
-        onClick={handleRefundClick}
-        aria-label="환불하기로 이동"
-        title="환불하기"
-      >
-        환불하기
-      </button>
+      {isCanceled ? (
+        <span className={styles.badgeGray}>환불완료</span>
+      ) : isQrUsed ? (
+        <span className={styles.badgeGray}>사용완료 · 환불불가</span>
+      ) : (
+        <button
+          type="button"
+          onClick={onRefund}
+          disabled={!canRefund}
+          className={styles.refundButton}
+        >
+          환불하기
+        </button>
+      )}
     </section>
   )
 }
