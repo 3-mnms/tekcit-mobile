@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useCallback } from 'react'
 import styles from './NearbySpotEmbed.module.css'
 import { loadKakaoMapSdk } from '@/shared/config/loadKakaoMap'
-import type { NearbyFestivalMini } from './NearbySpotEmbed'
-import type { PlayEatSpot } from './SpotCard'
+import type { NearbyFestivalMini } from '@/pages/ai/nearby/NearbySpotPage'
+import type { BaseSpot  } from './SpotCard'
 
 interface Props {
   festival: NearbyFestivalMini
-  items: PlayEatSpot[]
+  items: BaseSpot []
   active: 'play' | 'eat' | 'course'
   selectedId: string | null
   setSelectedId: (id: string) => void
@@ -21,7 +21,7 @@ export default function MapView({ festival, items, active, selectedId, setSelect
   const openInfoWindowRef = useRef<kakao.maps.InfoWindow | null>(null)
 
   const focusMarkerById = useCallback((id: string) => {
-  const wkakao = (window as any).kakao
+  const wkakao = window.kakao
   const marker = markerByIdRef.current[id]
   if (!marker || !wkakao?.maps?.event) return
 

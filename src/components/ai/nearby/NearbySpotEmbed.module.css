@@ -3,6 +3,7 @@
   height: 100%;
   box-sizing: border-box;
   background: #fff;
+  margin-bottom: 80px;
 }
 
 .headerRow {
@@ -45,7 +46,6 @@
   font-weight: 600;
   color: #334155;
   transition: box-shadow .2s ease, transform .15s ease;
-  margin-left: 10px;
 }
 
 .backBtn:hover {
@@ -249,16 +249,19 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
-/* 점 + 텍스트 칩 */
 .node {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
   color: #334155;
-  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .node::before {
@@ -335,7 +338,7 @@
 
 .mapBox {
   width: 100%;
-  height: 57vh;
+  height: 47vh;
 }
 
 .error,

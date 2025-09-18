@@ -10,7 +10,6 @@ import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
 import { PartyPopper, Utensils, MapPin } from 'lucide-react'
 import {
   useNearbyActivities,
-  useNearbyFestivalsQuery,
   pickRecommendForFestival,
 } from '@/models/ai/tanstack-query/useNearbyFestivals'
 
@@ -24,75 +23,27 @@ export type NearbyFestivalMini = {
   lng?: number | null
 }
 
-/* -------------------- 안전 가드 유틸 -------------------- */
-const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
-const asStr = (v: unknown): string | null => (typeof v === 'string' ? v : null)
-const asNum = (v: unknown): number | null => {
-  if (typeof v === 'number' && Number.isFinite(v)) return v
-  if (typeof v === 'string' && v.trim() !== '' && !Number.isNaN(Number(v))) return Number(v)
-  return null
-}
-function toMini(raw: unknown): NearbyFestivalMini | null {
-  if (!isObj(raw)) return null
-  const id = asStr(raw.festivalDetailId) ?? asStr(raw.id)
-  if (!id) return null
-  return {
-    id,
-    name: asStr(raw.name) ?? asStr(raw.festivalName) ?? '주변 장소',
-    venue: asStr(raw.venue) ?? asStr(raw.hallName) ?? asStr(raw.address) ?? '',
-    lat: asNum(raw.latitude) ?? asNum(raw.lat),
-    lng: asNum(raw.longitude) ?? asNum(raw.lng),
-  }
-}
-
-/* =========================================================
-   전용 페이지
-========================================================= */
 const NearbySpotPage: React.FC = () => {
   const { fid } = useParams<{ fid: string }>()
   const navigate = useNavigate()
   const loc = useLocation() as { state?: { festival?: NearbyFestivalMini } }
 
-  // 1) 이전 페이지에서 넘겨준 festival 우선
   const passed = loc.state?.festival
 
-  // 2) 목록 쿼리에서 동일 id 찾아 fallback
-  const { data: listData } = useNearbyFestivalsQuery()
-  const fallback = useMemo(() => {
-    const arr = Array.isArray(listData?.festivalList) ? listData!.festivalList : []
-    const hit = arr.find((x) => {
-      const rid = isObj(x) ? (asStr(x.festivalDetailId) ?? asStr(x.id)) : null
-      return rid === (fid ?? null)
-    })
-    return toMini(hit)
-  }, [listData, fid])
-
-  // 최종 대상 축제
-  const festival: NearbyFestivalMini | null =
-    passed ??
-    fallback ??
-    (fid
-      ? {
-          id: fid,
-          name: '주변 장소',
-          venue: '',
-          lat: null,
-          lng: null,
-        }
-      : null)
-
-  // 축제가 없으면 안전히 뒤로가기
-  useEffect(() => {
-    if (!festival) navigate(-1, { replace: true })
-  }, [festival, navigate])
+  const festival: NearbyFestivalMini | null = useMemo(() => {
+    if (passed) return passed
+    if (fid) {
+      return { id: fid, name: '주변 장소', venue: '', lat: null, lng: null }
+    }
+    return null
+  }, [passed, fid])
 
   const { data, isLoading, isError, refetch } = useNearbyActivities()
   const rec = useMemo(
-    () => (festival ? pickRecommendForFestival(data, festival.id) : null),
-    [data, festival],
+    () => (festival?.id ? pickRecommendForFestival(data, festival.id) : null),
+    [data, festival?.id]
   )
 
-  // 놀거리
   const playItems: PlayEatSpot[] = useMemo(
     () =>
       (rec?.hotPlaces ?? []).map((a, i) => ({
@@ -134,14 +85,11 @@ const NearbySpotPage: React.FC = () => {
     )
   }, [rec?.courseDTO])
 
-  // 문자열 매칭 유틸
   const norm = (s: string) => s.replace(/\s+/g, '').replace(/[()]/g, '').toLowerCase()
 
-  type CourseSpot = BaseSpot
-  const courseSpots: CourseSpot[][] = useMemo(() => {
-    if (!festival || !courseRows.length) return []
+  const courseSpots = useMemo(() => {
+    if (!festival?.id || !courseRows.length) return []
     const pool = [...playItems, ...eatItems]
-
     return courseRows.map((row, rowIdx) =>
       row.map((label, idx) => {
         if (idx === 0) {
@@ -156,23 +104,21 @@ const NearbySpotPage: React.FC = () => {
         const key = norm(label)
         const match = pool.find((p) => norm(p.name) === key || norm(p.name).includes(key))
         return match
-          ? {
-              id: `course-${rowIdx}-${idx}`,
-              name: match.name,
-              lat: match.lat,
-              lng: match.lng,
-              address: match.address,
-            }
-          : {
-              id: `course-${rowIdx}-${idx}`,
-              name: label,
-              lat: festival.lat ?? 37.566826,
-              lng: festival.lng ?? 126.9786567,
-              address: '',
-            }
-      }),
+          ? { id: `course-${rowIdx}-${idx}`, name: match.name, lat: match.lat, lng: match.lng, address: match.address }
+          : { id: `course-${rowIdx}-${idx}`, name: label, lat: festival.lat ?? 37.566826, lng: festival.lng ?? 126.9786567, address: '' }
+      })
     )
-  }, [courseRows, playItems, eatItems, festival])
+  }, [
+    courseRows,
+    playItems,
+    eatItems,
+    festival?.id,
+    festival?.name,
+    festival?.lat,
+    festival?.lng,
+    festival?.venue,
+  ])
+
 
   const [active, setActive] = useState<TabKey>('play')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -200,13 +146,13 @@ const NearbySpotPage: React.FC = () => {
 
       <header className={styles.headerRow}>
         <div className={styles.titleWrap}>
+          <div className={styles.headerActions}>
+            <Button className={styles.backBtn} onClick={() => navigate(-1)}>
+              ← 공연 목록으로
+            </Button>
+          </div>
           <h2 className={styles.pageTitle}>{festival.name}</h2>
           {festival.venue && <div className={styles.subtitle}>{festival.venue}</div>}
-        </div>
-        <div className={styles.headerActions}>
-          <Button className={styles.backBtn} onClick={() => navigate(-1)}>
-            공연 목록으로
-          </Button>
         </div>
       </header>
 
