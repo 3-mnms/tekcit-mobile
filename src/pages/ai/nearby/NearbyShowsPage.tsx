@@ -318,7 +318,7 @@ const NearbyShowsPage: React.FC = () => {
               <h1>내 주변 공연</h1>
             </div>
 
-            {isLoading && <span className={styles.badgeMuted}>불러오는 중…</span>}
+            {isLoading && <Spinner />}
             {isError && (
               <button className={styles.badgeError} onClick={() => refetch()}>
                 불러오기 실패 — 다시 시도
