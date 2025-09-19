@@ -55,6 +55,8 @@ import ResultPage from '@/pages/payment/result/ResultPage'
 import QrScannerPage from '@/pages/qr-cord/QrScannerPage'
 import HostHeader from '@/components/host/hostHeader/hostHeader'
 import TeckitJoinPage from '@/pages/payment/pay/TeckitJoinPage'
+import BookingResultPage from '@/pages/payment/result/BookingResultPage'
+import TransferResultPage from '@/pages/payment/result/TransferResultPage'
 
 // reservation
 import QueuePage from '@/pages/booking/TicketQueuePage'
@@ -143,6 +145,7 @@ export const router = createBrowserRouter([
     children: [
       { path: '', element: <BookingPaymentPage /> },
       { path: 'result', element: <ResultPage /> },
+      { path: 'booking-result', element: <BookingResultPage/> },
       {
         path: 'wallet/join', // 최종 경로: /payment/wallet/join
         element: <TeckitJoinPage />,
