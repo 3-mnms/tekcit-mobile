@@ -6,9 +6,11 @@ import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
 
 
 import { useQuery } from '@tanstack/react-query';
-import { getProducts as getProductsAdmin } from '@/shared/api/admin/festival'; 
+import { getProductsAdmin } from '@/shared/api/admin/festival'; 
 import { getEntranceCount, getFestivalSchedules } from '@/shared/api/admin/statistics';
 import type { Festival } from '@/models/admin/festival';
+// import { useParams } from 'react-router-dom';
+import Spinner from '@/components/common/spinner/Spinner';
 
 const EntranceCheckPage: React.FC = () => {
     const [selectedFid, setSelectedFid] = useState<string | null>(null);
@@ -16,14 +18,12 @@ const EntranceCheckPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     // const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
   
-
-    const { data: festivals, isLoading: festivalsLoading } = useQuery({
-        queryKey: ['festivals'],
+    const { data: festivalList, isLoading: isFestivalsLoading, isError: isFestivalsError } = useQuery({
+        queryKey: ['allFestivals'],
         queryFn: getProductsAdmin,
-        select: (response) => response.data || [],
     });
     
-    const { data: schedules, isLoading: schedulesLoading } = useQuery({
+    const { data: schedules } = useQuery({
         queryKey: ['schedules', selectedFid],
         queryFn: () => getFestivalSchedules(selectedFid!),
         enabled: !!selectedFid,
@@ -51,14 +51,14 @@ const EntranceCheckPage: React.FC = () => {
         }
     };
 
-    const selectedFestival = festivals?.find(f => f.fid === selectedFid);
-      
-    if (festivalsLoading || schedulesLoading || entranceStatsLoading ) {
-        return <div>데이터를 불러오는 중...</div>;
-    }
+    const selectedFestival = festivalList?.find(f => f.fid === selectedFid);
 
-    if (!festivals || festivals.length === 0) {
-        return <div>등록된 공연이 없습니다.</div>;
+    if (isFestivalsLoading) {
+        return <Spinner />;
+    }
+    
+    if (isFestivalsError || !festivalList) {
+        return <p>공연 정보를 불러오는 데 실패했어요. 삐약!</p>;
     }
 
     return (
@@ -66,7 +66,7 @@ const EntranceCheckPage: React.FC = () => {
             <div className={styles.page}>
                 <h2 className={styles.title}>입장 인원 수 조회</h2>
                 <div className={styles.festivalList}>
-                    {festivals?.map((festival: Festival) => (
+                    {festivalList?.map((festival: Festival) => (
                         <div
                             key={festival.fid}
                             className={`${styles.festivalCard} ${festival.fid === selectedFid ? styles.selected : ''}`}
