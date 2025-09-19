@@ -37,7 +37,9 @@ const DeliveryManageModal: React.FC<DeliveryManageModalProps> = ({
     queryKey: AddressQueryKeys.list(),
     queryFn: getAddress,
     staleTime: 30_000,
-    retry: 2,
+    retry: 1,
+    select: (arr) =>
+    (arr ?? []).filter((a) => (a?.address ?? '').trim().length > 0),
   })
 
   // 기본 배송지 조회 (보조적으로)
