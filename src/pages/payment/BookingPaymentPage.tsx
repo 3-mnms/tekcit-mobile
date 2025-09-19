@@ -1,12 +1,11 @@
 // src/pages/payment/BookingPaymentPage.tsx
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
 
 import type { TossPaymentHandle } from '@/components/payment/pay/TossPayment'
 import PaymentInfo from '@/components/payment/pay/PaymentInfo'
 import ReceiveInfo from '@/components/payment/delivery/ReceiveInfo'
+import Spinner from '@/components/common/spinner/Spinner';
 
 import Button from '@/components/common/button/Button'
 import PasswordInputModal from '@/components/payment/modal/PasswordInputModal'
@@ -19,7 +18,7 @@ import { createPaymentId } from '@/models/payment/utils/paymentUtils'
 import { saveBookingSession } from '@/shared/api/payment/paymentSession'
 import { fetchBookingDetail } from '@/shared/api/payment/bookingDetail'
 
-import { requestPayment, type PaymentRequestDTO } from '@/shared/api/payment/payments'
+import { completePayment, getReservationStatus, requestPayment } from '@/shared/api/payment/payments'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
 import { useReleaseWaitingMutation } from '@/models/waiting/tanstack-query/useWaiting'
 
@@ -51,12 +50,9 @@ const combineDateTime = (day?: Date, hhmm?: string | null) => {
 }
 
 const BookingPaymentPage: React.FC = () => {
-  const stompClientRef = useRef<any>(null)
-
   const navigate = useNavigate()
   const { state } = useLocation()
   const checkout = state as CheckoutState
-  const reconnect = useRef(0); 
 
   // 주석: 결제 금액/상품 정보 캐싱 멍
   const unitPrice = checkout?.unitPrice ?? 0
@@ -134,62 +130,6 @@ const BookingPaymentPage: React.FC = () => {
     })()
   }, [checkout?.festivalId, checkout?.performanceDate, checkout?.bookingId, navigate])
 
-  // 주석: 웹소켓 연결 - 결제 완료/취소 알림 수신
-  useEffect(() => {
-    if (!checkout?.bookingId) return
-
-    if (stompClientRef.current?.connected) {
-      stompClientRef.current.deactivate()
-      stompClientRef.current = null
-    }
-
-    const connectWebSocket = () => {
-      if (reconnect.current >= 1) {
-        return;
-      }
-
-      reconnect.current += 1;
-
-      const client = new Client({
-        webSocketFactory: () => new SockJS('http://localhost:10000/ws'), // 포트/경로는 기존 설정 멍
-        connectHeaders: {},
-        debug: (str) => console.log('[STOMP Debug]', str),
-        reconnectDelay: 0,
-        heartbeatIncoming: 10000,
-        heartbeatOutgoing: 10000,
-      })
-
-      client.onConnect = () => {
-        stompClientRef.current = client
-        client.subscribe('/user/queue/ticket-status', (message) => {
-          try {
-            const data = JSON.parse(message.body)
-            if (data.status === 'CONFIRMED') {
-              navigate('/payment/result?type=booking&status=success')
-            } else if (data.status === 'CANCELED') {
-              navigate('/payment/result?type=booking&status=fail')
-            }
-          } catch { }
-        })
-      }
-
-      client.onDisconnect = () => {
-        setTimeout(() => connectWebSocket(), 5000)
-      }
-
-      client.activate()
-    }
-
-    connectWebSocket()
-
-    return () => {
-      if (stompClientRef.current?.connected) {
-        stompClientRef.current.deactivate()
-        stompClientRef.current = null
-      }
-    }
-  }, [checkout?.bookingId, navigate])
-
   // 주석: 대기열(좌석 홀드) 해제 트리거 멍
   const releaseMut = useReleaseWaitingMutation()
   const releasedOnceRef = useRef(false)
@@ -215,7 +155,7 @@ const BookingPaymentPage: React.FC = () => {
   // 주석: 결과 라우팅 공통 유틸 멍
   const routeToResult = (ok: boolean) => {
     callReleaseOnce(ok ? 'routeToResult:success' : 'routeToResult:fail')
-    navigate(`/payment/result?type=booking&status=${ok ? 'success' : 'fail'}`)
+    navigate(`/payment/booking-result?status=${ok ? 'success' : 'fail'}`)
   }
 
   // 주석: 결제 수단 토글 - 제한시간 체크 제거 멍
@@ -224,6 +164,36 @@ const BookingPaymentPage: React.FC = () => {
     setOpenedMethod((prev) => (prev === m ? null : m))
     setErr(null)
   }
+
+  const handlePostPayment = async (paymentId: string) => {
+    setIsPaying(true)
+    if (!checkout.bookingId) {
+      console.error('결제 후 처리 실패: 예약번호가 존재하지 않습니다.');
+      setErr('예약번호가 존재하지 않습니다.');
+      routeToResult(false);
+      return;
+    }
+
+    try {
+      await completePayment(paymentId);
+      await new Promise(resolve => setTimeout(resolve, 15000));
+      const statusRes = await getReservationStatus(checkout.bookingId);
+
+      if (statusRes.data === 'COMPLETED' || statusRes.data === 'CONFIRMED') {
+        routeToResult(true);
+      } else {
+        setErr('예약 처리에 실패했습니다. 고객센터에 문의해주세요.');
+        routeToResult(false);
+      }
+    } catch (e) {
+      console.error('API 요청 실패: 결제 후 처리', e);
+      setErr('결제 후 처리에 실패했습니다. 고객센터에 문의해주세요.');
+      routeToResult(false);
+    } finally {
+      setIsPaying(false);
+    }
+  };
+
 
   // 주석: 결제 핸들러 - 지갑은 모달로, 카드/토스는 PG 이동 멍
   const handlePayment = async () => {
@@ -247,48 +217,28 @@ const BookingPaymentPage: React.FC = () => {
       return
     }
 
-    // 주석: 1) REQUEST - 백엔드에 결제 요청 상태 기록 멍
-    const dto: PaymentRequestDTO = {
-      paymentId: ensuredId,
-      bookingId: checkout.bookingId ?? null,
-      festivalId: checkout.festivalId ?? null,
-      paymentRequestType:
-        openedMethod === 'wallet' ? 'POINT_PAYMENT_REQUESTED' : 'GENERAL_PAYMENT_REQUESTED',
-      buyerId: userId!,
-      sellerId: sellerId!,
-      amount: finalAmount,
-      currency: 'KRW',
-      payMethod: openedMethod === 'wallet' ? 'POINT_PAYMENT' : 'CARD',
-    }
-
     setIsPaying(true)
     try {
-      await requestPayment(dto, userId!)
-    } catch (e: any) {
-      console.error('[requestPayment] failed', e?.response?.status, e?.response?.data)
-      setErr('결제 준비에 실패했어요. 잠시 후 다시 시도해 주세요.')
-      setIsPaying(false)
-      return
-    }
+      // 주석: 지갑 결제 → 비밀번호 모달 열기 멍
+      if (openedMethod === 'wallet') {
+        const dto = {
+          paymentId: ensuredId,
+          bookingId: checkout.bookingId ?? null,
+          festivalId: checkout.festivalId ?? null,
+          paymentRequestType: 'POINT_PAYMENT_REQUESTED',
+          buyerId: userId!,
+          sellerId: sellerId!,
+          amount: finalAmount,
+          currency: 'KRW',
+          payMethod: 'POINT_PAYMENT',
+        };
+        await requestPayment(dto, userId!)
+        setIsPaying(false)
+        setIsPasswordModalOpen(true)
+        return
+      }
 
-    // 주석: 2) 지갑 결제 → 비밀번호 모달 열기 멍
-    if (openedMethod === 'wallet') {
-      setIsPaying(false)
-      setIsPasswordModalOpen(true)
-      return
-    }
-
-    // 주석: 2') 카드/토스 → PG로 이동 멍
-    try {
-      sessionStorage.setItem(
-        'tekcit:waitingRelease',
-        JSON.stringify({
-          festivalId: checkout.festivalId,
-          performanceDate: checkout.performanceDate, // "YYYY-MM-DD"
-          performanceTime: (checkout as any)?.performanceTime ?? null, // "HH:mm" | null
-        }),
-      )
-
+      // 주석: 카드/토스 → PG로 이동 멍
       await tossRef.current?.requestPay({
         paymentId: ensuredId,
         amount: finalAmount,
@@ -296,16 +246,24 @@ const BookingPaymentPage: React.FC = () => {
         bookingId: checkout.bookingId,
         festivalId: festivalIdVal,
         sellerId: sellerId!,
-        successUrl: `${window.location.origin}/payment/result?type=booking&status=success`,
-        failUrl: `${window.location.origin}/payment/result?type=booking&status=fail`,
+        complete: (paymentData) => {
+          if (paymentData.status === "success") {
+            handlePostPayment(paymentData.paymentId);
+          } else {
+            setErr(paymentData.message || '결제에 실패했습니다.');
+            routeToResult(false);
+          }
+        },
       })
-    } catch {
-      setErr('결제 요청 중 오류가 발생했어요.')
-      routeToResult(false)
+    } catch (e: any) {
+      console.error('결제 준비 또는 요청 중 오류가 발생했습니다.', e);
+      setErr('결제 준비 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.');
+      routeToResult(false);
     } finally {
       setIsPaying(false)
     }
   }
+
 
   return (
     <div className={styles.page}>
@@ -366,11 +324,25 @@ const BookingPaymentPage: React.FC = () => {
           userName={userName}
           userId={userId as number}
           onClose={() => setIsPasswordModalOpen(false)}
-          onComplete={() => {
-            setTimeout(() => {
-              navigate('/payment/result?type=booking&status=success')
-            }, 2000)
-            setIsPasswordModalOpen(false)
+          onComplete={async () => {
+            setIsPasswordModalOpen(false);
+            setIsPaying(true);
+            try {
+              await new Promise(resolve => setTimeout(resolve, 15000));
+              const statusRes = await getReservationStatus(checkout.bookingId);
+              if (statusRes.data === 'COMPLETED' || statusRes.data === 'CONFIRMED') {
+                routeToResult(true);
+              } else {
+                setErr('예약 처리에 실패했습니다. 고객센터에 문의해주세요.');
+                routeToResult(false);
+              }
+            } catch (e) {
+              console.error('API 요청 실패: 지갑 결제 후 예약 상태 확인', e);
+              setErr('예약 상태 확인에 실패했습니다. 고객센터에 문의해주세요.');
+              routeToResult(false);
+            } finally {
+              setIsPaying(false);
+            }
           }}
         />
       )}
