@@ -18,10 +18,6 @@ const TransferResultPage: React.FC = () => {
     }
   }, [status, navigate])
 
-  const handleGoToTickets = () => {
-    navigate('/mypage/ticket/history')
-  }
-
   const handleGoToHome = () => {
     navigate('/')
   }
@@ -52,12 +48,6 @@ const TransferResultPage: React.FC = () => {
                 양도받은 티켓은 마이페이지에서 확인하실 수 있습니다.
               </p>
               <div className={styles.buttons}>
-                <Button 
-                  onClick={handleGoToTickets}
-                  className={styles.primaryButton}
-                >
-                  내 티켓 보기
-                </Button>
                 <Button 
                   onClick={handleGoToHome}
                   variant="outline"

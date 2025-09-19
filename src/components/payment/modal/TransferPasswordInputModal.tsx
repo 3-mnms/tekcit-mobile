@@ -20,22 +20,45 @@ const PasswordInputModal: React.FC<PasswordInputModalProps> = ({
   const [isError, setIsError] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleKeyPress = async (value: string) => {
-    if (isSubmitting) return
-    const isClearAll = value === '전체 삭제'           // 전체삭제는 그대로 사용
-    const isBackspace = value === '삭제' || value === '⌫'
+  const handleKeyPress = async (raw: string) => {
+    // 1) 문자열 정규화: 양끝 공백 제거 + 모든 공백 제거본/대문자본 준비
+    const v = raw.trim()
+    const noSpace = v.replace(/\s+/g, '')
+    const upper = noSpace.toUpperCase()
 
-    if (isClearAll) { setPassword(''); setIsError(false); return }
-    if (isBackspace) { setPassword(prev => prev.slice(0, -1)); setIsError(false); return }
-    if (!/^\d$/.test(value) || password.length >= 6) return
+    // 2) 기능 키 판별: 전체삭제/백스페이스를 널널하게 인식
+    const isClearAll =
+      noSpace === '전체삭제' || upper === 'AC' || upper === 'CLEAR' || upper === 'C'
+    const isBackspace =
+      v === '⌫' || v === '삭제' || upper === 'DEL' || upper === 'DELETE' || upper === 'BACK' || upper === 'BACKSPACE'
 
-    const next = password + value
-    setPassword(next); setIsError(false)
+    // 3) 제출 중에도 전체삭제/백스페이스는 동작하도록 예외 허용
+    if (isSubmitting && !isClearAll && !isBackspace) return
 
-    // ✅ 6자리 완료 시 서버 호출 없이 즉시 완료 콜백만 실행
+    // 4) 전체삭제 처리
+    if (isClearAll) {
+      setPassword('')
+      setIsError(false)
+      return
+    }
+
+    // 5) 백스페이스 처리
+    if (isBackspace) {
+      setPassword(prev => prev.slice(0, -1))
+      setIsError(false)
+      return
+    }
+
+    // 6) 숫자 키만 허용
+    if (!/^\d$/.test(v) || password.length >= 6) return
+
+    // 7) 입력 누적 및 6자리 완료 시 콜백 호출
+    const next = password + v
+    setPassword(next)
+    setIsError(false)
+
     if (next.length === 6) {
       setIsSubmitting(true)
-      // 살짝의 딜레이로 UX 부드럽게
       setTimeout(() => {
         onComplete(next)
         setPassword('')
