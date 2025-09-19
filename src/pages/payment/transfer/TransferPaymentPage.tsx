@@ -1,10 +1,7 @@
-// src/pages/payment/TransferPaymentPage.tsx
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
 
 import BookingProductInfo from '@/components/payment/BookingProductInfo'
 import AddressForm from '@/components/payment/address/AddressForm'
@@ -12,11 +9,15 @@ import Button from '@/components/common/button/Button'
 import AlertModal from '@/components/common/modal/AlertModal'
 import PasswordInputModal from '@/components/payment/modal/TransferPasswordInputModal'
 import WalletPayment from '@/components/payment/pay/TekcitPay'
-import TicketDeliverySelectSection, { type DeliveryMethod } from '@/components/booking/TicketDeliverySelectSection'
+import TicketDeliverySelectSection, {
+  type DeliveryMethod,
+  type DeliveryAvailabilityCode,
+} from '@/components/booking/TicketDeliverySelectSection'
+import Header from '@/components/common/header/Header'
 
 import { useRespondFamilyTransfer, useRespondOthersTransfer } from '@/models/transfer/tanstack-query/useTransfer'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
-import { requestTransferPayment, type RequestTransferPaymentDTO, getPaymentIdByBookingId } from '@/shared/api/payment/payments'
+import { requestTransferPayment, type RequestTransferPaymentDTO, getPaymentIdByBookingId, getReservationStatus } from '@/shared/api/payment/payments'
 
 import styles from './TransferPaymentPage.module.css'
 
@@ -34,36 +35,33 @@ type TransferState = {
   ticket?: number
   price?: number
   posterFile?: string
+
+  ticketPick?: 1 | 2
+  allowedDelivery?: ('QR' | 'PAPER')[]
 }
 
-// 예약번호 유효성 체크 스키마
 const BookingIdSchema = z.string().min(1)
 
 const TransferPaymentPage: React.FC = () => {
-  // const stompClientRef = useRef<any>(null)
-  const stompClientRef = useRef<Client | null>(null)
-
-  // 라우팅/상태
   const navigate = useNavigate()
   const location = useLocation()
   const navState = (location.state ?? {}) as Partial<TransferState>
 
-  // 관계 분기
   const relation: 'FAMILY' | 'OTHERS' =
     navState.relation === 'FAMILY' || navState.relation === 'OTHERS' ? navState.relation : 'OTHERS'
   const isFamily = relation === 'FAMILY'
 
-  // 유저 정보
+  const ticketPick: DeliveryAvailabilityCode = (navState.ticketPick as DeliveryAvailabilityCode) ?? 1
+  const paperAllowed = ticketPick === 1
+
   const { data: tokenInfo } = useTokenInfoQuery()
   const userId = tokenInfo?.userId
 
-  // 승인 뮤테이션
   const respondFamily = useRespondFamilyTransfer()
   const respondOthers = useRespondOthersTransfer()
 
-  // ✅ 서버에서 bookingId → db에 저장된 기존 예매 결제 정보(paymentId, amount) 조회
   const {
-    data: basePayment, 
+    data: basePayment,
     isLoading: isBasePayLoading,
     isError: isBasePayError,
     error: basePayError,
@@ -72,7 +70,7 @@ const TransferPaymentPage: React.FC = () => {
     queryFn: async () => {
       if (!userId) throw new Error('로그인이 필요합니다.')
       const bookingId = BookingIdSchema.parse(navState.reservationNumber!)
-      const info = await getPaymentIdByBookingId(bookingId, userId) // PaymentInfoByBooking 반환
+      const info = await getPaymentIdByBookingId(bookingId, userId)
       if (!info?.paymentId) throw new Error('기존 결제 정보를 찾을 수 없습니다.')
       return info
     },
@@ -80,99 +78,6 @@ const TransferPaymentPage: React.FC = () => {
     staleTime: 60_000,
   })
 
-  // 웹소켓 연결
-  useEffect(() => {
-    console.log('[Transfer WebSocket] 초기화 시작, transferId:', navState.transferId)
-
-    if (!navState.transferId) {
-      console.log('[Transfer WebSocket] transferId 없음, 연결하지 않음')
-      return
-    }
-
-    // 기존 연결이 있으면 먼저 정리
-    if (stompClientRef.current?.connected) {
-      console.log('[Transfer WebSocket] 기존 연결 해제 중...')
-      stompClientRef.current.deactivate()
-      stompClientRef.current = null
-    }
-
-    const connectWebSocket = () => {
-      console.log('[Transfer WebSocket] 새 연결 시작...')
-      console.log('[Transfer WebSocket] 연결 URL: http://localhost:10000/ws')
-
-      // 최신 @stomp/stompjs Client 방식 사용
-      const client = new Client({
-        webSocketFactory: () => new (SockJS as any)('http://localhost:10000/ws'),
-        connectHeaders: {},
-        debug: (str) => {
-          console.log('[Transfer STOMP Debug]', str)
-        },
-        reconnectDelay: 5000,
-        heartbeatIncoming: 10000,
-        heartbeatOutgoing: 10000,
-      })
-
-      // 연결 성공 핸들러
-      client.onConnect = (frame) => {
-        console.log('Transfer WebSocket 연결됨:', frame)
-
-        // 연결 성공 후에만 ref에 저장
-        stompClientRef.current = client
-
-        // 구독 시작
-        const subscription = client.subscribe('/user/queue/transfer-status', (message) => {
-          const data = JSON.parse(message.body)
-          console.log('양도 상태 업데이트:', data)
-
-          // 필터링 추가 (안전성)
-          if (data.reservationNumber === navState.reservationNumber) {
-            if (data.status === 'COMPLETED') {
-              navigate('/payment/result?type=transfer&status=success')
-            } else if (data.status === 'FAILED' || data.status === 'CANCELED') {
-              navigate('/payment/result?type=transfer&status=fail')
-            }
-          }
-        })
-
-        console.log('Transfer WebSocket 구독 완료:', subscription)
-      }
-
-      // 에러 핸들러들
-      client.onStompError = (frame) => {
-        console.error('Transfer WebSocket STOMP 에러:', frame.headers?.message)
-      }
-
-      client.onWebSocketError = (error) => {
-        console.error('Transfer WebSocket 에러:', error)
-      }
-
-      client.onDisconnect = () => {
-        console.log('Transfer WebSocket 연결 해제됨')
-      }
-
-      // 연결 시작
-      try {
-        client.activate()
-        console.log('Transfer WebSocket 클라이언트 활성화 완료')
-      } catch (error) {
-        console.error('Transfer WebSocket 클라이언트 활성화 실패:', error)
-      }
-    }
-
-    connectWebSocket()
-
-    // cleanup 함수
-    return () => {
-      console.log('[Transfer WebSocket] cleanup 실행')
-      if (stompClientRef.current?.connected) {
-        console.log('[Transfer WebSocket] 연결 해제 중...')
-        stompClientRef.current.deactivate()
-        stompClientRef.current = null
-      }
-    }
-  }, [navState.transferId, navState.reservationNumber, userId, navigate])
-
-  // UI 상태
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null)
   const [address, setAddress] = useState('')
   const [isAddressFilled, setIsAddressFilled] = useState(false)
@@ -181,13 +86,16 @@ const TransferPaymentPage: React.FC = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false)
   const [isPwModalOpen, setIsPwModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isWaitingStatus, setIsWaitingStatus] = useState(false)
 
-  // 화면 표기용 금액(서버 검증에는 사용하지 않음)
+  useEffect(() => {
+    if (!paperAllowed) setDeliveryMethod('QR')
+  }, [paperAllowed])
+
   const amount = (navState.price ?? 0) * (navState.ticket ?? 1)
-  const commision = Math.floor(amount*0.1)
+  const commision = Math.floor(amount * 0.1)
   const totalAmount = amount + commision
 
-  // 필수 파라미터 가드
   const transferIdOK = Number.isFinite(Number(navState.transferId))
   const senderIdOK = Number.isFinite(Number(navState.senderId))
   if (!transferIdOK || !senderIdOK) {
@@ -204,11 +112,9 @@ const TransferPaymentPage: React.FC = () => {
     )
   }
 
-  // 서버 기준 값(요청 바디에 사용할 값) — 반드시 서버에서 가져온 금액/ID를 사용해야 검증 통과
   const basePaymentId = basePayment?.paymentId
   const baseAmount = basePayment?.amount ?? 0
 
-  // 화면 표시용 상품 요약
   const productInfo = {
     title: navState.title,
     datetime: navState.datetime,
@@ -219,35 +125,28 @@ const TransferPaymentPage: React.FC = () => {
     posterFile: navState.posterFile,
   }
 
-  // 결제수단 토글
   const togglePayMethod = (m: PayMethod) => setOpenedMethod((prev) => (prev === m ? null : m))
 
-  // 다음 버튼 활성 상태: 지인은 basePaymentId가 준비되어야 함
+  const handleMethodChange = useCallback((m: DeliveryMethod | null) => {
+    if (m === 'PAPER' && !paperAllowed) return
+    setDeliveryMethod(m)
+    if (m !== 'PAPER') { setIsAddressFilled(false); setAddress('') }
+  }, [paperAllowed])
+
   const needAddress = deliveryMethod === 'PAPER'
   const disabledNext = useMemo(() => {
+    if (deliveryMethod === 'PAPER' && !paperAllowed) return true
     if (!deliveryMethod) return true
     const addressOk = needAddress ? isAddressFilled : true
     const othersOk =
-      addressOk &&
-      isAgreed &&
-      openedMethod !== null &&
-      !isBasePayLoading &&
-      !!basePaymentId &&
-      !isBasePayError
+      addressOk && isAgreed && openedMethod !== null &&
+      !isBasePayLoading && !!basePaymentId && !isBasePayError
     return isFamily ? !addressOk : !othersOk
   }, [
-    deliveryMethod,
-    needAddress,
-    isAddressFilled,
-    isAgreed,
-    openedMethod,
-    isFamily,
-    isBasePayLoading,
-    isBasePayError,
-    basePaymentId,
+    deliveryMethod, needAddress, isAddressFilled, isAgreed,
+    openedMethod, isFamily, isBasePayLoading, isBasePayError, basePaymentId, paperAllowed,
   ])
 
-  // 양도 승인 DTO(가족/지인 공통)
   const buildApproveDTO = () => ({
     transferId: Number(navState.transferId),
     senderId: Number(navState.senderId),
@@ -256,79 +155,72 @@ const TransferPaymentPage: React.FC = () => {
     address: deliveryMethod === 'PAPER' ? (address || '') : null,
   })
 
-  // ✅ 웹 버전과 동일하게 수정: "다음" 확인 시 양도 승인 먼저 호출
   const handleAlertConfirm = async () => {
     setIsAlertOpen(false)
     if (isSubmitting) return
     setIsSubmitting(true)
-
     try {
-      // 가족: 결제 없이 승인만 처리
       if (isFamily) {
-        const dto = buildApproveDTO()
-        await respondFamily.mutateAsync(dto)
+        await respondFamily.mutateAsync(buildApproveDTO())
         alert('성공적으로 티켓 양도를 받았습니다.')
         navigate('/mypage/ticket/history')
         return
       }
-
-      // 지인: 가드 체크
       if (!userId) throw new Error('로그인이 필요합니다.')
       if (isBasePayLoading) throw new Error('결제 정보를 불러오는 중입니다.')
       if (!basePaymentId) throw new Error((basePayError as any)?.message || '기존 결제 정보를 찾을 수 없습니다.')
 
-      // ✅ 수정된 로직: 비밀번호 입력 전에 양도 승인 먼저 호출
       await respondOthers.mutateAsync(buildApproveDTO())
-
-      // 승인 성공 후 비밀번호 입력 모달 오픈
       setIsPwModalOpen(true)
     } catch (e: any) {
-      console.log('[Transfer][handleAlertConfirm error]', e?.response?.data || e)
-      const msg = e?.response?.data?.errorMessage || e?.message || '승인 처리에 실패했습니다.'
-      alert(msg)
+      alert(e?.response?.data?.errorMessage || e?.message || '승인 처리에 실패했습니다.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // ✅ 웹 버전과 동일하게 수정: 비밀번호 입력 후 결제만 수행
   const handlePasswordComplete = async (password: string) => {
     try {
       if (!userId || !basePaymentId) throw new Error('필수 정보가 없습니다.')
-
-      // 양도 수수료 계산
       const RATE = Number(import.meta.env.VITE_TRANSFER_FEE_RATE ?? 0.1)
       const commission = Math.max(1, Math.floor(baseAmount * RATE))
-
-      // 결제 실행 (포인트 차감 + 정산 등 서버 구현에 따름)
       const transferReqBody: RequestTransferPaymentDTO = {
         sellerId: Number(navState.senderId) || 0,
-        paymentId: basePaymentId, // db에 저장된 기존 결제 내역
+        paymentId: basePaymentId,
         bookingId: navState.reservationNumber!,
         totalAmount: baseAmount,
         commission,
       }
-
-      console.log('transfer 호출 payload', transferReqBody)
       await requestTransferPayment(transferReqBody, userId)
-      console.log('transfer api 성공')
+      
+      setIsWaitingStatus(true)
 
-      // ✅ 수정: 여기서의 승인 호출은 제거(이미 Alert 단계에서 수행됨)
-
-      // WebSocket 메시지 누락 대비 추가 네비게이션
-      setTimeout(() => {
-        navigate('/payment/result?type=transfer&status=success')
-      }, 2000)
-
+      setTimeout(async () => {
+        try {
+          const statusResult = await getReservationStatus(navState.reservationNumber!)
+          console.log('🔍 Status result:', statusResult)
+          
+          if (statusResult.success) {
+            console.log('✅ Success - navigating to success page')
+            navigate('/payment/transfer/result?status=success')
+          } else {
+            console.log('❌ Not successful - navigating to fail page')
+            navigate('/payment/transfer/result?status=fail')
+          }
+        } catch (e: any) {
+          console.error('예약 상태 확인 중 오류 발생:', e)
+          alert('예약 상태 확인 중 오류가 발생했습니다.')
+          navigate('/payment/transfer/result?status=fail')
+        } finally {
+          setIsWaitingStatus(false)
+        }
+      }, 10000)
     } catch (e: any) {
-      console.log('[Transfer][handlePasswordComplete error]', e?.response?.data || e)
-      const msg = e?.response?.data?.errorMessage || e?.message || '양도 처리에 실패했습니다.'
-      alert(msg)
-      navigate('/payment/result?type=transfer&status=fail')
+      alert(e?.response?.data?.errorMessage || e?.message || '양도 처리에 실패했습니다.')
+      navigate('/payment/transfer/result?status=fail')
     }
   }
 
-  // 페이지 렌더
   return (
     <div className={styles.page}>
       <header className={styles.header}><h1 className={styles.title}>양도 주문서</h1></header>
@@ -338,17 +230,18 @@ const TransferPaymentPage: React.FC = () => {
           <section className={styles.card}><BookingProductInfo info={productInfo} /></section>
 
           <section className={styles.card}>
+            <h2 className={styles.cardTitle}>티켓 수령 방법</h2>
             <TicketDeliverySelectSection
               value={deliveryMethod}
-              onChange={(v) => {
-                setDeliveryMethod(v)
-                if (v !== 'PAPER') { setIsAddressFilled(false); setAddress('') }
-              }}
+              onChange={handleMethodChange}
+              availabilityCode={ticketPick}
+              hideUnavailable={false}
             />
           </section>
 
-          {needAddress && (
+          {deliveryMethod === 'PAPER' && (
             <section className={styles.card}>
+              <h2 className={styles.cardTitle}>배송 정보</h2>
               <AddressForm onValidChange={setIsAddressFilled} onAddressChange={setAddress} />
             </section>
           )}
@@ -360,7 +253,7 @@ const TransferPaymentPage: React.FC = () => {
                 <div className={`${styles.methodCard} ${openedMethod === '킷페이' ? styles.active : ''}`}>
                   <button
                     className={styles.methodHeader}
-                    onClick={() => togglePayMethod('킷페이')}
+                    onClick={() => setOpenedMethod((p) => (p === '킷페이' ? null : '킷페이'))}
                     aria-expanded={openedMethod === '킷페이'}
                     disabled={isBasePayLoading || isBasePayError}
                     title={
@@ -379,8 +272,7 @@ const TransferPaymentPage: React.FC = () => {
                   </button>
                   {openedMethod === '킷페이' && (
                     <div className={styles.methodBody}>
-                      {/* 화면 표시용 금액은 그대로 유지(서버 검증에는 baseAmount 사용) */}
-                      <WalletPayment isOpen onToggle={() => togglePayMethod('킷페이')} dueAmount={amount} />
+                      <WalletPayment isOpen onToggle={() => setOpenedMethod(null)} dueAmount={amount} />
                     </div>
                   )}
                 </div>
@@ -468,20 +360,37 @@ const TransferPaymentPage: React.FC = () => {
         </aside>
       </div>
 
+      {isWaitingStatus && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-[99999]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isAlertOpen && (
-        <AlertModal title="안내" onCancel={() => setIsAlertOpen(false)} onConfirm={handleAlertConfirm}>
-          {isFamily ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?' : '승인 후 결제를 진행합니다. 계속하시겠습니까?'}
+        <AlertModal 
+          title="안내" 
+          onCancel={() => setIsAlertOpen(false)} 
+          onConfirm={handleAlertConfirm}
+        >
+          {isFamily 
+            ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?' 
+            : '승인 후 결제를 진행합니다. 계속하시겠습니까?'
+          }
         </AlertModal>
       )}
 
-      {/* 비가족: 승인 완료 후에만 모달 표시 */}
       {!isFamily && isPwModalOpen && userId && basePaymentId && (
         <PasswordInputModal
-          amount={baseAmount}         // 검증에는 서버 금액 사용
+          amount={baseAmount}
           paymentId={basePaymentId}
           userId={userId}
           onClose={() => setIsPwModalOpen(false)}
-          onComplete={handlePasswordComplete} // 비밀번호 입력 후 결제만 수행
+          onComplete={handlePasswordComplete}
         />
       )}
     </div>

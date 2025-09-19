@@ -155,6 +155,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '', element: <TransferPaymentPage /> },
           { path: 'transfer-fee', element: <TransferFeePaymentPage /> },
+          { path: 'result', element: <TransferResultPage/> },
         ],
       },
       {
