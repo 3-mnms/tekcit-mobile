@@ -2,22 +2,46 @@ import type { Festival } from '@/models/admin/festival';
 import { api } from '@/shared/config/axios';
 
 
+interface PagedResponse<T> {
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  size: number;
+  content: T[];
+  number: number;
+  last: boolean;
+  empty: boolean;
+  // 삐약! 기타 필드들은 필요에 따라 추가해요!
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: PagedResponse<T>;
+  message: string;
+}
+
+
 // 공연 조회
-export const getProducts = async (): Promise<Festival[]> => {
-    const response = await api.get<Festival[]>('/festival/manage');
-    
-    return response.data;
+export const getProducts = async (page: number, size: number, keyword: string) => {
+    const response = await api.get<ApiResponse<Festival>>('/festival/manage', {
+        params: {
+            page: page,
+            size: size,
+            keyword: keyword,
+        },
+    });
+
+    return response.data.data;
 };
 
-export const getProductsAdmin = async (): Promise<Festival> => {
-  const response = await api.get<Festival>('/festival/manage');
-  if (response.data && !Array.isArray(response.data.data)) {
-    return {
-      ...response.data,
-      data: [response.data.data], // 삐약! 🐥 배열로 바꿔서 반환해요.
-    };
-  }
-  return response.data;
+export const getProductsAdmin = async (): Promise<Festival[]> => {
+    const response = await api.get<ApiResponse<PagedResponse<Festival>>>('/festival/manage');
+    
+    if (response.data?.data?.content) {
+        return response.data.data.content;
+    }
+
+    return [];
 };
 
 /**
