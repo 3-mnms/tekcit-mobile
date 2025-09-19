@@ -34,10 +34,18 @@ const AddressForm: React.FC = () => {
         isDefault,
       })
       alert('주소가 저장되었습니다.')
-      navigate('/mypage/myinfo/address')
+      window.location.href = '/mypage/myinfo/address'
     } catch (e: any) {
       alert(e?.message ?? '주소 저장에 실패했어요.')
     }
+  }
+
+  const formatPhone = (raw: string): string => {
+    const d = raw.replace(/\D/g, '').slice(0, 11)
+
+    if (d.length > 7) return d.replace(/(\d{3})(\d{4})(\d{0,4}).*/, '$1-$2-$3')
+    if (d.length > 3) return d.replace(/(\d{3})(\d{0,4}).*/, '$1-$2')
+    return d
   }
 
   return (
@@ -59,8 +67,8 @@ const AddressForm: React.FC = () => {
           label="연락처"
           value={phone}
           className={styles.input}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="010-0000-0000"
+          onChange={(e) => setPhone(formatPhone((e.target as HTMLInputElement).value))}
+          placeholder="010-0000-0000 (숫자만 입력)"
         />
       </div>
 

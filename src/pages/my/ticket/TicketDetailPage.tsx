@@ -53,6 +53,7 @@ const TicketDetailPage: React.FC = () => {
             <PaymentInfoSection
               bookingId={data.reservationNumber}
               reservationNumber={data.reservationNumber}
+              qrUsed={data.qrUsed}
             />
           </div>
         </>

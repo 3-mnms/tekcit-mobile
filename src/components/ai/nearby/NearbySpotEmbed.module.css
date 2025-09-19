@@ -1,8 +1,9 @@
 .page {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   box-sizing: border-box;
   background: #fff;
+  margin-bottom: 80px;
 }
 
 .headerRow {
@@ -11,6 +12,7 @@
   align-items: center;
   gap: 12px;
   margin: 6px 0 14px;
+  padding: 10px;
 }
 
 .titleWrap {
@@ -39,12 +41,11 @@
 .backBtn {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 5px 7px;
   background: #fff;
   font-weight: 600;
   color: #334155;
   transition: box-shadow .2s ease, transform .15s ease;
-  margin-left: 10px;
 }
 
 .backBtn:hover {
@@ -52,48 +53,45 @@
   background: #f8f8f8;
 }
 
-.tabs {
-  display: inline-flex;
-  gap: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 18px;
-  padding: 6px;
-  margin: 10px 0 16px;
+.tabBar {
+  display: flex;
+  gap: 4px;                  
+  padding: 6px;              
+  background: #f9fafb;      
+  border-radius: 14px;       
+  margin: 10px 0px 16px;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid #eef2f7;
 }
 
-.tab {
+.tabBtn {
+  flex: 1 1 0%;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  color: #334155;
+  justify-content: center;
+  gap: 8px;                  
+  padding: 8px 12px;         
+  border-radius: 10px;       
+  font-size: 13.5px;         
+  font-weight: 700;          
+  color: #4b5563;           
   background: transparent;
   border: 0;
-  transition: background-color .2s ease, color .2s ease, transform .15s ease;
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .15s ease;
+  cursor: pointer;
 }
 
-.tab:hover {
-  background: #ecedf0;
-}
-
-.tabActive {
-  background: #2564ebe7;
-  color: #fff;
+.tabBtnActive {
+  color: #fff !important;   
+  background: #4D9AFD;      
+  box-shadow: 0 6px 10px rgba(77,154,253,.35); 
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(37, 99, 235, .2);
 }
 
-.tabActive:hover {
-  background: #2563eb;
-}
-
-.tabIcon {
-  display: inline-grid;
-  place-items: center;
+.tabBtnIcon {
+  width: 16px;
+  height: 16px;
 }
 
 .body {
@@ -101,6 +99,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 18px;
   align-items: start;
+  padding: 10px;
 }
 
 @media (max-width: 980px) {
@@ -117,14 +116,13 @@
   list-style: none;
 }
 
-/* 카드 */
 .card {
   width: 100%;
   height: 80px;
   text-align: left;
   display: grid;
   grid-template-columns: 1fr;
-  border: 1px solid #eef2f7;
+  border: 1px solid #d9dce0;
   background: #fff;
   border-radius: 16px;
   padding: 14px 14px 12px 0;
@@ -228,7 +226,12 @@
   border: 1px solid #eef2f7;
   border-radius: 16px;
   padding: 14px 16px;
-  height: 80px;
+}
+
+.courseRow:hover {
+  border-color: #cfe0ff;
+  box-shadow: 0 10px 28px rgba(77, 154, 253, 0.12);
+  transform: translateY(-1px);
 }
 
 .courseAccent {
@@ -240,16 +243,19 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
-/* 점 + 텍스트 칩 */
 .node {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
   color: #334155;
-  white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .node::before {
@@ -280,6 +286,17 @@
   opacity: .8;
 }
 
+@media (max-width: 640px) {
+  .courseRow {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timePill {
+    margin-left: auto;
+  }
+}
+
 .mapWrap {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -287,7 +304,6 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-top: -70px;
 }
 
 .mapHeader {
@@ -316,7 +332,7 @@
 
 .mapBox {
   width: 100%;
-  height: 60vh;
+  height: 47vh;
 }
 
 .error,
@@ -348,3 +364,58 @@
   border-radius: 8px;
   padding: 4px 8px;
 }
+
+.sectionHeader{
+  background:#fff;
+  padding: 10px 10px 0px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sectionHeadTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.sectionTitle{
+  display: inline-flex;     
+  align-items: center;      
+  gap: 8px;                 
+  line-height: 1.25;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;;  
+  margin-left: 10px;
+}
+
+.titleIcon{
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;          
+  translate: 0 1px;        
+}
+
+.venuePanel{
+  padding: 10px 12px;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(90deg,#eff6ff,#eef2ff);
+}
+
+.venueName{
+  font-size:14.5px;
+  font-weight:800;
+  color:#0f172a;
+  margin:0 0 4px 0;
+}
+
+.venueAddr{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  color:#64748b;
+  margin:0;
+}
+.addrIcon{ flex:0 0 auto; }
+

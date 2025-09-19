@@ -55,5 +55,6 @@ export type TicketDetailResponseDTO = {
   posterFile: string;
   festivalId: string;
   fname: string;              
-  fcltynm: string;           
+  fcltynm: string;   
+  qrUsed: boolean;          
 };

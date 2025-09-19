@@ -137,6 +137,7 @@
   font-size: 18px;
   font-weight: 800;
   letter-spacing: .3px;
+  margin-bottom: 2px;
 }
 
 .subtitle {
@@ -184,6 +185,7 @@
   overflow: hidden;
   line-height: 1.4;
   max-height: 160px;
+  background-color: white;
 }
 
 .textarea:disabled {
