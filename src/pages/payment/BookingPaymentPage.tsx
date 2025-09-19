@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import type { TossPaymentHandle } from '@/components/payment/pay/TossPayment'
 import PaymentInfo from '@/components/payment/pay/PaymentInfo'
 import ReceiveInfo from '@/components/payment/delivery/ReceiveInfo'
-import Spinner from '@/components/common/spinner/Spinner';
 
 import Button from '@/components/common/button/Button'
 import PasswordInputModal from '@/components/payment/modal/PasswordInputModal'

@@ -89,8 +89,6 @@ const TicketDeliverySelectSection: React.FC<Props> = ({
 
   return (
     <section className={`${styles.section} ${className}`}>
-      <h2 className={styles.title}>티켓 수령 방법</h2>
-
       {loading ? (
         <div className={styles.group}>
           <div className={styles.skeleton} />

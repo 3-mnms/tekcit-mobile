@@ -12,25 +12,12 @@
 /* ───────────────── 타이틀 ───────────────── */
 /* 주석: 크기↓ 굵기↑로 정보 위계만 또렷하게 멍 */
 .title {
-  font-size: 15px;
-  line-height: 20px;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 10px;
-  letter-spacing: -0.2px;
-  padding-left: 8px;
-  /* 좌측 살짝 들여쓰기로 시각 정렬 멍 */
-  position: relative;
-}
-
-.title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 14px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1rem;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 0.75rem;
 }
 
 /* ───────────────── 라디오 그룹 ───────────────── */
@@ -47,7 +34,11 @@
 .item {
   position: relative;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  /* 아이콘과 텍스트를 세로로 정렬 */
+  align-items: center;
+  gap: 8px;
+  text-align: center;
   border: 1px solid #d5d9e1;
   /* 기본 라인 톤 통일 멍 */
   border-radius: 12px;
@@ -55,7 +46,7 @@
   /* 살짝 푸른 화이트로 구분감 멍 */
   min-height: 44px;
   /* 터치 타겟 보장(44px) 멍 */
-  padding: 10px 12px;
+  padding: 16px 12px;
   cursor: pointer;
   transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease, transform 50ms ease;
 }
@@ -72,9 +63,9 @@
 
 /* 주석: 활성 상태 — 배경/링/보더를 브랜드로 정리 멍 */
 .itemActive {
-  border-color: #4D9AFD;
+  border-color: #3b82f6;
   background: #eff6ff;
-  box-shadow: 0 0 0 2px rgba(77, 154, 253, 0.25);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 /* 주석: 비활성/미지원/로딩 상태 — 시각적 비활성화 멍 */
@@ -84,58 +75,22 @@
   box-shadow: none;
 }
 
+/* ───────────────── 아이콘 ───────────────── */
+.item svg {
+  width: 40px;
+  height: 40px;
+}
+
 /* ───────────────── 라벨 텍스트 + 커스텀 라디오 도트 ───────────────── */
-/* 주석: 왼쪽에 도트(라디오 인디케이터) 넣고, 활성 시 채움 멍 */
 .labelText {
-  position: relative;
   display: flex;
-  /* 세로 스택 멍 */
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 2px;
-  /* 메인/서브 간격 멍 */
-  padding-left: 26px;
-  /* 커스텀 도트 공간 유지 멍 */
   font-size: 14px;
   line-height: 20px;
   font-weight: 700;
   color: #111827;
-}
-
-.labelText::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 10px;
-  /* 세로 정렬 보정 멍 */
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid #cbd5e1;
-  background: #ffffff;
-  box-sizing: border-box;
-}
-
-.itemActive .labelText::before {
-  border-color: #4D9AFD;
-  box-shadow: inset 0 0 0 5px #4D9AFD;
-  /* 활성 채움 멍 */
-}
-
-/* ───────────────── '(미지원)' 태그 ───────────────── */
-/* 주석: 작은 pill 배지로 회색 톤 표시 멍 */
-.unavailableTag {
-  margin-left: 6px;
-  padding: 0 6px;
-  height: 18px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
 }
 
 .labelMain {
@@ -152,6 +107,53 @@
   font-weight: 600;
   color: #6b7280;
   line-height: 1.2;
+}
+
+/* ───────────────── 커스텀 라디오 도트 ───────────────── */
+.radioDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.itemActive .radioDot {
+  border-color: #3b82f6;
+  background-color: #3b82f6;
+}
+
+.itemActive .radioDot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+/* ───────────────── '(미지원)' 태그 ───────────────── */
+/* 주석: 작은 pill 배지로 회색 톤 표시 멍 */
+.unavailableTag {
+  margin-left: 6px;
+  padding: 0 6px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
 }
 
 /* ───────────────── 스켈레톤(로딩) ───────────────── */
