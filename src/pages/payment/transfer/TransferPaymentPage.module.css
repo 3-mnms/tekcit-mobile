@@ -1,7 +1,9 @@
 /* header, title, main 누락 보강 */
 .header {
-  padding: 0 16px;
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: center; /* 가로 중앙 정렬 */
+  align-items: center;     /* 세로 중앙 정렬 */
+  padding: 12px 0;
 }
 
 .title {

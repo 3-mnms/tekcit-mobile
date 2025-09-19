@@ -14,7 +14,6 @@ import TicketDeliverySelectSection, {
   type DeliveryAvailabilityCode,
 } from '@/components/booking/TicketDeliverySelectSection'
 import Header from '@/components/common/header/Header'
-import { useUIStore } from '@/shared/store/uiStore'
 
 import { useRespondFamilyTransfer, useRespondOthersTransfer } from '@/models/transfer/tanstack-query/useTransfer'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
@@ -47,16 +46,6 @@ const TransferPaymentPage: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const navState = (location.state ?? {}) as Partial<TransferState>
-  const { setHeader, setBaseHeader } = useUIStore()
-
-  useEffect(() => {
-    setHeader({
-      leftIcon: 'back',
-      centerMode: 'title',
-      title: '양도 주문서',
-    })
-    return () => setBaseHeader()
-  }, [setHeader, setBaseHeader])
 
   const relation: 'FAMILY' | 'OTHERS' =
     navState.relation === 'FAMILY' || navState.relation === 'OTHERS' ? navState.relation : 'OTHERS'
@@ -112,6 +101,7 @@ const TransferPaymentPage: React.FC = () => {
   if (!transferIdOK || !senderIdOK) {
     return (
       <div className={styles.page}>
+        <header className={styles.header}><h1 className={styles.title}>양도 주문서</h1></header>
         <main className={styles.main}>
           <section className={styles.card}>
             <p>요청 정보가 올바르지 않아요. 목록에서 다시 들어와 주세요.</p>
@@ -202,14 +192,14 @@ const TransferPaymentPage: React.FC = () => {
         commission,
       }
       await requestTransferPayment(transferReqBody, userId)
-
+      
       setIsWaitingStatus(true)
 
       setTimeout(async () => {
         try {
           const statusResult = await getReservationStatus(navState.reservationNumber!)
           console.log('🔍 Status result:', statusResult)
-
+          
           if (statusResult.success) {
             console.log('✅ Success - navigating to success page')
             navigate('/payment/transfer/result?status=success')
@@ -232,179 +222,178 @@ const TransferPaymentPage: React.FC = () => {
   }
 
   return (
-    <>
-      <Header />
-      <div className={styles.page}>
-        <div className={styles.layout}>
-          <main className={styles.main}>
-            <section className={styles.card}><BookingProductInfo info={productInfo} /></section>
+    <div className={styles.page}>
+      <header className={styles.header}><h1 className={styles.title}>양도 주문서</h1></header>
 
+      <div className={styles.layout}>
+        <main className={styles.main}>
+          <section className={styles.card}><BookingProductInfo info={productInfo} /></section>
+
+          <section className={styles.card}>
+            <h2 className={styles.cardTitle}>티켓 수령 방법</h2>
+            <TicketDeliverySelectSection
+              value={deliveryMethod}
+              onChange={handleMethodChange}
+              availabilityCode={ticketPick}
+              hideUnavailable={false}
+            />
+          </section>
+
+          {deliveryMethod === 'PAPER' && (
             <section className={styles.card}>
-              <h2 className={styles.cardTitle}>티켓 수령 방법</h2>
-              <TicketDeliverySelectSection
-                value={deliveryMethod}
-                onChange={handleMethodChange}
-                availabilityCode={ticketPick}
-                hideUnavailable={false}
-              />
+              <h2 className={styles.cardTitle}>배송 정보</h2>
+              <AddressForm onValidChange={setIsAddressFilled} onAddressChange={setAddress} />
             </section>
+          )}
 
-            {deliveryMethod === 'PAPER' && (
-              <section className={styles.card}>
-                <h2 className={styles.cardTitle}>배송 정보</h2>
-                <AddressForm onValidChange={setIsAddressFilled} onAddressChange={setAddress} />
-              </section>
-            )}
-
-            {!isFamily && (
-              <section className={styles.card}>
-                <h2 className={styles.cardTitle}>결제 수단</h2>
-                <div className={styles.paymentBox}>
-                  <div className={`${styles.methodCard} ${openedMethod === '킷페이' ? styles.active : ''}`}>
-                    <button
-                      className={styles.methodHeader}
-                      onClick={() => setOpenedMethod((p) => (p === '킷페이' ? null : '킷페이'))}
-                      aria-expanded={openedMethod === '킷페이'}
-                      disabled={isBasePayLoading || isBasePayError}
-                      title={
-                        isBasePayLoading
-                          ? '결제 정보를 불러오는 중입니다.'
-                          : isBasePayError
-                            ? (basePayError as any)?.message ?? '결제 정보를 찾을 수 없습니다.'
-                            : undefined
-                      }
-                    >
-                      <span className={`${styles.radio} ${openedMethod === '킷페이' ? styles.radioOn : ''}`} />
-                      <span className={styles.methodText}>
-                        테킷페이 (포인트 결제)
-                        {isBasePayLoading ? ' - 결제정보 조회중...' : ''}
-                      </span>
-                    </button>
-                    {openedMethod === '킷페이' && (
-                      <div className={styles.methodBody}>
-                        <WalletPayment isOpen onToggle={() => setOpenedMethod(null)} dueAmount={amount} />
-                      </div>
-                    )}
-                  </div>
+          {!isFamily && (
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>결제 수단</h2>
+              <div className={styles.paymentBox}>
+                <div className={`${styles.methodCard} ${openedMethod === '킷페이' ? styles.active : ''}`}>
+                  <button
+                    className={styles.methodHeader}
+                    onClick={() => setOpenedMethod((p) => (p === '킷페이' ? null : '킷페이'))}
+                    aria-expanded={openedMethod === '킷페이'}
+                    disabled={isBasePayLoading || isBasePayError}
+                    title={
+                      isBasePayLoading
+                        ? '결제 정보를 불러오는 중입니다.'
+                        : isBasePayError
+                          ? (basePayError as any)?.message ?? '결제 정보를 찾을 수 없습니다.'
+                          : undefined
+                    }
+                  >
+                    <span className={`${styles.radio} ${openedMethod === '킷페이' ? styles.radioOn : ''}`} />
+                    <span className={styles.methodText}>
+                      테킷페이 (포인트 결제)
+                      {isBasePayLoading ? ' - 결제정보 조회중...' : ''}
+                    </span>
+                  </button>
+                  {openedMethod === '킷페이' && (
+                    <div className={styles.methodBody}>
+                      <WalletPayment isOpen onToggle={() => setOpenedMethod(null)} dueAmount={amount} />
+                    </div>
+                  )}
                 </div>
+              </div>
+            </section>
+          )}
+        </main>
+
+        <aside className={styles.sidebar}>
+          <div className={styles.sticky}>
+            {!isFamily && (
+              <section className={`${styles.card} ${styles.summaryCard}`} aria-label="결제 요약">
+                <h2 className={styles.cardTitle}>결제 요약</h2>
+
+                <div className={styles.priceRow}>
+                  <span>수령 방법</span>
+                  <span className={styles.priceValue}>
+                    {deliveryMethod ? (deliveryMethod === 'QR' ? 'QR 전자티켓' : '지류(배송)') : '-'}
+                  </span>
+                </div>
+
+                <div className={styles.priceRow}>
+                  <span>티켓 가격</span>
+                  <span className={styles.priceValue}>{amount.toLocaleString()}원</span>
+                </div>
+
+                <div className={styles.priceRow}>
+                  <span>수수료 (10%)</span>
+                  <span className={styles.priceValue}> {commision.toLocaleString()}원 </span>
+                </div>
+
+                <div className={styles.divider} />
+
+                <div className={styles.priceTotal} aria-live="polite">
+                  <strong>총 결제 금액</strong>
+                  <strong className={styles.priceStrong}>{totalAmount.toLocaleString()}원</strong>
+                </div>
+
+                <label className={styles.agree}>
+                  <input
+                    type="checkbox"
+                    checked={isAgreed}
+                    onChange={(e) => setIsAgreed(e.target.checked)}
+                    aria-label="양도 서비스 약관 동의"
+                  />
+                  <span>(필수) 양도 서비스 이용약관 및 개인정보 수집·이용에 동의합니다.</span>
+                </label>
+
+                <Button
+                  disabled={disabledNext || isSubmitting || !userId}
+                  className={styles.nextBtn}
+                  aria-disabled={disabledNext || isSubmitting || !userId}
+                  aria-label="다음 단계로 이동"
+                  onClick={() => setIsAlertOpen(true)}
+                >
+                  {isSubmitting ? '처리 중…' : '다음'}
+                </Button>
               </section>
             )}
-          </main>
 
-          <aside className={styles.sidebar}>
-            <div className={styles.sticky}>
-              {!isFamily && (
-                <section className={`${styles.card} ${styles.summaryCard}`} aria-label="결제 요약">
-                  <h2 className={styles.cardTitle}>결제 요약</h2>
+            {isFamily && (
+              <section className={`${styles.card} ${styles.summaryCard}`} aria-label="무료 양도 안내">
+                <h2 className={styles.cardTitle}>가족 양도</h2>
+                <p className={styles.freeDesc}>
+                  가족 간 양도는 <strong>무료</strong>로 진행돼요.<br />결제 과정 없이 다음 단계로 넘어갑니다.
+                </p>
+                <div className={styles.priceRow}>
+                  <span>수령 방법</span>
+                  <span className={styles.priceValue}>
+                    {deliveryMethod ? (deliveryMethod === 'QR' ? 'QR 전자티켓' : '지류(배송)') : '-'}
+                  </span>
+                </div>
+                <Button
+                  disabled={disabledNext || isSubmitting}
+                  className={styles.nextBtn}
+                  aria-disabled={disabledNext || isSubmitting}
+                  aria-label="양도 완료로 이동"
+                  onClick={() => setIsAlertOpen(true)}
+                >
+                  {isSubmitting ? '처리 중…' : '다음'}
+                </Button>
+              </section>
+            )}
+          </div>
+        </aside>
+      </div>
 
-                  <div className={styles.priceRow}>
-                    <span>수령 방법</span>
-                    <span className={styles.priceValue}>
-                      {deliveryMethod ? (deliveryMethod === 'QR' ? 'QR 전자티켓' : '지류(배송)') : '-'}
-                    </span>
-                  </div>
-
-                  <div className={styles.priceRow}>
-                    <span>티켓 가격</span>
-                    <span className={styles.priceValue}>{amount.toLocaleString()}원</span>
-                  </div>
-
-                  <div className={styles.priceRow}>
-                    <span>수수료 (10%)</span>
-                    <span className={styles.priceValue}> {commision.toLocaleString()}원 </span>
-                  </div>
-
-                  <div className={styles.divider} />
-
-                  <div className={styles.priceTotal} aria-live="polite">
-                    <strong>총 결제 금액</strong>
-                    <strong className={styles.priceStrong}>{totalAmount.toLocaleString()}원</strong>
-                  </div>
-
-                  <label className={styles.agree}>
-                    <input
-                      type="checkbox"
-                      checked={isAgreed}
-                      onChange={(e) => setIsAgreed(e.target.checked)}
-                      aria-label="양도 서비스 약관 동의"
-                    />
-                    <span>(필수) 양도 서비스 이용약관 및 개인정보 수집·이용에 동의합니다.</span>
-                  </label>
-
-                  <Button
-                    disabled={disabledNext || isSubmitting || !userId}
-                    className={styles.nextBtn}
-                    aria-disabled={disabledNext || isSubmitting || !userId}
-                    aria-label="다음 단계로 이동"
-                    onClick={() => setIsAlertOpen(true)}
-                  >
-                    {isSubmitting ? '처리 중…' : '다음'}
-                  </Button>
-                </section>
-              )}
-
-              {isFamily && (
-                <section className={`${styles.card} ${styles.summaryCard}`} aria-label="무료 양도 안내">
-                  <h2 className={styles.cardTitle}>가족 양도</h2>
-                  <p className={styles.freeDesc}>
-                    가족 간 양도는 <strong>무료</strong>로 진행돼요.<br />결제 과정 없이 다음 단계로 넘어갑니다.
-                  </p>
-                  <div className={styles.priceRow}>
-                    <span>수령 방법</span>
-                    <span className={styles.priceValue}>
-                      {deliveryMethod ? (deliveryMethod === 'QR' ? 'QR 전자티켓' : '지류(배송)') : '-'}
-                    </span>
-                  </div>
-                  <Button
-                    disabled={disabledNext || isSubmitting}
-                    className={styles.nextBtn}
-                    aria-disabled={disabledNext || isSubmitting}
-                    aria-label="양도 완료로 이동"
-                    onClick={() => setIsAlertOpen(true)}
-                  >
-                    {isSubmitting ? '처리 중…' : '다음'}
-                  </Button>
-                </section>
-              )}
-            </div>
-          </aside>
-        </div>
-
-        {isWaitingStatus && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-[99999]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin"></div>
-                <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
-              </div>
+      {isWaitingStatus && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-[99999]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {isAlertOpen && (
-          <AlertModal
-            title="안내"
-            onCancel={() => setIsAlertOpen(false)}
-            onConfirm={handleAlertConfirm}
-          >
-            {isFamily
-              ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?'
-              : '승인 후 결제를 진행합니다. 계속하시겠습니까?'
-            }
-          </AlertModal>
-        )}
+      {isAlertOpen && (
+        <AlertModal 
+          title="안내" 
+          onCancel={() => setIsAlertOpen(false)} 
+          onConfirm={handleAlertConfirm}
+        >
+          {isFamily 
+            ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?' 
+            : '승인 후 결제를 진행합니다. 계속하시겠습니까?'
+          }
+        </AlertModal>
+      )}
 
-        {!isFamily && isPwModalOpen && userId && basePaymentId && (
-          <PasswordInputModal
-            amount={baseAmount}
-            paymentId={basePaymentId}
-            userId={userId}
-            onClose={() => setIsPwModalOpen(false)}
-            onComplete={handlePasswordComplete}
-          />
-        )}
-      </div>
-    </>
+      {!isFamily && isPwModalOpen && userId && basePaymentId && (
+        <PasswordInputModal
+          amount={baseAmount}
+          paymentId={basePaymentId}
+          userId={userId}
+          onClose={() => setIsPwModalOpen(false)}
+          onComplete={handlePasswordComplete}
+        />
+      )}
+    </div>
   )
 }
 
