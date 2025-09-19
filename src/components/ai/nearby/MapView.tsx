@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import styles from './NearbySpotEmbed.module.css'
 import { loadKakaoMapSdk } from '@/shared/config/loadKakaoMap'
-import type { NearbyFestivalMini } from './NearbySpotEmbed'
-import type { PlayEatSpot } from './SpotCard'
+import type { NearbyFestivalMini } from '@/pages/ai/nearby/NearbySpotPage'
+import type { BaseSpot  } from './SpotCard'
 
 interface Props {
   festival: NearbyFestivalMini
-  items: PlayEatSpot[]
+  items: BaseSpot []
   active: 'play' | 'eat' | 'course'
   selectedId: string | null
   setSelectedId: (id: string) => void
@@ -19,6 +19,14 @@ export default function MapView({ festival, items, active, selectedId, setSelect
   const markerByIdRef = useRef<Record<string, kakao.maps.Marker>>({})
   const infoByIdRef = useRef<Record<string, kakao.maps.InfoWindow>>({})
   const openInfoWindowRef = useRef<kakao.maps.InfoWindow | null>(null)
+
+  const focusMarkerById = useCallback((id: string) => {
+  const wkakao = window.kakao
+  const marker = markerByIdRef.current[id]
+  if (!marker || !wkakao?.maps?.event) return
+
+  wkakao.maps.event.trigger(marker, 'click')
+}, [])
 
   useEffect(() => {
     let cancelled = false
@@ -95,7 +103,7 @@ export default function MapView({ festival, items, active, selectedId, setSelect
         }
       }
 
-      items.slice(0, 3).forEach(s =>
+      items.slice(0, 5).forEach(s =>
         addMarker(s.id, s.lat, s.lng, s.name, s.address ?? festival.venue ?? '')
       )
 
@@ -106,6 +114,8 @@ export default function MapView({ festival, items, active, selectedId, setSelect
       if (!bounds.isEmpty()) {
         map.setBounds(bounds, 50, 50, 50, 50)
       }
+
+      if (selectedId) focusMarkerById(selectedId)
     }
 
     void init()

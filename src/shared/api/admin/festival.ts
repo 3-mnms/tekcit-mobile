@@ -4,7 +4,6 @@ import { api } from '@/shared/config/axios';
 
 // 공연 조회
 export const getProducts = async (): Promise<Festival[]> => {
-    console.log('삐약! 공연 목록을 서버에 요청해요!');
     const response = await api.get<Festival[]>('/festival/manage');
     
     return response.data;

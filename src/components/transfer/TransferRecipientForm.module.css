@@ -2,15 +2,27 @@
   width: 100%;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  padding: 16px 20px;
   display: grid;
-  gap: 0.9rem;
+  gap: 14px;
 }
 
 .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
+  font-size: 18px;
+  color: #111827;
 }
+
+.iconTitle {
+  width: 20px;
+  height: 20px;
+  color: #3b82f6;
+}
+
 
 .fieldset {
   border: 0;
@@ -56,8 +68,21 @@
 
 .idRow {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.3rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.inputAttached {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.searchBtn {
+  height: 44px;
+  border-radius: 0 12px 12px 0;
+  padding: 0 0px;
+  font-weight: 600;
+  margin-left: -1px;
 }
 
 .input {

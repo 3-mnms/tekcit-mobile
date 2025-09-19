@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './IdSearchModal.module.css';
 import Button from '@/components/common/button/Button';
 import { useSearchTransferee } from '@/models/transfer/tanstack-query/useTransfer';
+import type { AxiosError } from 'axios';
 
 export type AccountMini = { id: string; name: string; residentNum?: string; userId: number };
 
@@ -10,6 +11,34 @@ type Props = {
     onClose: () => void;
     onSelect: (acc: AccountMini) => void;
 };
+
+type TransfereeCore = {
+  name?: string
+  residentNum?: string
+  userId?: number
+}
+
+type Envelope = {
+  success?: boolean
+  data?: TransfereeCore | null
+  message?: string
+}
+
+function isTransfereeCore(v: unknown): v is TransfereeCore {
+  if (typeof v !== 'object' || v === null) return false
+  const o = v as Record<string, unknown>
+  const userIdOk =
+    o.userId === undefined || typeof o.userId === 'number' || Number.isFinite(Number(o.userId))
+  const nameOk = o.name === undefined || typeof o.name === 'string'
+  const rnOk = o.residentNum === undefined || typeof o.residentNum === 'string'
+  return userIdOk && nameOk && rnOk
+}
+
+function isEnvelope(v: unknown): v is Envelope {
+  if (typeof v !== 'object' || v === null) return false
+  const o = v as Record<string, unknown>
+  return 'data' in o
+}
 
 const IdSearchModal: React.FC<Props> = ({ open, onClose, onSelect }) => {
     const [q, setQ] = useState('');
@@ -40,32 +69,59 @@ const IdSearchModal: React.FC<Props> = ({ open, onClose, onSelect }) => {
     const validEmail = (s: string) => /\S+@\S+\.\S+/.test(s);
 
     const doSearch = async () => {
-        const email = q.trim();
-        if (!validEmail(email)) { alert('이메일 형식으로 입력해 주세요'); return; }
-        try {
-            const payload = await mutateAsync(email); // { success, data, message } 혹은 { name, residentNum }
-
-            // ✅ envelope/직접데이터 둘 다 대응
-            const dto = (payload && typeof payload === 'object' && 'data' in (payload as any))
-                ? (payload as any).data
-                : payload;
-
-            const list: AccountMini[] = [{
-                id: email,
-                name: dto?.name ?? '',
-                residentNum: dto?.residentNum ?? '',
-                userId: dto?.userId ?? '',
-            }];
-
-            setResults(list);
-            setSel(list.length ? 0 : -1);
-            if (!list.length) alert('일치하는 결과가 없습니다');
-        } catch (e: any) {
-            console.error(e);
-            alert(e?.message || '검색 중 오류가 발생했어요');
-            setResults([]); setSel(-1);
+        const email = q.trim()
+        if (!validEmail(email)) {
+            alert('이메일 형식으로 입력해 주세요')
+            return
         }
-    };
+        try {
+            // mutateAsync의 반환을 unknown으로 보고 안전하게 파싱
+            const payload = (await mutateAsync(email)) as unknown
+
+            let core: TransfereeCore | null = null
+            if (isEnvelope(payload)) {
+                core = payload.data ?? null
+            } else if (isTransfereeCore(payload)) {
+                core = payload
+            }
+
+            const list: AccountMini[] = core
+                ? [
+                    {
+                        id: email,
+                        name: (core.name ?? '').trim(),
+                        residentNum: (core.residentNum ?? '').trim() || undefined,
+                        userId:
+                            typeof core.userId === 'number'
+                                ? core.userId
+                                : Number.isFinite(Number(core.userId))
+                                    ? Number(core.userId)
+                                    : 0,
+                    },
+                ]
+                : []
+
+            setResults(list)
+            setSel(list.length ? 0 : -1)
+            if (!list.length) alert('일치하는 결과가 없습니다')
+        } catch (e: unknown) {
+            let msg = '검색 중 오류가 발생했어요'
+
+            if (typeof e === 'object' && e) {
+                const axiosErr = e as AxiosError<{ errorCode?: string; errorMessage?: string }>
+                if (axiosErr.response?.data?.errorMessage) {
+                    msg = axiosErr.response.data.errorMessage
+                } else if (axiosErr.message) {
+                    msg = axiosErr.message
+                }
+            }
+
+            console.error('[doSearch error]', e)
+            alert(msg)
+            setResults([])
+            setSel(-1)
+        }
+    }
 
     const confirm = () => {
         if (sel < 0) return;

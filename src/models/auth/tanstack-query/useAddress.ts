@@ -29,6 +29,7 @@ export const useDefaultAddressQuery = () =>
     queryKey: QK.default,
     queryFn: getDefaultAddress,
     staleTime: 60_000,
+    retry: 1,
   })
 
 export const useAddressQuery = (addressId: number) =>

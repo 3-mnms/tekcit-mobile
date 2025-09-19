@@ -8,7 +8,7 @@ import MyHeader from '@/components/my/hedaer/MyHeader'
 import Button from '@/components/common/button/Button'
 import Input from '@/components/common/input/Input'
 import styles from './EditInfoPage.module.css'
-
+import Spinner from '@/components/common/spinner/Spinner'
 import { isUser, type UpdateUserRequestDTO } from '@/models/my/userTypes'
 import { useMyPageUserQuery, useUpdateUserMutation } from '@/models/my/useMyPage'
 import { FaUser, FaPhone, FaIdCard } from 'react-icons/fa'
@@ -53,7 +53,6 @@ const EditInfoPage: React.FC = () => {
     try {
       await mutateAsync(payload)
       alert('저장되었습니다.')
-      nav('/mypage/myinfo/detail')
     } catch (err) {
       console.error('[EditInfo] update failed:', err)
       alert('저장 중 오류가 발생했어요.')
@@ -114,7 +113,7 @@ const EditInfoPage: React.FC = () => {
                           전화번호
                         </span>
                       }
-                      placeholder="010-1234-5678"
+                      placeholder="010-1234-5678 (숫자만 입력)"
                       className={styles.input}
                       value={value ?? ''}
                       onChange={handleChange}
@@ -153,13 +152,14 @@ const EditInfoPage: React.FC = () => {
                 >
                   취소
                 </Button>
+                {isPending && <Spinner />}
                 <Button
                   className={styles.btnPrimary}
                   type="submit"
                   disabled={isPending}
                   aria-busy={isPending}
                 >
-                  {isPending ? '저장 중…' : '저장'}
+                저장
                 </Button>
               </div>
             </div>

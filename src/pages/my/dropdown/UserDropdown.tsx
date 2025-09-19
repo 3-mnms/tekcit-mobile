@@ -26,16 +26,23 @@ const UserDropdown: React.FC = () => {
 
   const handleLogout = async () => {
     if (loading) return
+    const confirmed = window.confirm('로그아웃 하시겠습니까?')
+    if (!confirmed) return
+
     setLoading(true)
     try {
       await logoutApi()
     } catch (e) {
-      console.error('logout failed (server):', e)
+      console.error(e)
     } finally {
       logout()
       setLoading(false)
-      alert('로그아웃!')
-      navigate('/login')
+      alert('로그아웃 되었습니다.')
+      if (window.location.pathname === "/") {
+        window.location.reload()
+      } else {
+        navigate("/", { replace: true })
+      }
     }
   }
 

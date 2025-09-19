@@ -40,6 +40,14 @@ const AddressForm: React.FC = () => {
     }
   }
 
+  const formatPhone = (raw: string): string => {
+    const d = raw.replace(/\D/g, '').slice(0, 11)
+
+    if (d.length > 7) return d.replace(/(\d{3})(\d{4})(\d{0,4}).*/, '$1-$2-$3')
+    if (d.length > 3) return d.replace(/(\d{3})(\d{0,4}).*/, '$1-$2')
+    return d
+  }
+
   return (
     <section className={styles.container}>
     <div className={styles.card}>
@@ -59,8 +67,8 @@ const AddressForm: React.FC = () => {
           label="연락처"
           value={phone}
           className={styles.input}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="010-0000-0000"
+          onChange={(e) => setPhone(formatPhone((e.target as HTMLInputElement).value))}
+          placeholder="010-0000-0000 (숫자만 입력)"
         />
       </div>
 
