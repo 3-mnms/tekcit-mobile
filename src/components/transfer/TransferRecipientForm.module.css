@@ -186,7 +186,8 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.40);
   display: grid;
-  place-items: center;
+  place-content: center;     
+  padding: 2dvh 3vw;         
   z-index: 60;
 }
 
@@ -196,12 +197,13 @@
   border: 1px solid #e5e7eb;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
   width: min(560px, 92vw);
-  max-height: 88vh;
+  height: auto;              
+  max-height: 86dvh;         
   display: flex;
   flex-direction: column;
   padding: 1rem 1.25rem 0.75rem;
-  height: min(80vh);
 }
+
 
 .modalTitle {
   font-weight: 700;
@@ -236,13 +238,18 @@
 
 .previewArea {
   width: 100%;
-  height: 100%;
+  height: clamp(280px, 56dvh, 520px);
   display: flex;
   align-items: stretch;
   justify-content: center;
 }
 
-/* 이미지/PDF 모두 부모에 맞춘다 */
+@supports not (height: 1dvh) {
+  .modalBackdrop { padding: 2vh 3vw; }
+  .modalCard { max-height: 86vh; }
+  .previewArea { height: clamp(280px, 56vh, 520px); }
+}
+
 .previewImg {
   width: 100%;
   height: 100%;
