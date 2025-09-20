@@ -77,7 +77,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
       if (!inRange(day, fromDate!, toDate!)) return
 
       const k = ymd(day)
-      ;(byDate[k] ||= new Set()).add(hhmm(dt))
+        ; (byDate[k] ||= new Set()).add(hhmm(dt))
     })
   } else {
     const weekdaySet = new Set<string>()
@@ -87,7 +87,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
       const time = typeof s?.time === 'string' ? s.time.slice(0, 5) : ''
       if (!dow || !time) return
       weekdaySet.add(dow)
-      ;(timeByWeekday.get(dow) || timeByWeekday.set(dow, new Set()).get(dow)!).add(time)
+        ; (timeByWeekday.get(dow) || timeByWeekday.set(dow, new Set()).get(dow)!).add(time)
     })
 
     const cur = new Date(fromDate!)
@@ -252,7 +252,7 @@ const TicketOrderPage: React.FC = () => {
         const reservationNumber = typeof res === 'string' ? res : (res?.data ?? res)
         try {
           sessionStorage.setItem('reservationId', reservationNumber)
-        } catch {}
+        } catch { }
         navigate(`/reservation/${fid}/order-info?res=${encodeURIComponent(reservationNumber)}`, {
           replace: true,
           state: {
@@ -283,33 +283,34 @@ const TicketOrderPage: React.FC = () => {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, 0, 0)
   }, [selDate, serverSelectedDate, selTime, serverSelectedTime])
 
-  useEffect(() => {
-    if (!fid || !selectedDateTime) return;
+  const firedRef = React.useRef(false);                
 
-    const firedRef = { current: false }; // 여러 이벤트 중복 방지
+  useEffect(() => {
+    if (!fid || !selectedDateTime) return;             
 
     const fireOnce = () => {
       if (firedRef.current) return;
       firedRef.current = true;
-
-      // 1) BE에 대기열 해제 요청 (useMutation)
       try {
         releaseMut.mutate({
           festivalId: String(fid),
           reservationDate: selectedDateTime,
         });
-      } catch { /* */ }
+      } catch { }
     };
 
-    const onBeforeUnload = () => fireOnce();
+    const onBeforeUnload = () => fireOnce();           
+    const onPageHide = () => fireOnce();               
 
     window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('pagehide', onPageHide);
 
     return () => {
       fireOnce();
       window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener('pagehide', onPageHide);
     };
-  }, []);
+  }, [fid, selectedDateTime, releaseMut]);
 
   const guardMessage = !fid ? 'fid가 필요합니다.' : isError ? '예매 정보를 불러오지 못했어요.' : ''
 

@@ -47,7 +47,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-.timeBtn:hover { background-color: #e0eaff; }
+
 .selectedBtn {
   background-color: #4D9AFD;
   color: #fff;

@@ -67,16 +67,20 @@ const TicketQueuePage: React.FC = () => {
   const fdto = sp.get('fdto') ?? ''
   const initialWN = Number(sp.get('wn') ?? '0')
 
-  // 초기 대기열 수
-  const TOTAL_AHEAD = Math.max(0, Number.isFinite(initialWN) ? initialWN : 0)
+  // ❌ 빼지 말자
+  const initialAhead = Number.isFinite(initialWN) ? Math.max(0, Math.floor(initialWN)) : 0
+  const [ahead, setAhead] = React.useState(initialAhead)
 
-  const [ahead, setAhead] = React.useState(TOTAL_AHEAD)
+  // 진행률 분모도 동일 기준 사용
+  const TOTAL_AHEAD = initialAhead
   const proceedingToBookingRef = useRef(false)
   const isUnmountedRef = useRef(false)
-  const wsActiveRef = useRef(false)
+
+  // ★ 소켓/워치독 상태들
   const stompRef = useRef<Client | null>(null)
+  const wsActiveRef = useRef(false)
   const lastMsgAtRef = useRef<number>(Date.now())
-  const softFallbackRef = useRef<number | null>(null)
+  const heartbeatWatchdogRef = useRef<number | null>(null) // ← interval id 저장
 
   const exitMut = useExitWaitingMutation()
 
@@ -107,169 +111,137 @@ const TicketQueuePage: React.FC = () => {
     if (time) params.set('time', time)
     if (fdfrom) params.set('fdfrom', fdfrom)
     if (fdto) params.set('fdto', fdto)
-
     startTransition(() => {
-      navigate(`/reservation/${fid}?${params.toString()}`)
+      navigate(`/reservation/${fid}? ${params.toString()}`)
     })
   }, [navigate])
 
+  const isFiniteNum = (v: unknown): v is number => typeof v === 'number' && isFinite(v)
+  const nn = (n: number) => Math.max(0, Math.floor(n))
+
   const extractAhead = (raw: any): number | undefined => {
-    let n: number | undefined =
-      raw?.ahead ??
-      raw?.waitingNumber ??
-      raw?.waiting_number ??
-      raw?.peopleAhead ??
-      raw?.queue?.peopleAhead ??
-      raw?.queue?.ahead
+    // 서버가 '앞 사람 수' 그대로 주는 필드들
+    if (isFiniteNum(raw?.peopleAhead)) return nn(raw.peopleAhead)
+    if (isFiniteNum(raw?.ahead)) return nn(raw.ahead)
+    if (isFiniteNum(raw?.queue?.peopleAhead)) return nn(raw.queue.peopleAhead)
+    if (isFiniteNum(raw?.queue?.ahead)) return nn(raw.queue.ahead)
 
-    if (typeof n !== 'number' || !isFinite(n)) return undefined
+    // 'waitingNumber'도 너 기대치대로 '앞 사람 수' 의미로 취급 (❗️-1 하지 않음)
+    if (isFiniteNum(raw?.waitingNumber)) return nn(raw.waitingNumber)
+    if (isFiniteNum(raw?.waiting_number)) return nn(raw.waiting_number)
 
-    return Math.max(0, Math.floor(n) - 1)
+    return undefined
   }
 
-  const handleQueueMessage = useCallback(
-    (msg: IMessage) => {
-      if (isUnmountedRef.current) return
-      try {
-        const data = JSON.parse(msg.body || '{}')
-
-        // 입장 이벤트
-        if (
-          data?.type === 'PROCEED' ||
-          data?.event === 'PROCEED' ||
-          data?.status === 'ENTER_BOOKING'
-        ) {
-          setAhead(0)
-          proceedToBooking()
-          return
-        }
-
-        // 숫자 업데이트
-        const next = extractAhead(data)
-        if (typeof next === 'number') {
-          setAhead((prev) => (prev !== next ? next : prev))
-        }
-
-        lastMsgAtRef.current = Date.now()
-      } catch (e) {
-        console.warn('[WS] message parse error', e, msg.body)
-      }
-    },
-    [proceedToBooking],
-  )
-
-  const client = new Client({
-    webSocketFactory: () => new SockJS(WS_URL + '?token=Bearer ' + accessToken),
-    connectHeaders: {
-      Authorization: 'Bearer ' + useAuthStore((s) => s.accessToken),
-    },
-    reconnectDelay: 5000,
-  })
-
-  client.activate()
-
-  client.onConnect = () => {
-    lastMsgAtRef.current = Date.now()
-
-    // 내 개인  큐
-    client.subscribe('/user/queue/waitingNumber', (msg: IMessage) => {
-      const data = JSON.parse(msg.body)
+  const handleQueueMessage = useCallback((msg: IMessage) => {
+    if (isUnmountedRef.current) return
+    try {
+      const data = JSON.parse(msg.body || '{}')
       console.log('데이터', data)
-    })
 
-    const broad = makeBroadcastTopic(String(fid), date, time || undefined)
-    client.subscribe(broad, (msg: IMessage) => {
-      handleQueueMessage(msg)
-    })
+      // 🎯 어떤 유형의 메시지든 수신시각 갱신
+      lastMsgAtRef.current = Date.now()
 
-    const softFallback = setInterval(() => {
-      const lag = Date.now() - lastMsgAtRef.current
-      if (lag > 10000) {
-        setAhead((n) => Math.max(0, n - 1))
-        lastMsgAtRef.current = Date.now()
+      // 명시적 입장 신호만 즉시 입장
+      if (
+        data?.type === 'PROCEED' ||
+        data?.event === 'PROCEED' ||
+        data?.status === 'ENTER_BOOKING'
+      ) {
+        proceedToBooking()
+        return
       }
-    }, 5000)
 
-    return () => {
-      clearInterval(softFallback)
-      try {
-        client.deactivate()
-      } catch {}
-      stompRef.current = null
-      wsActiveRef.current = false
+      // 대기 인원 숫자는 화면 표시만 (입장 트리거 X)
+      const next = extractAhead(data)
+      if (typeof next === 'number') setAhead(p => (p !== next ? next : p))
+    } catch (e) {
+      console.warn('[WS] message parse error', e, msg.body)
     }
-  }
+  }, [proceedToBooking])
 
-  client.onStompError = (frame) => {
-    console.error('❌ [WS] STOMP error:', frame.headers?.message, frame.body)
-  }
-  client.onWebSocketError = (err) => {
-    console.error('❌ [WS] WebSocket error:', err)
-  }
-
-  client.onDisconnect = () => {
-    if (softFallbackRef.current != null) {
-      clearInterval(softFallbackRef.current)
-      softFallbackRef.current = null
-    }
-  }
-
+  // 3) ✅ 소켓 연결 & 워치독 (15초 침묵 시에만 입장)
   useEffect(() => {
-    if (!fid || !date) return
-    if (!myUserId) return
+    if (!fid || !date || !myUserId || wsActiveRef.current) return
 
-    if (!wsActiveRef.current) {
-      client.connectHeaders.userId = String(myUserId)
-      client.activate()
-      stompRef.current = client
+    const client = new Client({
+      webSocketFactory: () => new SockJS(`${WS_URL}?token=Bearer ${accessToken}`),
+      connectHeaders: { Authorization: `Bearer ${accessToken}`, userId: String(myUserId) },
+      reconnectDelay: 5000,
+    })
+
+    client.onConnect = () => {
+      lastMsgAtRef.current = Date.now()
+
+      client.subscribe('/user/queue/waitingNumber', handleQueueMessage)
+      const broad = makeBroadcastTopic(String(fid), date, time || undefined)
+      client.subscribe(broad, handleQueueMessage)
+
+      // ⏱️ 침묵워치독: 15초 무응답일 때만 입장
+      if (heartbeatWatchdogRef.current == null) {
+        heartbeatWatchdogRef.current = window.setInterval(() => {
+          const SILENCE_MS = 15_000
+          if (!proceedingToBookingRef.current && Date.now() - lastMsgAtRef.current > SILENCE_MS) {
+            proceedToBooking()
+          }
+        }, 3000)
+      }
+
       wsActiveRef.current = true
+      stompRef.current = client
     }
 
-    // ✅ cleanup: interval/소켓 정리
-    return () => {
-      if (softFallbackRef.current != null) {
-        clearInterval(softFallbackRef.current)
-        softFallbackRef.current = null
+    client.onDisconnect = () => {
+      if (heartbeatWatchdogRef.current != null) {
+        clearInterval(heartbeatWatchdogRef.current)
+        heartbeatWatchdogRef.current = null
       }
-      try {
-        client.deactivate()
-      } catch {}
-      stompRef.current = null
       wsActiveRef.current = false
+      stompRef.current = null
     }
-  }, [myUserId, fid, date]) 
 
-  useEffect(() => {
-    if (!fid) return
-    if (ahead === 0 && !proceedingToBookingRef.current) {
-      proceedToBooking()
-    }
-  }, [ahead, fid, proceedToBooking])
+    client.activate()
 
-  useEffect(() => {
-    isUnmountedRef.current = false
-    if (!fid || !reservationDate) {
-      return () => {
-        isUnmountedRef.current = true
-      }
-    }
-    const callExit = () => {
-      if (proceedingToBookingRef.current || isUnmountedRef.current) return
-      try {
-        exitMut.mutate({ festivalId: String(fid), reservationDate })
-      } catch {}
-    }
-    window.addEventListener('pagehide', callExit)
-    window.addEventListener('beforeunload', callExit)
     return () => {
-      isUnmountedRef.current = true
-      if (!proceedingToBookingRef.current) callExit()
-      window.removeEventListener('pagehide', callExit)
-      window.removeEventListener('beforeunload', callExit)
+      if (heartbeatWatchdogRef.current != null) {
+        clearInterval(heartbeatWatchdogRef.current)
+        heartbeatWatchdogRef.current = null
+      }
+      try { client.deactivate() } catch { }
+      wsActiveRef.current = false
+      stompRef.current = null
     }
-  }, [fid, reservationDate, exitMut])
+  }, [fid, date, time, myUserId, accessToken, handleQueueMessage, proceedToBooking])
 
-  // ✅ body 스크롤 잠금
+  // 페이지 이탈 시 백으로 exit 알림
+  const exitedRef = useRef(false);
+
+  useEffect(() => {
+    if (!fid || !reservationDate) return;
+
+    const callExit = () => {
+      // 이미 보냈거나, 예매로 진행 중이면 스킵
+      if (exitedRef.current || proceedingToBookingRef.current) return;
+      exitedRef.current = true;
+      try {
+        exitMut.mutate({ festivalId: String(fid), reservationDate });
+      } catch { }
+    };
+
+    const onPageHide = () => callExit();
+    const onBeforeUnload = () => callExit();
+
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('beforeunload', onBeforeUnload);
+
+    return () => {
+      callExit();
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    };
+  }, [fid, reservationDate, exitMut]);
+
+  // body 스크롤 잠금
   useEffect(() => {
     const prevOverflow = document.body.style.overflow
     const prevTouch = document.body.style.touchAction
@@ -294,7 +266,7 @@ const TicketQueuePage: React.FC = () => {
           dateTime={date ? `${date}${time ? ' ' + time : ''}` : '일정 미지정'}
           waitingCount={ahead}
           progressPct={Math.max(2, Math.round(progress))}
-          posterUrl={posterUrl} 
+          posterUrl={posterUrl}
         />
       </div>
     </div>
