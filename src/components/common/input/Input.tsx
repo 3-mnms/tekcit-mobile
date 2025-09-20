@@ -7,11 +7,13 @@ interface FormInputProps {
   value?: string
   defaultValue?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
-  label?: React.ReactNode;  
+  label?: React.ReactNode
   options?: string[] // select용
   disabled?: boolean
   className?: string
   rightElement?: React.ReactNode
+  maxLength?: number
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode']
 }
 
 const Input: React.FC<FormInputProps> = ({
@@ -25,6 +27,8 @@ const Input: React.FC<FormInputProps> = ({
   disabled = false,
   className = '',
   rightElement,
+  maxLength,
+  inputMode,
 }) => {
   return (
     <div className={styles.field}>
@@ -35,6 +39,7 @@ const Input: React.FC<FormInputProps> = ({
           defaultValue={defaultValue}
           onChange={onChange}
           className={`${styles.input} ${className}`}
+          disabled={disabled}
         >
           {options.map((opt) => (
             <option key={opt} value={opt}>
@@ -52,6 +57,8 @@ const Input: React.FC<FormInputProps> = ({
             disabled={disabled}
             className={`${styles.input} ${className}`}
             placeholder={placeholder}
+            maxLength={maxLength}
+            inputMode={inputMode}
           />
           {rightElement}
         </div>
@@ -64,6 +71,8 @@ const Input: React.FC<FormInputProps> = ({
           onChange={onChange}
           disabled={disabled}
           className={`${styles.input} ${className}`}
+          maxLength={maxLength}
+          inputMode={inputMode}
         />
       )}
     </div>

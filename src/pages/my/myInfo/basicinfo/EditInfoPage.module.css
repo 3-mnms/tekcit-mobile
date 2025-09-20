@@ -67,7 +67,7 @@
 
 .formGrid.compact {
   gap: var(--v-gap);
-  margin-top: -10px;
+  margin-top: -5px;
 }
 
 .row2.compact {
@@ -146,4 +146,50 @@
 
 .btnGhost {
   background: #f5f6f7 !important;
+}
+
+.residentField {
+  display: grid;
+  gap: 6px;
+}
+
+.residentRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.residentInputFront {
+  width: 100%;
+}
+
+.residentInputBack {
+  width: 42px;
+  text-align: center;
+}
+
+.residentDash {
+  margin: 0 6px;
+  color: #9ca3af;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.residentBackGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mask {
+  letter-spacing: 2px;
+  color: #9ca3af;
+  user-select: none;
+  margin-bottom: 13px;
+  margin-left: 5px;
+  font-size: 25px;
+}
+
+.noMb {
+  margin-bottom: 0 !important;
 }

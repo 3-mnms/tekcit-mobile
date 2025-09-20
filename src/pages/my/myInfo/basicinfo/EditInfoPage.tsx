@@ -18,9 +18,12 @@ const schema = z.object({
   phone: z
     .string()
     .regex(/^01[016789]-\d{3,4}-\d{4}$/, '전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678'),
-  residentNum: z
+  residentFront: z
     .string()
-    .regex(/^\d{6}-[1-4]$/, '주민번호 형식은 6자리-성별코드(1~4)입니다. 예: 990101-1'),
+    .regex(/^\d{6}$/, '앞자리는 6자리 숫자입니다. 예: YYMMDD'),
+  residentBack: z
+    .string()
+    .regex(/^[1-4]$/, '뒷자리는 성별코드 1자리(1~4)입니다.'),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -32,15 +35,18 @@ const EditInfoPage: React.FC = () => {
 
   const { control, handleSubmit, reset } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', phone: '', residentNum: '' },
+    defaultValues: { name: '', phone: '', residentFront: '', residentBack: '' },
   })
 
   React.useEffect(() => {
     if (!data) return
+    const resident = isUser(data) ? (data.residentNum ?? '') : ''
+    const [front, back] = resident.split('-')
     reset({
       name: data.name ?? '',
       phone: data.phone ?? '',
-      residentNum: isUser(data) ? (data.residentNum ?? '') : '',
+      residentFront: /^\d{6}$/.test(front ?? '') ? front! : '',
+      residentBack: /^[1-4]$/.test(back ?? '') ? back! : '',
     })
   }, [data, reset])
 
@@ -48,7 +54,7 @@ const EditInfoPage: React.FC = () => {
     const payload: UpdateUserRequestDTO = {
       name: vals.name,
       phone: vals.phone,
-      residentNum: vals.residentNum,
+      residentNum: `${vals.residentFront}-${vals.residentBack}`,
     }
     try {
       await mutateAsync(payload)
@@ -58,14 +64,13 @@ const EditInfoPage: React.FC = () => {
       alert('저장 중 오류가 발생했어요.')
     }
   }
-
   return (
     <section className={styles.page}>
       <MyHeader title="정보 수정" />
 
       <div className={styles.body}>
         {isLoading ? (
-          <div className={styles.card}>불러오는 중…</div>
+          <Spinner />
         ) : isError || !data ? (
           <div className={styles.card}>불러오기에 실패했어요.</div>
         ) : (
@@ -118,28 +123,67 @@ const EditInfoPage: React.FC = () => {
                       value={value ?? ''}
                       onChange={handleChange}
                       type="tel"
+                      inputMode="numeric"
                       {...rest}
                     />
                   )
                 }}
               />
-              <Controller
-                name="residentNum"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    label={
-                      <span className={styles.labelWithIcon}>
-                        <FaIdCard className={styles.labelIcon} aria-hidden />
-                        주민번호(앞6+뒤1)
-                      </span>
-                    }
-                    placeholder="YYMMDD-#"
-                    className={styles.input}
-                    {...field}
+              {/* 주민번호 */}
+              <div className={styles.residentField}>
+                <span className={styles.labelWithIcon}>
+                  <FaIdCard className={styles.labelIcon} aria-hidden />
+                  주민번호
+                </span>
+
+                <div className={styles.residentRow}>
+                  <Controller
+                    name="residentFront"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        // 라벨은 위에서 따로 출력했으니 생략
+                        placeholder="YYMMDD"
+                        className={`${styles.residentInputFront} ${styles.noMb}`}
+                        maxLength={6}
+                        value={field.value ?? ''}
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, '').slice(0, 6)
+                          field.onChange(v)
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                      />
+                    )}
                   />
-                )}
-              />
+
+                  <div className={styles.residentDash}>-</div>
+
+                  <div className={styles.residentBackGroup}>
+                    <Controller
+                      name="residentBack"
+                      control={control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="#"
+                          className={`${styles.residentInputBack} ${styles.noMb}`}
+                          maxLength={1}
+                          value={field.value ?? ''}
+                          onChange={(e) => {
+                            const v = e.target.value.replace(/\D/g, '').slice(0, 1)
+                            field.onChange(v)
+                          }}
+                          type="text"
+                          inputMode="numeric"
+                        />
+                      )}
+                    />
+                    <span className={styles.mask} aria-hidden>******</span>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
 
             <div className={`${styles.card} ${styles.actionsCard}`}>
@@ -159,7 +203,7 @@ const EditInfoPage: React.FC = () => {
                   disabled={isPending}
                   aria-busy={isPending}
                 >
-                저장
+                  저장
                 </Button>
               </div>
             </div>

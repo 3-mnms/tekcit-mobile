@@ -9,6 +9,7 @@
   min-height: 100%;
   background: #fff;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior-y: contain;
 }
 
 .addrBar {
@@ -23,6 +24,7 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid #e5e7eb;
+  touch-action: none;
 }
 
 .addrMain {
@@ -108,7 +110,7 @@
   border-top: 1px solid #e5e7eb;
   z-index: 100;
   transition: transform .28s ease;
-  will-change: transform;
+  touch-action: none;
 }
 
 .sheetOpen {
@@ -128,6 +130,19 @@
   padding: 12px 0 8px;
   position: relative;
   z-index: 101;
+}
+
+.gestureShield {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 99;              /* map(기본) < 99 < sheet(100) */
+  pointer-events: all;      /* 이벤트 흡수 */
+}
+
+/* 제스처 동안 맵 자체도 이벤트 끊기(이중 안전) */
+.mapLocked {
+  pointer-events: none;
 }
 
 .handleBar {
@@ -192,7 +207,8 @@
   padding: 0 24px 24px 24px;
   display: grid;
   gap: 16px;
-  /* 카드 간격 */
+  touch-action: pan-y;
+  overscroll-behavior: contain; 
 }
 
 .empty {

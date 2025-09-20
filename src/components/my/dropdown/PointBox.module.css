@@ -17,6 +17,7 @@
   cursor: pointer;
   transition: transform .08s ease, box-shadow .2s ease;
   margin: 10px 10px;
+  height: 100px;
 }
 
 .box:active {

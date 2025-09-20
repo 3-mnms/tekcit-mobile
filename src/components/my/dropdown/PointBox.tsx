@@ -3,13 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import styles from './PointBox.module.css'
 import { getTekcitPayAccount } from '@/shared/api/my/tekcitPay'
 import { Coins, Plus } from 'lucide-react'
+import Spinner from '@/components/common/spinner/Spinner'
 
 const PointBox: React.FC = () => {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+
+  const [fetching, setFetching] = useState(true)
+  const [actionLoading, setActionLoading] = useState(false)
   const [balance, setBalance] = useState<number | null>(null)
 
   const fetchBalance = useCallback(async () => {
+    setFetching(true)
     try {
       const account = await getTekcitPayAccount()
       setBalance(account.availableBalance ?? 0)
@@ -18,16 +22,18 @@ const PointBox: React.FC = () => {
       if (code === 'NOT_FOUND_TEKCIT_PAY_ACCOUNT') {
         setBalance(null) 
       }
+    } finally {
+      setFetching(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchBalance()
+    void fetchBalance()
   }, [fetchBalance])
 
   const goByAccount = useCallback(async () => {
-    if (loading) return
-    setLoading(true)
+    if (actionLoading) return
+    setActionLoading(true)
     try {
       const account = await getTekcitPayAccount()
       setBalance(account.availableBalance ?? 0)
@@ -41,15 +47,12 @@ const PointBox: React.FC = () => {
         alert('잔액/계정 조회 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.')
       }
     } finally {
-      setLoading(false)
+      setActionLoading(false)
     }
-  }, [loading, navigate])
+  }, [actionLoading, navigate])
 
-  const displayPoint = loading
-    ? '- P'
-    : `${(balance ?? 0).toLocaleString('ko-KR')}P`
-
-  const btnLabel = balance !== null ? '충전하기' : '테킷페이 가입하기'
+  const btnLabel =
+    fetching ? '충전하기' : balance !== null ? '충전하기' : '테킷페이 가입하기'
 
   return (
     <div
@@ -58,14 +61,17 @@ const PointBox: React.FC = () => {
       role="button"
       tabIndex={0}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && goByAccount()}
-      aria-disabled={loading}
+      aria-disabled={actionLoading || fetching}
     >
       <div className={styles.left}>
         <div className={styles.titleRow}>
           <Coins className={styles.coinIcon} />
           <span className={styles.label}>포인트</span>
         </div>
-        <div className={styles.amount}>{displayPoint}</div>
+
+        <div className={styles.amount}>
+          {fetching ? '-P' : <>{(balance ?? 0).toLocaleString('ko-KR')}P</>}
+        </div>
       </div>
 
       <button
@@ -74,7 +80,7 @@ const PointBox: React.FC = () => {
           e.stopPropagation()
           void goByAccount()
         }}
-        disabled={loading}
+        disabled={actionLoading || fetching}
       >
         <Plus className={styles.plusIcon} />
         {btnLabel}
