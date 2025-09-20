@@ -109,7 +109,7 @@ const TicketQueuePage: React.FC = () => {
     if (fdto) params.set('fdto', fdto)
 
     startTransition(() => {
-      navigate(`/booking/${fid}?${params.toString()}`)
+      navigate(`/reservation/${fid}?${params.toString()}`)
     })
   }, [navigate])
 
@@ -185,11 +185,11 @@ const TicketQueuePage: React.FC = () => {
 
     const softFallback = setInterval(() => {
       const lag = Date.now() - lastMsgAtRef.current
-      if (lag > 50000) {
+      if (lag > 10000) {
         setAhead((n) => Math.max(0, n - 1))
         lastMsgAtRef.current = Date.now()
       }
-    }, 50000)
+    }, 5000)
 
     return () => {
       clearInterval(softFallback)
