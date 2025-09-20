@@ -209,7 +209,7 @@ const AddressDetailPage: React.FC = () => {
                   <Button className={styles.actionButton} onClick={startEdit}>
                     수정
                   </Button>
-                  <Button className={styles.actionButton} onClick={() => navigate('/mypage/myinfo/address')}>
+                  <Button className={styles.actionButton} onClick={() => navigate(-1)}>
                     목록으로 가기
                   </Button>
                 </>

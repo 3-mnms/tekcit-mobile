@@ -1,11 +1,16 @@
+/* src/pages/my/ticket/TicketHistoryPage.module.css */
+
 .page {
   width: 100%;
-  height: 100%;
-  display: grid;
+  /* 기기별 안전한 뷰포트 높이 */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: #fff;
-  margin-bottom: 70px;
 }
 
+/* 헤더 + 탭을 위에 고정 */
 .top {
   position: sticky;
   top: 0;
@@ -13,24 +18,42 @@
   background: #fff;
 }
 
+/* 탭 영역 여백 */
+.tabsWrap {
+  padding: 4px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* ===== 스크롤 컨테이너 핵심 =====
+   - flex:1 로 남은 공간을 차지
+   - min-height:0 이 있어야 내부 overflow가 정상 작동(iOS/Safari 필수)
+   - -webkit-overflow-scrolling 으로 부드러운 스크롤 */
 .content {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  min-height: 0; /* 중요 */
   overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* 하단 내비 여유 */
 }
 
-.tabsWrap {
-  padding-top: 4px;
-}
-
+/* 내용 래퍼: 가운데 정렬 대신 '늘어남' 기준으로 */
 .body {
-  padding-top: 10px;
-  padding-bottom: 15px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  place-items: center;
-  place-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;           /* 카드가 넓어져도 튀지 않게 */
+  margin: 10px auto 15px;     /* 가운데 정렬은 margin으로 */
+  padding: 0 12px;            /* 좌우 안쪽 여백 */
+  display: grid;
+  gap: 12px;
+  /* 아래 두 속성 때문에 가로가 늘어나면서 튀어나오던 문제 방지 */
+  align-items: stretch;
+  justify-items: stretch;
 }
+
+/* 혹시 내부 컴포넌트가 너비를 100vw 로 쓰는 경우 방지 */
+.body > * {
+  max-width: 100%;
+}
+
+/* 필요 시 카드 모서리 감싸는 느낌을 맞추려면 */

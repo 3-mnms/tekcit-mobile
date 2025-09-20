@@ -191,7 +191,7 @@ const EditInfoPage: React.FC = () => {
                 <Button
                   className={styles.btnPrimary}
                   type="button"
-                  onClick={() => nav('/mypage/myinfo/detail')}
+                  onClick={() => nav(-1)}
                   disabled={isPending}
                 >
                   취소
