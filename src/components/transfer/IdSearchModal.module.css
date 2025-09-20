@@ -23,6 +23,56 @@
   margin-bottom: 0.75rem;
 }
 
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -1rem -1rem 0rem;
+  padding: 0.25rem;
+  min-height: 32px;
+}
+
+.closeBtn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 25px;
+  height: 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  color: #6b7280;
+  transition: background-color .15s ease, color .15s ease, transform .06s ease;
+}
+
+.closeBtn:hover {
+  color: #374151;
+}
+
+.closeBtn:active {
+  transform: scale(0.96);
+}
+
+.closeBtn:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 🔧 전역 label 충돌 방지: 필드 라벨 전용 클래스 */
 .fieldLabel {
   display: grid;
@@ -55,11 +105,16 @@
 
 .searchBtn,
 .confirmBtn {
-  height: 44px !important;
-  font-size: 14px;
-  padding: 0 16px;
-  min-width: 84px;
-  margin-left: 5px;
+  width: auto;               /* 고정폭이면 해제 */
+  min-width: 88px;           /* "검색 중…"도 한 줄로 들어가게 살짝 여유 */
+  display: inline-flex;      /* 텍스트 수직/수평 중앙정렬 */
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;           /* px-4와 동일(선호면 그대로 두셔도 OK) */
+  white-space: nowrap;       /* ★ 줄바꿈 방지 */
+  word-break: keep-all;      /* 한국어 줄바꿈 방지 보강 */
+  line-height: 1;            /* 글자 세로밀림 방지 */
+  margin-left: -7px;
 }
 
 /* 결과 박스 */
@@ -87,12 +142,12 @@
   text-align: left;
   /* 전역 center 상속 깨기 */
   gap: 8px;
-  padding: 0px 12px 0px;
+  padding: 10px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #f8fbff;
   cursor: pointer;
-  color: #111827; 
+  color: #111827;
   font-size: 14px;
 }
 
