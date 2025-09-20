@@ -8,6 +8,7 @@ import SignupInputField from '@/components/auth/signup/SignupInputFields'
 import { FaUser, FaLock } from 'react-icons/fa6'
 import styles from '@/pages/auth/SignupPage.module.css'
 import { useCheckLoginId } from '@/models/auth/tanstack-query/useSignup'
+import Spinner from '@/components/common/spinner/Spinner'
 
 interface Props {
   acc: Partial<Step1>
@@ -94,6 +95,7 @@ const Step1Form: React.FC<Props> = ({ acc, onNext, updateAcc }) => {
 
   return (
     <form onSubmit={handleSubmit(submit)} className={styles.formContent}>
+      { checkLoginIdMut.isPending && <Spinner />}
       <SignupInputField
         {...loginIdReg}
         onChange={(e) => {
@@ -106,7 +108,7 @@ const Step1Form: React.FC<Props> = ({ acc, onNext, updateAcc }) => {
         placeholder="아이디"
         hasButton
         buttonText={
-          checkLoginIdMut.isPending ? '확인 중...' : idCheckDone ? '확인 완료' : '중복 확인'
+          checkLoginIdMut.isPending ? '중복 확인' : idCheckDone ? '확인 완료' : '중복 확인'
         }
         onButtonClick={onCheckLoginId}
         buttonDisabled={disableIdCheck}

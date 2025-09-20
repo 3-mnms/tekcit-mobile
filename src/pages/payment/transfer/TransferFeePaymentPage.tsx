@@ -26,6 +26,7 @@ import { transferFee } from '@/models/payment/TransferFee'
 
 // ⛳ 결제 수단 컴포넌트(전자지갑) 멍
 import WalletPayment from '@/components/payment/pay/WalletPayment'
+import Spinner from '@/components/common/spinner/Spinner'
 
 // ✅ 결제수단 타입: 전자지갑 단일 멍
 type Method = 'wallet' | ''
@@ -92,6 +93,7 @@ const TransferFeePaymentPage: React.FC = () => {
 
       {/* ✅ 본문: 푸터 고정 높이만큼 여백 확보(hasFixedFooter) 멍 */}
       <main className={styles.container}>
+        {isPaying && <Spinner />}
         {/* ✅ 티켓/양도 정보 멍 */}
         <TransferTicketInfo
           title={bookingTransfer.product.title}
@@ -137,7 +139,7 @@ const TransferFeePaymentPage: React.FC = () => {
             disabled={selectedMethod !== 'wallet' || !isAgreed || isPaying}
             onClick={handlePayment}
           >
-            {isPaying ? '결제 중...' : '수수료 결제하기'}
+            {isPaying ? '수수료 결제하기' : '수수료 결제하기'}
           </Button>
         </div>
       </main>
@@ -146,7 +148,7 @@ const TransferFeePaymentPage: React.FC = () => {
       <Footer
         prefix="총 수수료"
         amount={transferFee.totalFee}
-        actionLabel={isPaying ? '결제 중...' : '결제하기'}
+        actionLabel={isPaying ? '결제하기' : '결제하기'}
         onAction={handlePayment}
         disabled={selectedMethod !== 'wallet' || !isAgreed || isPaying}
         ariaLabel="결제 작업 바"

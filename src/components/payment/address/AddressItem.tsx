@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getAddress, getDefaultAddress, AddressQueryKeys, type AddressDTO } from '@/shared/api/payment/address'
 import Button from '@/components/common/button/Button'
 import styles from './AddressItem.module.css'
+import Spinner from '@/components/common/spinner/Spinner'
 
 export interface AddressItemProps {
   name: string
@@ -143,7 +144,7 @@ export function AddressList({ onChangeSelected }: AddressListProps) {
 
   // 로딩 상태
   if (isLoadingList) {
-    return <div>주소를 불러오는 중입니다…</div>
+    <Spinner />
   }
 
   // 에러 상태

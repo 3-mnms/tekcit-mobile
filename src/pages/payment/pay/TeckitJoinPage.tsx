@@ -16,6 +16,7 @@ import {
   CreateAccountRequestSchema,
   createTekcitPayAccount,
 } from '@/shared/api/payment/join'
+import Spinner from '@/components/common/spinner/Spinner'
 
 /* ───────────────────────── 폼 스키마 ─────────────────────────
    - 결제 PIN: 숫자 6자리
@@ -182,6 +183,7 @@ export default function TeckitJoinPage() {
             {errors.agree && <p className={styles.error}>{errors.agree.message}</p>}
 
             {/* 액션 영역 */}
+            {createMutation.isPending && <Spinner />}
             <div className={styles.actions}>
               <button
                 type="submit"
@@ -189,7 +191,7 @@ export default function TeckitJoinPage() {
                 disabled={!isValid || isSubmitting || createMutation.isPending}
                 aria-busy={isSubmitting || createMutation.isPending}
               >
-                {createMutation.isPending ? '개설 중...' : '계정 개설하기'}
+                {createMutation.isPending ? '계정 개설하기' : '계정 개설하기'}
               </button>
               <button
                 type="button"

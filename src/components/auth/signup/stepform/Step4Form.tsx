@@ -8,6 +8,7 @@ import SignupInputField from '@/components/auth/signup/SignupInputFields'
 import { FaEnvelope, FaShieldHalved } from 'react-icons/fa6'
 import styles from '@/pages/auth/SignupPage.module.css'
 import { useCheckEmail, useSendEmailCode, useVerifyEmailCode } from '@/models/auth/tanstack-query/useSignup'
+import Spinner from '@/components/common/spinner/Spinner'
 
 interface Props {
   acc: Partial<Step4>
@@ -96,7 +97,7 @@ const Step4Form: React.FC<Props> = ({
 
   return (
     <form onSubmit={handleSubmit(submit)} className={styles.formContent}>
-      {/* 이메일 + (코드 전송/재전송) 버튼 */}
+      {sendCodeMut.isPending && <Spinner />}
       <SignupInputField
         {...register('email')}
         icon={<FaEnvelope />}
@@ -104,7 +105,7 @@ const Step4Form: React.FC<Props> = ({
         hasButton
         buttonText={
           sendCodeMut.isPending
-            ? '전송중...'
+            ? '코드 전송'
             : (isEmailCodeSent ? '재전송' : '코드 전송')
         }
         onButtonClick={onSendEmailCode}
@@ -112,7 +113,6 @@ const Step4Form: React.FC<Props> = ({
         buttonDisabled={sendCodeMut.isPending}
       />
 
-      {/* 인증 코드 입력 + 타이머 */}
       {isEmailCodeSent && (
         <>
           <SignupInputField
@@ -124,8 +124,7 @@ const Step4Form: React.FC<Props> = ({
             onButtonClick={onVerifyEmailCode}
             error={errors.emailCode?.message}
           />
-          {/* ⏱ 입력 밑에 타이머 텍스트 (검은색) */}
-          <div style={{ marginTop: -10, marginLeft: 10, fontSize: 12, color: '#111827' }}>
+          <div style={{ marginTop: -10, marginLeft: 35, fontSize: 12, color: '#111827' }}>
             {codeLeft > 0 && <> (남은 시간 {mmss(codeLeft)})</>}
             {codeLeft === 0 && isEmailCodeSent && <> (만료됨 · 재전송 후 다시 시도하세요)</>}
           </div>

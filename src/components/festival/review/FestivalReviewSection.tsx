@@ -209,11 +209,11 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
             {...register('reviewContent')}
           />
           {errors.reviewContent?.message && <p className={styles.error}>{errors.reviewContent.message}</p>}
-
+          {createMut.isPending && <Spinner />}
           <div className={styles.editorFooter}>
             <span className={styles.charCount}>{content.length}/512자</span>
             <Button type="submit" className={styles.submitBtn} disabled={!isValid || createMut.isPending}>
-              {createMut.isPending ? '등록 중...' : '등록'}
+              {createMut.isPending ? '등록' : '등록'}
             </Button>
           </div>
         </form>
@@ -245,10 +245,10 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
           <p className={styles.emptyDesc}>첫 기대평을 남겨주세요.</p>
         </div>
       }
-      
+
       <div className={styles.list}>
         {isError && <div className={styles.error}>목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>}
-        {isLoading && <div className={styles.cardLoading}>기대평을 불러오는 중...</div>}
+        {isLoading && <Spinner />}
 
         {orderedItems.map((rev, idx) => {
           const safeKey =
@@ -325,13 +325,14 @@ const FestivalReviewSection: React.FC<Props> = ({ fid }) => {
                     >
                       취소
                     </Button>
+                    {updateMut.isPending && <Spinner />}
                     <Button
                       type="button"
                       className={styles.modalSave}
                       onClick={saveInlineEdit}
                       disabled={!canEditSave}
                     >
-                      {updateMut.isPending ? '저장 중...' : '저장'}
+                      {updateMut.isPending ? '저장' : '저장'}
                     </Button>
                   </div>
                 </div>
