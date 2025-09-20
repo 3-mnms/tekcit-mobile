@@ -70,7 +70,6 @@ const TransferFeePaymentPage: React.FC = () => {
 
   // ✅ 지갑 비밀번호 입력 완료 → 실제 결제 처리 후 결과 이동(목데이터) 멍
   const handlePasswordComplete = async (password: string) => {
-    console.log('입력된 비밀번호:', password)
     setIsPasswordModalOpen(false)
     setIsPaying(true)
     try {

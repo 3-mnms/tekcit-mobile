@@ -204,7 +204,6 @@ export function AddressList({ onChangeSelected }: AddressListProps) {
           isDefault={item.isDefault}
           selected={selectedIndex === idx}
           onClick={() => {
-            console.log('[AddressList] 주소 선택:', idx, item.name)
             setSelectedIndex(idx)
             onChangeSelected?.(idx, item)
           }}

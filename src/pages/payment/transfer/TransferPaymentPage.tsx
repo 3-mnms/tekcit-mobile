@@ -198,13 +198,10 @@ const TransferPaymentPage: React.FC = () => {
       setTimeout(async () => {
         try {
           const statusResult = await getReservationStatus(navState.reservationNumber!)
-          console.log('🔍 Status result:', statusResult)
           
           if (statusResult.success) {
-            console.log('✅ Success - navigating to success page')
             navigate('/payment/transfer/result?status=success')
           } else {
-            console.log('❌ Not successful - navigating to fail page')
             navigate('/payment/transfer/result?status=fail')
           }
         } catch (e: any) {

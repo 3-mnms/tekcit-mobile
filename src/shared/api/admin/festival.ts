@@ -78,7 +78,6 @@ export const updateProduct = async (fid: string, formData: FormData): Promise<Fe
  * @param id 삭제할 공연의 ID
  */
 export const deleteProduct = async (fid: string): Promise<void> => {
-    console.log(`삐약! ${fid}번 공연을 서버에 삭제 요청해요!`);
     await api.delete(`/festival/manage/${fid}`);
 };
 
@@ -87,7 +86,6 @@ export const deleteProduct = async (fid: string): Promise<void> => {
  * @param fid 조회할 공연의 ID
  */
 export const getProductDetail = async (fid: string): Promise<Festival> => {
-    console.log(`삐약! ${fid}번 공연 상세 정보를 서버에 요청해요!`);
     const response = await api.get<Festival>(`/festival/manage/${fid}`);
     return response.data;
 };

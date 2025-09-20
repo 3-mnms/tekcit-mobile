@@ -169,7 +169,6 @@ const TicketQueuePage: React.FC = () => {
   client.activate()
 
   client.onConnect = () => {
-    console.log('✅ STOMP 연결 성공!')
     lastMsgAtRef.current = Date.now()
 
     // 내 개인  큐

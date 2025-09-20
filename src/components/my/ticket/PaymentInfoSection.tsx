@@ -90,7 +90,6 @@ const PaymentInfoSection: React.FC<Props> = ({ bookingId, reservationNumber, qrU
 
   const status = (order?.paymentStatus ?? '').toLowerCase()
   const isCanceled = status === 'canceled' || status === 'cancelled'
-  console.log(isCanceled)
   const isPaid = status === 'paid'
 
   const isQrUsed = useMemo(() => {

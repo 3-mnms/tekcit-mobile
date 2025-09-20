@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react'
 import styles from './SocialLogin.module.css'
 import KaKao from '@assets/kakao.png'
 import { reissue, type ReissueResponseDTO } from '@/shared/api/auth/login'
-import { useAuthStore } from '@/shared/storage/useAuthStore' 
+import { useAuthStore } from '@/shared/storage/useAuthStore'
 import { getEnv } from '@/shared/config/env'
 import { getAndSaveFcmToken } from '@/shared/api/auth/fcrmToken'
 
@@ -28,7 +28,6 @@ const SocialLogin: React.FC = () => {
       const access = (data as ReissueResponseDTO)?.accessToken
       if (access) {
         useAuthStore.getState().setAccessToken(access) // <<<<<< 변경 핵심
-        console.log('[Kakao] accessToken (raw):', access)
         void getAndSaveFcmToken()
       }
     } catch (e) {
@@ -38,8 +37,8 @@ const SocialLogin: React.FC = () => {
     // 정리
     if (pollTimer.current) window.clearInterval(pollTimer.current)
     if (storagePollTimer.current) window.clearInterval(storagePollTimer.current)
-    try { popupRef.current?.close() } catch {}
-    try { localStorage.removeItem('kakao_auth_done') } catch {}
+    try { popupRef.current?.close() } catch { }
+    try { localStorage.removeItem('kakao_auth_done') } catch { }
 
     // 라우팅
     if (status === 'existing') {
@@ -56,7 +55,7 @@ const SocialLogin: React.FC = () => {
       try {
         const payload = JSON.parse(e.newValue) as { status: 'existing' | 'new'; ts: number }
         void finishAndGo(payload.status)
-      } catch {}
+      } catch { }
     }
     window.addEventListener('storage', onStorage)
 
@@ -67,7 +66,7 @@ const SocialLogin: React.FC = () => {
       try {
         const payload = JSON.parse(v) as { status: 'existing' | 'new'; ts: number }
         void finishAndGo(payload.status)
-      } catch {}
+      } catch { }
     }, 400)
 
     // 포커스 돌아올 때도 체크
@@ -77,7 +76,7 @@ const SocialLogin: React.FC = () => {
       try {
         const payload = JSON.parse(v) as { status: 'existing' | 'new'; ts: number }
         void finishAndGo(payload.status)
-      } catch {}
+      } catch { }
     }
     window.addEventListener('visibilitychange', onFocus)
     window.addEventListener('focus', onFocus)
@@ -97,9 +96,8 @@ const SocialLogin: React.FC = () => {
     const top = window.screenY + (window.outerHeight - h) / 2
 
     processedRef.current = false
-console.log("url: ", API_URL)
     popupRef.current = window.open(
-      
+
       `${API_URL}/api/auth/kakao/authorize`,
       POPUP_NAME,
       `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`,
