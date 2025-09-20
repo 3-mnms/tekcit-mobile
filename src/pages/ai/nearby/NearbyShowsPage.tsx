@@ -9,6 +9,7 @@ import { useDefaultAddressQuery } from '@/models/auth/tanstack-query/useAddress'
 import { loadKakaoMapSdk } from '@/shared/config/loadKakaoMap'
 import { ExternalLink, Utensils } from 'lucide-react'
 import Spinner from '@/components/common/spinner/Spinner'
+import { useSwipeable } from 'react-swipeable'
 
 type UiShow = {
   id: string
@@ -20,7 +21,6 @@ type UiShow = {
   poster?: string | null
 }
 
-/* ===== 기능 보강: 안전 파서 ===== */
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const asStr = (v: unknown): string | null => (typeof v === 'string' ? v : null)
 const asNum = (v: unknown): number | null => {
@@ -29,7 +29,6 @@ const asNum = (v: unknown): number | null => {
   return null
 }
 
-/* ===== toUi: 타입 안전 변환 ===== */
 const toUi = (raw: unknown): UiShow => {
   const r = isObj(raw) ? raw : {}
   const id = asStr(r.festivalDetailId) ?? asStr(r.id) ?? crypto.randomUUID()
@@ -55,17 +54,18 @@ const NearbyShowsPage: React.FC = () => {
 
   const mapRef = useRef<HTMLDivElement | null>(null)
   const mapObjRef = useRef<kakao.maps.Map | null>(null)
-  const markersRef = useRef<kakao.maps.Marker[]>([]) // ✅ 마커 보관
-  const infoWindowsRef = useRef<kakao.maps.InfoWindow[]>([]) // ✅ 인포윈도우 보관
-  const mapContainerRef = useRef<HTMLDivElement | null>(null) // ✅ 컨테이너 변경 감지
+  const markersRef = useRef<kakao.maps.Marker[]>([])
+  const infoWindowsRef = useRef<kakao.maps.InfoWindow[]>([])
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const listRef = useRef<HTMLDivElement | null>(null)
 
   const [sheetOpen, setSheetOpen] = useState(true)
   const [selected, setSelected] = useState<NearbyFestivalMini | null>(null)
-  const [gateOpen, setGateOpen] = useState(false);
   const askedRef = useRef(false);
 
   const { data: defaultAddr, isLoading: isAddrLoading } = useDefaultAddressQuery()
   const { data, isLoading, isError, refetch } = useNearbyFestivalsQuery()
+
 
   // ✅ Kakao SDK 사전 로드
   const [sdkLoaded, setSdkLoaded] = useState(false)
@@ -96,12 +96,28 @@ const NearbyShowsPage: React.FC = () => {
     return typeof candidate === 'string' && candidate.trim().length > 0
   }, [defaultAddr])
 
+  const isListScrolled = () => {
+    const el = listRef.current
+    if (!el) return false
+    return el.scrollTop > 0 // 리스트가 위에서 이미 내려갔으면 스와이프 무시
+  }
+
+  const swipeHandlers = useSwipeable({
+    onSwipedUp: () => setSheetOpen(true),
+    onSwipedDown: () => {
+      if (!isListScrolled()) setSheetOpen(false)
+    },
+    delta: 30,               // 최소 이동 거리
+    trackTouch: true,
+    trackMouse: false,
+    preventScrollOnSwipe: true,
+  })
+
   useEffect(() => {
     if (isAddrLoading) return
     if (askedRef.current) return;
     if (hasDefaultAddress) {
       askedRef.current = true;
-      setGateOpen(true);
       return;
     }
     askedRef.current = true;
@@ -315,7 +331,8 @@ const NearbyShowsPage: React.FC = () => {
         </div>
 
         {/* 바텀시트 */}
-        <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}>
+        <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}
+          {...swipeHandlers}>
           <button className={styles.sheetHandle} onClick={() => setSheetOpen((v) => !v)}>
             <span className={styles.handleBar} />
           </button>
@@ -334,7 +351,7 @@ const NearbyShowsPage: React.FC = () => {
           </div>
 
           {/* 리스트 */}
-          <div className={styles.list}>
+          <div ref={listRef} className={styles.list}>
             {!isLoading && !isError && shows.length === 0 && (
               <div className={styles.empty}>
                 <i className="fa-regular fa-map" />

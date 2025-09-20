@@ -126,6 +126,8 @@
   display: grid;
   place-items: center;
   padding: 12px 0 8px;
+  position: relative;
+  z-index: 101;
 }
 
 .handleBar {
