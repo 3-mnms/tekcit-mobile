@@ -188,7 +188,7 @@
   display: grid;
   place-content: center;     
   padding: 2dvh 3vw;         
-  z-index: 60;
+  z-index: 100000;
 }
 
 .modalCard {
@@ -238,7 +238,7 @@
 
 .previewArea {
   width: 100%;
-  height: clamp(280px, 56dvh, 520px);
+  height: clamp(280px, 55dvh, 520px);
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -270,7 +270,6 @@
   padding: 12px;
 }
 
-/* 진행률/텍스트 */
 .progressBar {
   margin-top: 8px;
   position: relative;
@@ -298,15 +297,13 @@
   font-size: 12px;
 }
 
-/* 푸터 버튼: 밖으로 안 튀게 */
 .modalBtns {
   margin-top: 12px;
-  padding-top: 12px;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   background: #fff;
-  position: sticky;    /* 콘텐츠가 길면 상단에 붙은 채로 보임 */
+  position: sticky;  
   bottom: 0;
 }
 
