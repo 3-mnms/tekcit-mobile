@@ -300,7 +300,7 @@ const TicketOrderPage: React.FC = () => {
     };
 
     const onBeforeUnload = () => fireOnce();           
-    const onPageHide = () => fireOnce();               
+    // const onPageHide = () => fireOnce();               
 
     window.addEventListener('beforeunload', onBeforeUnload);
     // window.addEventListener('pagehide', onPageHide);
