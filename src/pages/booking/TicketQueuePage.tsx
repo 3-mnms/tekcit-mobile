@@ -112,7 +112,7 @@ const TicketQueuePage: React.FC = () => {
     if (fdfrom) params.set('fdfrom', fdfrom)
     if (fdto) params.set('fdto', fdto)
     startTransition(() => {
-      navigate(`/reservation/${fid}? ${params.toString()}`)
+      navigate(`/reservation/${fid}?${params.toString()}`)
     })
   }, [navigate])
 

@@ -303,14 +303,14 @@ const TicketOrderPage: React.FC = () => {
     const onPageHide = () => fireOnce();               
 
     window.addEventListener('beforeunload', onBeforeUnload);
-    window.addEventListener('pagehide', onPageHide);
+    // window.addEventListener('pagehide', onPageHide);
 
     return () => {
       fireOnce();
       window.removeEventListener('beforeunload', onBeforeUnload);
-      window.removeEventListener('pagehide', onPageHide);
+      // window.removeEventListener('pagehide', onPageHide);
     };
-  }, [fid, selectedDateTime, releaseMut]);
+  }, []);
 
   const guardMessage = !fid ? 'fid가 필요합니다.' : isError ? '예매 정보를 불러오지 못했어요.' : ''
 
