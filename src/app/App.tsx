@@ -2,14 +2,10 @@
 import { useEffect } from "react";
 import { RouterProvider } from 'react-router-dom'
 import { router } from './router/router'
-import TikiChatWidget from '@/components/ai/chatbot/TikiChatWidget';
-import useNoChatWidget from "@/models/ai/useNoChatWidget";
 import { onMessage } from "firebase/messaging";
 import { messaging } from "../firebase"
 
 export default function App() {
-  const noChat = useNoChatWidget()
-
   useEffect(() => {
 
     // ✅ 실시간 리스너 등록
@@ -39,7 +35,6 @@ export default function App() {
   return (
     <>
       <RouterProvider router={router} />
-      {!noChat && <TikiChatWidget />}
     </>
   )
 }

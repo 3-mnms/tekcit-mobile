@@ -82,8 +82,6 @@ export async function fetchTekcitHistory(params: { page?: number; size?: number 
   try {
     const { data } = await api.get('/tekcitpay/history', { params: { page, size } })
     
-    console.log('Raw API response:', data) // 디버깅용
-    
     const parsed = Envelope(SpringPageRaw).safeParse(data)
     if (!parsed.success) {
       console.error('Schema validation failed:', parsed.error)

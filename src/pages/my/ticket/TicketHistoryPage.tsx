@@ -17,22 +17,25 @@ const TicketHistoryPage: React.FC = () => {
 
   return (
     <section className={styles.page}>
-      <MyHeader title="예매 / 취소 내역" />
-
-      <div className={styles.tabsWrap}>
-        <FilterTabs
-          active={activeTab}
-          onChange={handleChangeTab}
-          isCalendarOpen={isCalendarOpen}
-          onToggleCalendar={() => setIsCalendarOpen((v) => !v)}
-        />
+      {/* 상단 고정 영역 */}
+      <div className={styles.top}>
+        <MyHeader title="예매 / 취소 내역" />
+        <div className={styles.tabsWrap}>
+          <FilterTabs
+            active={activeTab}
+            onChange={handleChangeTab}
+            isCalendarOpen={isCalendarOpen}
+            onToggleCalendar={() => setIsCalendarOpen(v => !v)}
+          />
+        </div>
       </div>
-      <div className={styles.content}>
 
+      {/* 스크롤 영역 */}
+      <main className={styles.content}>
         <div className={styles.body}>
           <ReservationList filter={activeTab} />
         </div>
-      </div>
+      </main>
     </section>
   )
 }

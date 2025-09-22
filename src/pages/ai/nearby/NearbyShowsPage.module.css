@@ -1,8 +1,15 @@
+:root {
+  --bottom-nav-height: 64px;
+  --sheet-peek-height: 72px;
+}
+
 .pageWrapper {
   display: flex;
   flex-direction: column;
   min-height: 100%;
   background: #fff;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior-y: contain;
 }
 
 .addrBar {
@@ -17,6 +24,7 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid #e5e7eb;
+  touch-action: none;
 }
 
 .addrMain {
@@ -52,7 +60,8 @@
 .mapStage {
   position: relative;
   flex: 1;
-  min-height: 80vh;
+  min-height: 100vh;
+  min-height: 100dvh;
   background: #f3f4f6;
 }
 
@@ -61,11 +70,10 @@
   inset: 0;
 }
 
-/* Map FABs */
 .mapFabCol {
-  position: absolute;
+  position: fixed;
   right: 16px;
-  bottom: 128px;
+  bottom: calc(var(--bottom-nav-height) + 64px);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -91,18 +99,18 @@
 }
 
 .sheet {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
-  bottom: env(safe-area-inset-bottom, 0px);
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
   background: #ffffff;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   box-shadow: 0 -16px 36px rgba(0, 0, 0, .18);
   border-top: 1px solid #e5e7eb;
-  z-index: 15;
+  z-index: 100;
   transition: transform .28s ease;
-  will-change: transform;
+  touch-action: none;
 }
 
 .sheetOpen {
@@ -110,7 +118,7 @@
 }
 
 .sheetPeek {
-  transform: translateY(calc(100% - 65px));
+  transform: translateY(calc(100% - 60px));
 }
 
 .sheetHandle {
@@ -120,6 +128,21 @@
   display: grid;
   place-items: center;
   padding: 12px 0 8px;
+  position: relative;
+  z-index: 101;
+}
+
+.gestureShield {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 99;              /* map(기본) < 99 < sheet(100) */
+  pointer-events: all;      /* 이벤트 흡수 */
+}
+
+/* 제스처 동안 맵 자체도 이벤트 끊기(이중 안전) */
+.mapLocked {
+  pointer-events: none;
 }
 
 .handleBar {
@@ -184,7 +207,8 @@
   padding: 0 24px 24px 24px;
   display: grid;
   gap: 16px;
-  /* 카드 간격 */
+  touch-action: pan-y;
+  overscroll-behavior: contain; 
 }
 
 .empty {
@@ -337,8 +361,8 @@
   overflow: hidden;
 }
 
-/* 모바일 안전 여백 (iOS 하단) 선택 적용 시
 @supports (padding: env(safe-area-inset-bottom)) {
-  .sheet { padding-bottom: calc(env(safe-area-inset-bottom)); }
+  .sheet {
+    padding-bottom: calc(env(safe-area-inset-bottom));
+  }
 }
-*/

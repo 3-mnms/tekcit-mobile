@@ -36,6 +36,8 @@ declare namespace kakao {
       setLevel(level: number): void
       getLevel(): number
       relayout(): void
+      setDraggable(draggable: boolean): void
+      setZoomable(zoomable: boolean): void
     }
 
     interface MarkerOptions {

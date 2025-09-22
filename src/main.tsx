@@ -1,7 +1,7 @@
 ;(window as any).global = window
 
 import 'global';
-import { StrictMode } from 'react';
+// import { StrictMode } from 'react';  
 import { createRoot } from 'react-dom/client';
 import './app/styles/index.css';
 import App from './app/App.tsx';
@@ -11,9 +11,9 @@ import { bootstrapAuth } from './shared/storage/bootstrapAuth.ts';
 const queryClient = new QueryClient();
 await bootstrapAuth()
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  // <StrictMode>
     <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>
-  </StrictMode>,
+  // </StrictMode>,
 );

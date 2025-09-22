@@ -9,6 +9,7 @@ import { useDefaultAddressQuery } from '@/models/auth/tanstack-query/useAddress'
 import { loadKakaoMapSdk } from '@/shared/config/loadKakaoMap'
 import { ExternalLink, Utensils } from 'lucide-react'
 import Spinner from '@/components/common/spinner/Spinner'
+import { useSwipeable } from 'react-swipeable'
 
 type UiShow = {
   id: string
@@ -20,7 +21,6 @@ type UiShow = {
   poster?: string | null
 }
 
-/* ===== 기능 보강: 안전 파서 ===== */
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
 const asStr = (v: unknown): string | null => (typeof v === 'string' ? v : null)
 const asNum = (v: unknown): number | null => {
@@ -29,7 +29,6 @@ const asNum = (v: unknown): number | null => {
   return null
 }
 
-/* ===== toUi: 타입 안전 변환 ===== */
 const toUi = (raw: unknown): UiShow => {
   const r = isObj(raw) ? raw : {}
   const id = asStr(r.festivalDetailId) ?? asStr(r.id) ?? crypto.randomUUID()
@@ -55,17 +54,19 @@ const NearbyShowsPage: React.FC = () => {
 
   const mapRef = useRef<HTMLDivElement | null>(null)
   const mapObjRef = useRef<kakao.maps.Map | null>(null)
-  const markersRef = useRef<kakao.maps.Marker[]>([]) // ✅ 마커 보관
-  const infoWindowsRef = useRef<kakao.maps.InfoWindow[]>([]) // ✅ 인포윈도우 보관
-  const mapContainerRef = useRef<HTMLDivElement | null>(null) // ✅ 컨테이너 변경 감지
+  const markersRef = useRef<kakao.maps.Marker[]>([])
+  const infoWindowsRef = useRef<kakao.maps.InfoWindow[]>([])
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const listRef = useRef<HTMLDivElement | null>(null)
+  const openInfoRef = useRef<kakao.maps.InfoWindow | null>(null)
 
   const [sheetOpen, setSheetOpen] = useState(true)
   const [selected, setSelected] = useState<NearbyFestivalMini | null>(null)
-  const [gateOpen, setGateOpen] = useState(false);
   const askedRef = useRef(false);
 
   const { data: defaultAddr, isLoading: isAddrLoading } = useDefaultAddressQuery()
   const { data, isLoading, isError, refetch } = useNearbyFestivalsQuery()
+
 
   // ✅ Kakao SDK 사전 로드
   const [sdkLoaded, setSdkLoaded] = useState(false)
@@ -96,12 +97,28 @@ const NearbyShowsPage: React.FC = () => {
     return typeof candidate === 'string' && candidate.trim().length > 0
   }, [defaultAddr])
 
+  const isListScrolled = () => {
+    const el = listRef.current
+    if (!el) return false
+    return el.scrollTop > 0
+  }
+
+  const swipeHandlers = useSwipeable({
+    onSwipedUp: () => setSheetOpen(true),
+    onSwipedDown: () => {
+      if (!isListScrolled()) setSheetOpen(false)
+    },
+    delta: 30,
+    trackTouch: true,
+    trackMouse: false,
+    preventScrollOnSwipe: true,
+  })
+
   useEffect(() => {
     if (isAddrLoading) return
     if (askedRef.current) return;
     if (hasDefaultAddress) {
       askedRef.current = true;
-      setGateOpen(true);
       return;
     }
     askedRef.current = true;
@@ -121,14 +138,6 @@ const NearbyShowsPage: React.FC = () => {
     }
   }, [isAddrLoading, hasDefaultAddress, navigate]);
 
-  useEffect(() => {
-    if (selected === null) {
-      mapObjRef.current = null
-      mapContainerRef.current = null
-    }
-  }, [selected])
-
-  /* ===== bounds 맞추기: 사용자 위치 + 모든 마커, 패딩 포함 ===== */
   const fitToBounds = useCallback(() => {
     if (!mapObjRef.current || !window.kakao?.maps) return
     const map = mapObjRef.current
@@ -149,7 +158,6 @@ const NearbyShowsPage: React.FC = () => {
     }
 
     if (added && !bounds.isEmpty()) {
-      // 패딩(좌/상/우/하)을 충분히 줘서 여백 확보
       if ((map as any).setBounds.length >= 5) {
         ; (map as any).setBounds(bounds, 40, 40, 40, 40)
       } else {
@@ -158,7 +166,6 @@ const NearbyShowsPage: React.FC = () => {
     }
   }, [userCenter])
 
-  /* ===== 지도 렌더링/갱신 ===== */
   useEffect(() => {
     if (!mapRef.current) return
     if (!sdkLoaded) return
@@ -169,7 +176,6 @@ const NearbyShowsPage: React.FC = () => {
       const kakaoNS = await loadKakaoMapSdk()
       if (cancelled || !mapRef.current) return
 
-      // 센터 계산 (유저 위치 > 첫 좌표 존재 공연 > 서울 기본값)
       const firstWithPos = shows.find((s) => s.lat != null && s.lng != null)
       const centerLat = userCenter?.lat ?? firstWithPos?.lat ?? 37.566826
       const centerLng = userCenter?.lng ?? firstWithPos?.lng ?? 126.9786567
@@ -205,37 +211,66 @@ const NearbyShowsPage: React.FC = () => {
           content: `
             <div style="
               box-sizing:border-box;
-              max-width: 260px;
+              width: 220px;             
               padding: 8px 10px;
               font-size: 13px;
               line-height: 1.4;
-              white-space: normal;
-              word-break: break-word;
-              overflow-wrap: anywhere;
             ">
-              <b style="display:block;margin-bottom:4px;font-weight:600;">
+              <b style="
+                display:block;
+                margin-bottom:4px;
+                font-weight:600;
+                overflow:hidden;          
+                white-space:nowrap;       
+                text-overflow:ellipsis;   
+              ">
                 ${s.title}
               </b>
-              <span style="color:#666">${s.venue}</span>
+              <span style="color:#666; overflow-wrap:anywhere; word-break:break-word;">
+                ${s.venue}
+              </span>
             </div>
           `,
         })
+
         infoWindowsRef.current.push(iw)
 
-        kakaoNS.maps.event.addListener(marker, 'mouseover', () => iw.open(map, marker))
-        kakaoNS.maps.event.addListener(marker, 'mouseout', () => iw.close())
-        kakaoNS.maps.event.addListener(marker, 'click', () =>
+        kakaoNS.maps.event.addListener(marker, 'mouseover', () => {
+          if (openInfoRef.current === iw) return
+          iw.open(map, marker)
+        })
+        kakaoNS.maps.event.addListener(marker, 'mouseout', () => {
+          if (openInfoRef.current === iw) return
+          iw.close()
+        })
+
+        kakaoNS.maps.event.addListener(marker, 'click', () => {
+          if (openInfoRef.current) {
+            openInfoRef.current.close()
+            openInfoRef.current = null
+          }
+          iw.open(map, marker)
+          openInfoRef.current = iw
           setSelected({
             id: s.id,
             name: s.title,
             venue: s.venue,
             lat: s.lat ?? null,
             lng: s.lng ?? null,
-          }),
-        )
+          })
+        })
       })
 
-      // 사용자 위치 마커
+      const onMapClick = () => {
+        if (openInfoRef.current) {
+          openInfoRef.current.close()
+          openInfoRef.current = null
+        }
+        setSelected(null)
+      }
+
+      kakaoNS.maps.event.addListener(map, 'click', onMapClick)
+
       if (userCenter) {
         const userMarker = new kakaoNS.maps.Marker({
           position: new kakaoNS.maps.LatLng(userCenter.lat, userCenter.lng),
@@ -258,7 +293,6 @@ const NearbyShowsPage: React.FC = () => {
     }
   }, [sdkLoaded, shows, userCenter, fitToBounds])
 
-  // 맵 컨트롤
   const zoomIn = () => {
     if (mapObjRef.current) mapObjRef.current.setLevel(Math.max(1, mapObjRef.current.getLevel() - 1))
   }
@@ -315,7 +349,8 @@ const NearbyShowsPage: React.FC = () => {
         </div>
 
         {/* 바텀시트 */}
-        <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}>
+        <div className={`${styles.sheet} ${sheetOpen ? styles.sheetOpen : styles.sheetPeek}`}
+          {...swipeHandlers}>
           <button className={styles.sheetHandle} onClick={() => setSheetOpen((v) => !v)}>
             <span className={styles.handleBar} />
           </button>
@@ -334,7 +369,7 @@ const NearbyShowsPage: React.FC = () => {
           </div>
 
           {/* 리스트 */}
-          <div className={styles.list}>
+          <div ref={listRef} className={styles.list}>
             {!isLoading && !isError && shows.length === 0 && (
               <div className={styles.empty}>
                 <i className="fa-regular fa-map" />

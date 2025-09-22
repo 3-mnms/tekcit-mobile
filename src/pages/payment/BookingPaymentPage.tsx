@@ -22,6 +22,7 @@ import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
 import { useReleaseWaitingMutation } from '@/models/waiting/tanstack-query/useWaiting'
 
 import styles from './BookingPaymentPage.module.css'
+import Spinner from '@/components/common/spinner/Spinner'
 
 // 주석: YYYY-MM-DD 문자열을 Date로 변환하는 안전 파서 멍
 const parseYMD = (s?: string) => {
@@ -266,13 +267,14 @@ const BookingPaymentPage: React.FC = () => {
 
   return (
     <div className={styles.page}>
+      {isPaying && <Spinner />}
       {/* 주석: 예매 단계 진행 표시줄 - 현재 단계는 3(결제) 멍 */}
       <BookingProgress current={3} />
 
       <div className={styles.container} role="main">
         <section className={styles.left}>
           <div className={styles.sectionContainer}>
-
+          
             {/* 주석: 주문 요약 + 하단 결제 버튼 멍 */}
             <aside className={styles.right}>
               <div className={styles.summaryCard}>
@@ -285,7 +287,7 @@ const BookingPaymentPage: React.FC = () => {
                   onClick={handlePayment}
                   aria-busy={isPaying}
                 >
-                  {isPaying ? '결제 중...' : '결제하기'}
+                  {isPaying ? '결제하기' : '결제하기'}
                 </Button>
               </div>
             </aside>

@@ -13,11 +13,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #111827 !important;  
+  caret-color: #111827 !important;              
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-/*  */
 a {
   font-weight: 500;
   color: #646cff;
@@ -30,8 +37,6 @@ a:hover {
 
 body {
   margin: 0;
-  /* display: flex; 
-  place-items: center;  */
   min-width: 320px;
   min-height: 100vh;
   width: 100%;

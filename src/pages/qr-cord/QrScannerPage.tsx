@@ -10,7 +10,6 @@ const QrScannerPage = () => {
   const handleScan = (result: any) => {
     if (result) {
       const qrCodeId = result.getText();
-      console.log('스캔된 QR ID:', qrCodeId);
 
       if (!isPending) {
         validateQr({ qrCodeId });

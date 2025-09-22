@@ -1,16 +1,14 @@
 // src/components/transfer/TransferRecipientForm.tsx
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './TransferRecipientForm.module.css';
 import Button from '@/components/common/button/Button';
 import IdSearchModal, { type AccountMini } from './IdSearchModal';
 import { useVerifyFamilyCert, useTransferor, useRequestTransfer } from '@/models/transfer/tanstack-query/useTransfer';
 import { normalizeRrn7 } from '@/shared/api/transfer/userApi';
-import type { PersonInfo } from '@/models/transfer/transferTypes';
 import { useTekcitPayAccountQuery } from '@/models/transfer/tanstack-query/useTekcitPay';
 import { isNoTekcitPayAccountError } from '@/shared/api/transfer/tekcitPay';
 import { Users } from 'lucide-react'
-
+import PdfCanvasPreview from './PdfCanvasPreview';
 
 type Relation = 'FAMILY' | 'FRIEND' | null;
 
@@ -20,41 +18,21 @@ function toRrn7WithHyphen(input?: string): string {
   return m ? `${m[1]}-${m[2]}` : '';
 }
 
-/** 이름 정규화 */
-function normName(s?: string) {
-  return (s ?? '')
-    .normalize('NFC')
-    .replace(/\(.*?\)/g, '')
-    .replace(/[\s·・\-\u00B7]/g, '')
-    .replace(/[^\p{L}]/gu, '')
-    .toLowerCase();
-}
+function canInlinePdf(): boolean {
+  const enabled = (navigator as any).pdfViewerEnabled;
+  const hasMime = navigator.mimeTypes?.["application/pdf"];
+  const ua = navigator.userAgent || "";
+  const isMobileUA = /Android|iPhone|iPad|iPod/i.test(ua);
 
-/** rrnFront 비교를 위한 6자리 숫자만 추출 */
-function onlyFront6Digits(s?: string) {
-  const d = (s ?? '').toString().replace(/\D/g, '');
-  return d.slice(0, 6);
-}
-
-/** OCR 응답에서 '이름 + YYMMDD(앞6자리)' 일치 여부 */
-function hasMatch(people: PersonInfo[], name: string, rrn7: { front6?: string; back1?: string }) {
-  const nm = normName(name);
-  const front6 = rrn7.front6 ?? '';
-  if (!nm || !front6) return false;
-
-  return people.some((p) => {
-    const pn = normName(p.name);
-    const rr = onlyFront6Digits(p.rrnFront);
-    return pn === nm && rr === front6;
-  });
+  if (isMobileUA) return false;
+  if (typeof enabled === "boolean") return enabled;
+  return !!hasMime;
 }
 
 type Props = {
   currentName?: string;
   currentRrn7?: string;
-  /** ⬇️ 추가: 양도 요청에 필요한 예약번호 (필수) */
   reservationNumber: string;
-  /** 선택 완료 후 다음 단계로 이동시키고 싶다면 주입 (선택) */
   onNext?: () => void;
 };
 
@@ -64,8 +42,7 @@ const POPUP_HEIGHT = 720;
 const TransferRecipientForm: React.FC<Props> = (props) => {
   const propName = props.currentName?.trim();
   const propRrn7 = props.currentRrn7?.trim();
-  const navigate = useNavigate();
-
+  const inlineOk = useMemo(canInlinePdf, []);
   const needFetchMe = !(propName && propRrn7);
   const { data: me, isLoading: meLoading, isError: meError, error: meErr } = useTransferor({ enabled: needFetchMe });
 
@@ -74,16 +51,13 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
 
   const [relation, setRelation] = useState<Relation>(null);
 
-  // 상대(수신자)
-  const [loginId, setLoginId] = useState<string>(''); // readOnly (이메일)
-  const [name, setName] = useState<string>('');       // readOnly (이름)
-  const [recipientRrn7, setRecipientRrn7] = useState<string>(''); // 하이픈 포함
-  const [recipientId, setRecipientId] = useState<number | null>(null); // ⬅️ 추가: 양수자 ID
+  const [loginId, setLoginId] = useState<string>(''); 
+  const [name, setName] = useState<string>('');       
+  const [recipientRrn7, setRecipientRrn7] = useState<string>(''); 
+  const [recipientId, setRecipientId] = useState<number | null>(null); 
 
-  // 이메일 검색 모달
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // 파일/미리보기
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [tempFile, setTempFile] = useState<File | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -91,28 +65,23 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const tempUrl = useMemo(() => (tempFile ? URL.createObjectURL(tempFile) : ''), [tempFile]);
 
-  // OCR 상태
   const [extracting, setExtracting] = useState(false);
   const [progress, setProgress] = useState(0); // 0~100
   const [verifyDone, setVerifyDone] = useState(false);
   const [verifyOk, setVerifyOk] = useState(false);
 
-  // 메시지
   const [hintMsg, setHintMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const { mutateAsync: verifyFamily } = useVerifyFamilyCert();
 
-  // 테킷페이 (제출 시에만 조회)
   const { refetch: refetchAccount } = useTekcitPayAccountQuery(false);
 
-  // 양도요청 API 뮤테이션
   const { mutateAsync: requestTransfer, isPending: isRequesting } = useRequestTransfer();
 
-  // 팝업/폴링
   const popupRef = useRef<Window | null>(null);
   const pollTimerRef = useRef<number | null>(null);
-  const submittedRef = useRef(false); // 중복 요청 방지
+  const submittedRef = useRef(false); 
 
   useEffect(() => () => { if (tempUrl) URL.revokeObjectURL(tempUrl); }, [tempUrl]);
 
@@ -123,7 +92,8 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     return () => { document.body.style.overflow = prev || ''; };
   }, [modalOpen]);
 
-  const isPdf = !!tempFile && tempFile.type === 'application/pdf';
+  const isPdf = !!tempFile && /^application\/pdf$/.test(tempFile.type);
+  const isImage = !!tempFile && /^image\//.test(tempFile.type);
   const needProof = relation === 'FAMILY';
 
   const safeLoginId = loginId ?? '';
@@ -137,7 +107,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     setModalOpen(true);
     setPreviewLoading(true);
 
-    // 상태 초기화
     setExtracting(false);
     setProgress(0);
     setVerifyDone(false);
@@ -162,7 +131,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     setErrorMsg(null);
   };
 
-  // ===== 미리보기 완료되면 자동 OCR (가족 관계일 때만) =====
   useEffect(() => {
     const shouldRun =
       modalOpen &&
@@ -198,7 +166,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
           [name]: toRrn7WithHyphen(recipientRrn7),
         };
 
-        // 실제 호출
         const result = await verifyFamily({ file: tempFile!, targetInfo: dict });
         if (cancelled) return;
 
@@ -238,7 +205,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     return { status, code, message };
   }
 
-  /** ⬇️ 양도요청 실제 호출 (중복방지) */
   const submitRequest = async () => {
     if (submittedRef.current) return;
     if (!props.reservationNumber) {
@@ -269,7 +235,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
       await requestTransfer(payload);
       submittedRef.current = true;
 
-      // ✅ 성공 알림
       alert('양도요청 되었습니다.');
 
       console.info(
@@ -306,7 +271,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     }
   };
 
-  // ===== 팝업 메시지 수신(완료 시) + 정리 =====
   useEffect(() => {
     const onMessage = async (ev: MessageEvent) => {
       if (ev.origin !== window.location.origin) return;
@@ -318,7 +282,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
           if (res?.data) {
             if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
             if (pollTimerRef.current) window.clearInterval(pollTimerRef.current);
-            // 🔔 계정 생성 확인되면 곧장 양도요청 → 다음 단계
             await submitRequest();
             props.onNext?.();
           }
@@ -330,9 +293,8 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
 
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [refetchAccount, props]); // submitRequest는 안정적 참조(closure 내 사용 변수만)
+  }, [refetchAccount, props]);
 
-  // 팝업 열기 + 폴링
   const openTekcitPayJoinPopup = () => {
     const dualScreenLeft = window.screenLeft ?? window.screenX ?? 0;
     const dualScreenTop = window.screenTop ?? window.screenY ?? 0;
@@ -371,7 +333,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
     }, 2000);
   };
 
-  // 양도자 정보 로딩/에러 처리
   if (needFetchMe) {
     if (meLoading) return <div className={styles.card}>내 정보(양도자) 불러오는 중…</div>;
     if (meError)
@@ -382,7 +343,6 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
       );
   }
 
-  // 제출 처리
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -480,7 +440,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="application/pdf,.pdf"
+              accept="application/pdf,image/*"
               className={styles.fileInput}
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -490,8 +450,9 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
                     alert('파일은 10MB 이하만 가능합니다.');
                     return;
                   }
-                  if (!/^application\/pdf$/.test(f.type)) {
-                    alert('PDF만 업로드할 수 있습니다.');
+                  const ok = /^application\/pdf$/.test(f.type) || /^image\//.test(f.type);
+                  if (!ok) {
+                    alert('PDF 또는 이미지 파일만 업로드할 수 있습니다.');
                     return;
                   }
                 }
@@ -504,6 +465,7 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
                 파일 선택
               </button>
               <span className={styles.fileHelp}>PDF 가능 · 10MB 이하</span>
+
             </div>
           </div>
 
@@ -534,63 +496,64 @@ const TransferRecipientForm: React.FC<Props> = (props) => {
               첨부파일 등록 · 인증 진행
             </div>
 
-            <div className={styles.previewBox}>
-              <div className={styles.previewArea}>
-                {isPdf ? (
-                  <iframe
-                    title="가족증명서 미리보기"
-                    src={tempUrl}
-                    className={styles.previewPdf}
-                    onLoad={() => setPreviewLoading(false)}
-                  />
-                ) : tempFile ? (
-                  <div className={styles.previewFallback}>
-                    <p>미리보기를 지원하지 않는 형식이에요.</p>
-                    <p className={styles.previewFilename}>{tempFile.name}</p>
-                  </div>
-                ) : null}
+            {/* 스크롤/리사이즈에 안전한 flex 레이아웃 */}
+            <div className={styles.modalContent}>
+              <div className={styles.previewBox}>
+                <div className={styles.previewArea}>
+                  {isPdf ? (
+                    inlineOk ? (
+                      <embed
+                        title="가족증명서 미리보기"
+                        src={`${tempUrl}#view=FitH&zoom=page-width`}
+                        type="application/pdf"
+                        className={styles.previewPdf}
+                        onLoad={() => setPreviewLoading(false)}
+                      />
+                    ) : (
+                      <PdfCanvasPreview
+                        fileUrl={tempUrl}
+                        onReady={() => setPreviewLoading(false)}
+                        className={styles.previewPdf}
+                      />
+                    )
+                  ) : isImage ? (
+                    <img
+                      src={tempUrl}
+                      alt="첨부 이미지 미리보기"
+                      className={styles.previewImg}
+                      onLoad={() => setPreviewLoading(false)}
+                      onError={() => setPreviewLoading(false)}
+                    />
+                  ) : tempFile ? (
+                    <div className={styles.previewFallback}>
+                      <p>미리보기를 지원하지 않는 형식이에요.</p>
+                      <p className={styles.previewFilename}>{tempFile.name}</p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
 
-            {/* 하단 슬림 진행률 바 */}
-            <div
-              style={{
-                marginTop: 8,
-                position: 'relative',
-                height: 4,
-                background: '#e5e7eb',
-                borderRadius: 2,
-                overflow: 'hidden',
-              }}
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={progress}
-              aria-label={extracting ? '인증 진행률' : '로딩 진행률'}
-            >
               <div
-                style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  background: extracting ? '#3b82f6' : '#9ca3af',
-                  transition: 'width 0.2s ease',
-                }}
-              />
-            </div>
-
-            {/* 상태 텍스트 */}
-            <div style={{ marginTop: 4, fontSize: 12, color: '#6b7280' }} aria-live="polite">
-              {verifyDone
-                ? (verifyOk ? '두 인원 매칭 완료' : (hintMsg ?? '일치하는 인원을 찾지 못했어요'))
-                : (extracting ? '인증 중…' : '로딩 중…')}
-            </div>
-
-            {/* 통신/서버 에러만 붉은 경고 */}
-            {!!errorMsg && (
-              <div className={styles.progressText} style={{ color: '#b91c1c', marginTop: 6 }} role="alert">
-                {errorMsg}
+                className={styles.progressBar}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progress}
+                aria-label={extracting ? '인증 진행률' : '로딩 진행률'}
+              >
+                <div className={styles.progressFill} style={{ width: `${progress}%` }} />
               </div>
-            )}
+              <div className={styles.progressText} aria-live="polite">
+                {verifyDone
+                  ? (verifyOk ? '두 인원 매칭 완료' : (hintMsg ?? '일치하는 인원을 찾지 못했어요'))
+                  : (extracting ? '인증 중…' : '로딩 중…')}
+              </div>
+              {!!errorMsg && (
+                <div className={styles.progressError} role="alert">
+                  {errorMsg}
+                </div>
+              )}
+            </div>
 
             <div className={styles.modalBtns}>
               <Button

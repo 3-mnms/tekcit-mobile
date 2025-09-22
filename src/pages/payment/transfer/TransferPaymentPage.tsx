@@ -20,6 +20,7 @@ import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
 import { requestTransferPayment, type RequestTransferPaymentDTO, getPaymentIdByBookingId, getReservationStatus } from '@/shared/api/payment/payments'
 
 import styles from './TransferPaymentPage.module.css'
+import Spinner from '@/components/common/spinner/Spinner'
 
 type PayMethod = '킷페이'
 
@@ -167,7 +168,7 @@ const TransferPaymentPage: React.FC = () => {
         return
       }
       if (!userId) throw new Error('로그인이 필요합니다.')
-      if (isBasePayLoading) throw new Error('결제 정보를 불러오는 중입니다.')
+      if (isBasePayLoading) <Spinner />
       if (!basePaymentId) throw new Error((basePayError as any)?.message || '기존 결제 정보를 찾을 수 없습니다.')
 
       await respondOthers.mutateAsync(buildApproveDTO())
@@ -192,19 +193,16 @@ const TransferPaymentPage: React.FC = () => {
         commission,
       }
       await requestTransferPayment(transferReqBody, userId)
-      
+
       setIsWaitingStatus(true)
 
       setTimeout(async () => {
         try {
           const statusResult = await getReservationStatus(navState.reservationNumber!)
-          console.log('🔍 Status result:', statusResult)
-          
+
           if (statusResult.success) {
-            console.log('✅ Success - navigating to success page')
             navigate('/payment/transfer/result?status=success')
           } else {
-            console.log('❌ Not successful - navigating to fail page')
             navigate('/payment/transfer/result?status=fail')
           }
         } catch (e: any) {
@@ -258,7 +256,7 @@ const TransferPaymentPage: React.FC = () => {
                     disabled={isBasePayLoading || isBasePayError}
                     title={
                       isBasePayLoading
-                        ? '결제 정보를 불러오는 중입니다.'
+                        ? <Spinner />
                         : isBasePayError
                           ? (basePayError as any)?.message ?? '결제 정보를 찾을 수 없습니다.'
                           : undefined
@@ -267,7 +265,6 @@ const TransferPaymentPage: React.FC = () => {
                     <span className={`${styles.radio} ${openedMethod === '킷페이' ? styles.radioOn : ''}`} />
                     <span className={styles.methodText}>
                       테킷페이 (포인트 결제)
-                      {isBasePayLoading ? ' - 결제정보 조회중...' : ''}
                     </span>
                   </button>
                   {openedMethod === '킷페이' && (
@@ -372,13 +369,13 @@ const TransferPaymentPage: React.FC = () => {
       )}
 
       {isAlertOpen && (
-        <AlertModal 
-          title="안내" 
-          onCancel={() => setIsAlertOpen(false)} 
+        <AlertModal
+          title="안내"
+          onCancel={() => setIsAlertOpen(false)}
           onConfirm={handleAlertConfirm}
         >
-          {isFamily 
-            ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?' 
+          {isFamily
+            ? '가족 간 양도는 결제 없이 진행됩니다. 계속하시겠습니까?'
             : '승인 후 결제를 진행합니다. 계속하시겠습니까?'
           }
         </AlertModal>

@@ -1,4 +1,4 @@
-import React , { useEffect } from 'react'
+import React from 'react'
 import Header from '@components/common/header/Header'
 
 import Hot from '@/components/festival/main/HotSection'

@@ -46,6 +46,7 @@
   font-weight: 600;
   color: #334155;
   transition: box-shadow .2s ease, transform .15s ease;
+  font-size: 10px;
 }
 
 .backBtn:hover {
@@ -384,8 +385,8 @@
   gap: 8px;                 
   line-height: 1.25;
   margin: 0;
-  font-size: 18px;
-  font-weight: 700;;  
+  font-size: 17px;
+  font-weight: 900;;  
   margin-left: 10px;
 }
 

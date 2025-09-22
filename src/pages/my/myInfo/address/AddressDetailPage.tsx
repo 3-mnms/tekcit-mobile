@@ -109,7 +109,6 @@ const AddressDetailPage: React.FC = () => {
       qc.invalidateQueries({ queryKey: ['addresses', addressId] });
       qc.invalidateQueries({ queryKey: ['addresses', 'default'] });
     } catch (e: any) {
-      console.log('[PATCH error]', e?.response?.status, e?.response?.data);
       alert(e?.response?.data?.message || '주소 저장에 실패했어요.');
     }
   };
@@ -209,7 +208,7 @@ const AddressDetailPage: React.FC = () => {
                   <Button className={styles.actionButton} onClick={startEdit}>
                     수정
                   </Button>
-                  <Button className={styles.actionButton} onClick={() => navigate('/mypage/myinfo/address')}>
+                  <Button className={styles.actionButton} onClick={() => navigate(-1)}>
                     목록으로 가기
                   </Button>
                 </>

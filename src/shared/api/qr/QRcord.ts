@@ -16,7 +16,6 @@ export const useValidateQr = () => {
     mutationFn: validateQrCode,
     onSuccess: (data) => {
       // 성공했을 때! "QR 스캔 완료" 메시지를 보여주면 돼.
-      console.log('QR 검증 성공!', data);
       alert('QR 스캔 완료!'); // 간단하게 alert으로 처리하거나, toast UI를 사용하면 더 예뻐 삐약!
     },
     onError: (error) => {

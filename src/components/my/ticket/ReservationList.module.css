@@ -1,6 +1,7 @@
 .list {
   display: grid;
   gap: 16px;
+  width: 100%;
 }
 
 .card {
@@ -9,6 +10,65 @@
   background: #fff;
   padding: 12px;
   box-shadow: 0 4px 5px rgba(0,0,0,.2);
+  box-sizing: border-box;         
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+  margin: 4px 4px 10px;
+  overflow-wrap: anywhere;         
+  word-break: break-word;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-width: 0;                    
+}
+
+.poster {
+  width: 84px;
+  height: 112px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  flex: 0 0 84px;                
+}
+
+.info {
+  display: grid;
+  gap: 6px;
+  min-width: 0;               
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr); 
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  min-width: 0;                      
+}
+
+.k { color: #6b7280; }
+
+.v {
+  color: #111827;
+  min-width: 0;                      
+  overflow-wrap: anywhere;           
+  word-break: break-word;
+}
+
+.errorBox {
+  margin-top: 10px;
+  text-align: center;
+  border-radius: 10px;
+  font-weight: 400;
 }
 
 .empty {
@@ -40,74 +100,4 @@
 .emptyDesc {
   color: #64748b;
   margin: .25rem 0 1rem;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 800;
-  color: #111827;
-  margin: 4px 4px 10px;
-}
-
-.body {
-  display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.poster {
-  width: 84px;
-  height: 112px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid #e5e7eb;
-  background: #f8fafc;
-}
-
-.info {
-  display: grid;
-  gap: 6px;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 88px 1fr;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 20px;
-}
-.k { color: #6b7280; }
-.v { color: #111827; }
-
-.statusBar {
-  margin-top: 6px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1px solid transparent;
-}
-.done {
-  background: #ecfdf5;
-  color: #065f46;
-  border-color: #a7f3d0;
-}
-.cancel {
-  background: #fef2f2;
-  color: #991b1b;
-  border-color: #fecaca;
-}
-
-.empty {
-  text-align: center;
-  color: #6b7280;
-  padding: 24px 0 8px;
-  font-size: 14px;
 }

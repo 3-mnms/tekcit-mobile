@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
+import usePagePinchZoom from '@/models/festival/tanstack-query/usePagePinchZoom';
 import Info from '@/components/festival/detail/FestivalInfoSection';
 import Scheduler from '@/components/festival/detail/FestivalScheduleSection';
 import InfoDetail from '@/components/festival/detail/FestivalInfoDetailSection';
@@ -13,6 +13,7 @@ import BottomNav from '@/components/festival/main/bottomnav/BottomNav';
 import Review from '@/components/festival/review/FestivalReviewSection';
 
 const FestivalDetailPage: React.FC = () => {
+  usePagePinchZoom(true);
   const { fid } = useParams<{ fid: string }>();
   
   const { setHeader  } = useUIStore();
