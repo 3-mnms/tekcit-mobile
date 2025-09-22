@@ -49,6 +49,29 @@ const combineDateTime = (day?: Date, hhmm?: string | null) => {
   return d
 }
 
+// 1초 간격으로 최대 15초 폴링
+const checkStatusAndNavigate = async (bookingId: string, routeToResult: (ok: boolean) => void) => {
+  const POLLING_ATTEMPTS = 15;
+  const POLLING_INTERVAL_MS = 1000;
+
+  for (let i = 0; i < POLLING_ATTEMPTS; i++) {
+    try {
+      const statusRes = await getReservationStatus(bookingId);
+      if (statusRes.data === 'COMPLETED' || statusRes.data === 'CONFIRMED') {
+        console.log('API 요청 성공: 예약 상태 확인 (완료)');
+        routeToResult(true);
+        return;
+      }
+    } catch (e) {
+      console.error('API 요청 실패: 예약 상태 확인 중 오류 발생', e);
+    }
+    await new Promise((r) => setTimeout(r, POLLING_INTERVAL_MS));
+  }
+
+  console.error('API 응답 오류: 최대 대기 시간(15초) 초과');
+  routeToResult(false);
+};
+
 const BookingPaymentPage: React.FC = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
@@ -165,8 +188,8 @@ const BookingPaymentPage: React.FC = () => {
     setErr(null)
   }
 
-  const handlePostPayment = async (paymentId: string) => {
-    setIsPaying(true)
+  const handlePostPayment = async (pid: string) => {
+    setIsPaying(true);
     if (!checkout.bookingId) {
       console.error('결제 후 처리 실패: 예약번호가 존재하지 않습니다.');
       setErr('예약번호가 존재하지 않습니다.');
@@ -175,16 +198,12 @@ const BookingPaymentPage: React.FC = () => {
     }
 
     try {
-      await completePayment(paymentId);
-      await new Promise(resolve => setTimeout(resolve, 15000));
-      const statusRes = await getReservationStatus(checkout.bookingId);
+      console.log('API 요청 시작: completePayment', { paymentId: pid });
+      await completePayment(pid);
+      console.log('API 요청 성공: completePayment');
 
-      if (statusRes.data === 'COMPLETED' || statusRes.data === 'CONFIRMED') {
-        routeToResult(true);
-      } else {
-        setErr('예약 처리에 실패했습니다. 고객센터에 문의해주세요.');
-        routeToResult(false);
-      }
+      // 결제 후 15초 폴링로 상태 확인
+      await checkStatusAndNavigate(checkout.bookingId, routeToResult);
     } catch (e) {
       console.error('API 요청 실패: 결제 후 처리', e);
       setErr('결제 후 처리에 실패했습니다. 고객센터에 문의해주세요.');
@@ -193,7 +212,6 @@ const BookingPaymentPage: React.FC = () => {
       setIsPaying(false);
     }
   };
-
 
   // 주석: 결제 핸들러 - 지갑은 모달로, 카드/토스는 PG 이동 멍
   const handlePayment = async () => {
@@ -264,7 +282,6 @@ const BookingPaymentPage: React.FC = () => {
     }
   }
 
-
   return (
     <div className={styles.page}>
       {isPaying && <Spinner />}
@@ -274,7 +291,7 @@ const BookingPaymentPage: React.FC = () => {
       <div className={styles.container} role="main">
         <section className={styles.left}>
           <div className={styles.sectionContainer}>
-          
+
             {/* 주석: 주문 요약 + 하단 결제 버튼 멍 */}
             <aside className={styles.right}>
               <div className={styles.summaryCard}>
