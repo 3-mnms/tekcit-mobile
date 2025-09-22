@@ -77,7 +77,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
       if (!inRange(day, fromDate!, toDate!)) return
 
       const k = ymd(day)
-        ; (byDate[k] ||= new Set()).add(hhmm(dt))
+      ;(byDate[k] ||= new Set()).add(hhmm(dt))
     })
   } else {
     const weekdaySet = new Set<string>()
@@ -87,7 +87,7 @@ function buildCalendarData(detail: any, fdfrom?: string, fdto?: string) {
       const time = typeof s?.time === 'string' ? s.time.slice(0, 5) : ''
       if (!dow || !time) return
       weekdaySet.add(dow)
-        ; (timeByWeekday.get(dow) || timeByWeekday.set(dow, new Set()).get(dow)!).add(time)
+      ;(timeByWeekday.get(dow) || timeByWeekday.set(dow, new Set()).get(dow)!).add(time)
     })
 
     const cur = new Date(fromDate!)
@@ -252,7 +252,7 @@ const TicketOrderPage: React.FC = () => {
         const reservationNumber = typeof res === 'string' ? res : (res?.data ?? res)
         try {
           sessionStorage.setItem('reservationId', reservationNumber)
-        } catch { }
+        } catch {}
         navigate(`/reservation/${fid}/order-info?res=${encodeURIComponent(reservationNumber)}`, {
           replace: true,
           state: {
@@ -283,34 +283,46 @@ const TicketOrderPage: React.FC = () => {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, 0, 0)
   }, [selDate, serverSelectedDate, selTime, serverSelectedTime])
 
-  const firedRef = React.useRef(false);                
+  const firedRef = useRef(false)
+  const unloadingRef = useRef(false) // ✅ 실제 언로드 여부 깃발
 
   useEffect(() => {
-    if (!fid || !selectedDateTime) return;             
+    if (!fid || !selectedDateTime) return
 
     const fireOnce = () => {
-      if (firedRef.current) return;
-      firedRef.current = true;
+      if (firedRef.current) return
+      firedRef.current = true
       try {
         releaseMut.mutate({
           festivalId: String(fid),
-          reservationDate: selectedDateTime,
-        });
-      } catch { }
-    };
+          reservationDate: selectedDateTime, // 서버가 ISO 문자열 원하면 toISOString()으로 변환
+        })
+      } catch {}
+    }
 
-    const onBeforeUnload = () => fireOnce();           
-    // const onPageHide = () => fireOnce();               
+    // ✅ 실제로 페이지를 떠날 때만 깃발 세우고 실행
+    const onUnloadLike = () => {
+      unloadingRef.current = true
+      fireOnce()
+    }
 
-    window.addEventListener('beforeunload', onBeforeUnload);
-    // window.addEventListener('pagehide', onPageHide);
+    // 실제 언로드/백그라운드 전환 대응
+    window.addEventListener('beforeunload', onUnloadLike)
+    window.addEventListener('pagehide', onUnloadLike)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') onUnloadLike()
+    })
 
+    // ✅ 클린업에서는 이벤트만 해제하고,
+    //    "진짜 언로드였다"는 깃발이 서있을 때만 (이미 fireOnce 됐을 테니) 추가 동작 없이 종료
+    //    즉, StrictMode/HMR로 인한 가짜 언마운트에서는 아무 것도 안 함
     return () => {
-      fireOnce();
-      window.removeEventListener('beforeunload', onBeforeUnload);
-      // window.removeEventListener('pagehide', onPageHide);
-    };
-  }, []);
+      window.removeEventListener('beforeunload', onUnloadLike)
+      window.removeEventListener('pagehide', onUnloadLike)
+      // visibilitychange 는 익명 핸들러라 굳이 제거 안 해도 무해하지만 원하면 별도 함수로 빼서 remove 해도 됨
+      // ❌ fireOnce()를 여기서 호출하지 마세요!
+    }
+  }, [fid, selectedDateTime, releaseMut])
 
   const guardMessage = !fid ? 'fid가 필요합니다.' : isError ? '예매 정보를 불러오지 못했어요.' : ''
 
