@@ -11,7 +11,7 @@ interface PasswordInputModalProps {
   userName?: string
   amount: number
   paymentId: string
-  userId: number
+  userId: number          
 }
 
 const PasswordInputModal: React.FC<PasswordInputModalProps> = ({
@@ -23,12 +23,8 @@ const PasswordInputModal: React.FC<PasswordInputModalProps> = ({
 
   const handleKeyPress = async (value: string) => {
     if (isSubmitting) return
-
-    const isClearAll = value === '전체 삭제'           // 전체삭제는 그대로 사용
-    const isBackspace = value === '삭제' || value === '⌫'
-
-    if (isClearAll) { setPassword(''); setIsError(false); return }
-    if (isBackspace) { setPassword(prev => prev.slice(0, -1)); setIsError(false); return }
+    if (value === '전체삭제') { setPassword(''); setIsError(false); return }
+    if (value === '삭제') { setPassword((prev) => prev.slice(0, -1)); setIsError(false); return }
     if (!/^\d$/.test(value) || password.length >= 6) return
 
     const next = password + value
