@@ -1,15 +1,13 @@
-@media (prefers-color-scheme: light) {
-  :root {
-    --ft-bg: #0b0c10;
-    --ft-fg: #e7eaf1;
-    --ft-sub: #a3a8b5;
-    --ft-line: #1b1d25;
-    --ft-link: #7fb2ff;
-    --ft-link-hover: #a8c8ff;
-  }
+:root {
+  --ft-bg: #fdfdfd;
+  --ft-fg: #222;
+  --ft-sub: #60646c;
+  --ft-line: #e9e9ee;
+  --ft-link: #4d9afd;
+  --ft-link-hover: #2f7ce5;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     --ft-bg: #0b0c10;
     --ft-fg: #e7eaf1;
@@ -24,7 +22,7 @@
   width: 100%;
   background: var(--ft-bg);
   border-top: 1px solid var(--ft-line);
-  margin-bottom: 65px; 
+  bottom: 0; 
 }
 
 .inner {
@@ -62,6 +60,26 @@ address.text {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+.link {
+  color: var(--ft-link);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.link:hover {
+  color: var(--ft-link-hover);
+  border-bottom-color: currentColor;
+}
+
+.notice {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--ft-line);
+  color: var(--ft-sub);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
 .copy {
