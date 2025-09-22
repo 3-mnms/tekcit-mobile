@@ -16,19 +16,19 @@
 
 .group {
   display: grid;
-  gap: 2px;                    /* gap-2 */
+  gap: 8px;                    /* gap-2 */
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 3px;                    /* gap-2 */
+  gap: 8px;
   border: 1px solid #d1d5db;   /* gray-300 */
   border-radius: 12px;         /* rounded-xl */
-  padding: 12px;               /* p-3 */
+  padding: 12px;
   background: #fff;
   cursor: pointer;
-  transition: border-color 120ms ease;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .item:hover {
@@ -37,8 +37,7 @@
 
 .itemActive {
   border-color: #3b82f6;       /* blue-500 */
-  /* ring-2 효과 */
-  box-shadow: 0 0 0 2px #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6; /* ring-2 */
 }
 
 .itemDisabled {
@@ -49,11 +48,35 @@
 .labelText {
   font-size: 14px;             /* text-sm */
   line-height: 20px;
-  font-weight: 500;            /* medium */
+  font-weight: 500;
   color: #111827;
 }
 
-/* 스크린리더 전용 (Tailwind의 sr-only 동등) */
+.labelUnsupported {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #6b7280;              /* gray-500 */
+}
+
+/* skeleton */
+.skeleton {
+  height: 40px;
+  border-radius: 12px;
+  background: #f3f4f6;         /* gray-100 */
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* sr-only */
 .srOnly {
   position: absolute;
   width: 1px;

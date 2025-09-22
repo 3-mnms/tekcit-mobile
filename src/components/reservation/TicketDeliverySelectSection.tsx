@@ -1,18 +1,20 @@
 // src/components/reservation/TicketDeliverySelectSection.tsx
 import React from 'react';
+import styles from './TicketDeliverySelectSection.module.css';
 
 export type DeliveryMethod = 'QR' | 'PAPER';
 
 type Props = {
-  value?: DeliveryMethod | null;                 // 제어형 값
-  onChange?: (v: DeliveryMethod | null) => void; // 변경 콜백
-  defaultValue?: DeliveryMethod;                 // 비제어 기본값
-  name?: string;                                 // 라디오 name
-  disabled?: boolean;                            // 전체 비활성
-  className?: string;                            // 외부 클래스
-  available?: DeliveryMethod[] | null;           // 사용 가능 목록 (null이면 모두 가능)
-  loading?: boolean;                             // 로딩 시 스켈레톤 표시
-  hideUnavailable?: boolean;                     // 미지원 항목 숨김
+  value?: DeliveryMethod | null;
+  onChange?: (v: DeliveryMethod | null) => void;
+  defaultValue?: DeliveryMethod;
+  name?: string;
+  disabled?: boolean;
+  className?: string;
+  available?: DeliveryMethod[] | null;     // (최우선) 직접 지정
+  ticketPick?: 1 | 2 | null;               // 1(또는 null)=둘 다, 2=QR만
+  loading?: boolean;
+  hideUnavailable?: boolean;
 };
 
 const TicketDeliverySelectSection: React.FC<Props> = ({
@@ -23,82 +25,81 @@ const TicketDeliverySelectSection: React.FC<Props> = ({
   disabled = false,
   className = '',
   available = null,
+  ticketPick = null,
   loading = false,
   hideUnavailable = false,
 }) => {
-  // 비제어 내부 상태 (제어형이면 value 우선)
-  const [internal, setInternal] = React.useState<DeliveryMethod | null>(
-    defaultValue ?? null
-  );
+  const [internal, setInternal] = React.useState<DeliveryMethod | null>(defaultValue ?? null);
   const current = value ?? internal;
 
-  // 허용 여부
-  const isAllowed = React.useCallback(
-    (m: DeliveryMethod) => (available ? available.includes(m) : true),
-    [available]
-  );
+  // 허용 세트 계산: available(최우선) → ticketPick → 모두 가능
+  const allowedSet = React.useMemo<Set<DeliveryMethod>>(() => {
+    if (available && available.length > 0) {
+      return new Set(available);
+    }
+    if (ticketPick === 2) {
+      return new Set<DeliveryMethod>(['QR']); // 2면 QR만
+    }
+    return new Set<DeliveryMethod>(['QR', 'PAPER']); // 기본: 둘 다
+  }, [available, ticketPick]);
 
-  // available 변경 시 현재 선택이 불가해지면 해제
+  const isAllowed = React.useCallback((m: DeliveryMethod) => allowedSet.has(m), [allowedSet]);
+
+  // 허용 변경 시 현재 선택 불가하면 해제
   React.useEffect(() => {
     if (current && !isAllowed(current)) {
       setInternal(null);
       onChange?.(null);
     }
-  }, [available, current, isAllowed, onChange]);
+  }, [current, isAllowed, onChange]);
 
-  // 선택 핸들러
   const select = (v: DeliveryMethod) => {
     if (disabled || loading || !isAllowed(v)) return;
     setInternal(v);
     onChange?.(v);
   };
 
-  // 라벨 스타일 생성
-  const itemCls = (active: boolean, allowed: boolean) =>
-    [
-      'flex items-center gap-2 rounded-xl border p-3 cursor-pointer transition-colors',
-      active ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-gray-400',
-      (!allowed || disabled || loading) ? 'opacity-50 cursor-not-allowed' : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
+  const cx = (...tokens: Array<string | false | null | undefined>) => tokens.filter(Boolean).join(' ');
 
-  // 항목 렌더
   const renderItem = (m: DeliveryMethod, label: string) => {
     const allowed = isAllowed(m);
     if (hideUnavailable && !allowed) return null;
 
+    const active = current === m;
+    const itemClass = cx(
+      styles.item,
+      active && styles.itemActive,
+      (!allowed || disabled || loading) && styles.itemDisabled
+    );
+
     return (
-      <label key={m} className={itemCls(current === m, allowed)}>
+      <label key={m} className={itemClass}>
         <input
           type="radio"
-          className="sr-only"
+          className={styles.srOnly}
           name={name}
           checked={current === m}
           onChange={() => select(m)}
           disabled={disabled || loading || !allowed}
         />
-        <span className="text-sm font-medium">
+        <span className={styles.labelText}>
           {label}
-          {!allowed && !loading && (
-            <span className="ml-1 text-xs text-gray-500">(미지원)</span>
-          )}
+          {!allowed && !loading && <span className={styles.labelUnsupported}>(미지원)</span>}
         </span>
       </label>
     );
   };
 
   return (
-    <section className={['w-full rounded-2xl border p-5 bg-white', className].join(' ')}>
-      <h2 className="mb-3 text-lg font-semibold text-gray-900">티켓 수령 방법</h2>
-
+    <section className={cx(styles.section, className)}>
+      <h2 className={styles.title}>티켓 수령 방법</h2>
       {loading ? (
-        <div className="grid gap-2">
-          <div className="h-10 rounded-xl bg-gray-100 animate-pulse" />
-          <div className="h-10 rounded-xl bg-gray-100 animate-pulse" />
+        <div className={styles.group}>
+          <div className={styles.skeleton} />
+          <div className={styles.skeleton} />
         </div>
       ) : (
-        <div role="radiogroup" aria-label="티켓 수령 방법" className="grid gap-2">
+        <div role="radiogroup" aria-label="티켓 수령 방법" className={styles.group}>
           {renderItem('QR', 'QR 코드(모바일)')}
           {renderItem('PAPER', '지류 티켓(실물 티켓)')}
         </div>
