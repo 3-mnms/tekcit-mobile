@@ -25,6 +25,33 @@
   cursor: pointer;
   transition: background 0.2s ease;
   text-align: center;
+  place-items: center;
+}
+
+.delete {
+  background-color: #e8edf3;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 14px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+  place-items: center;
+}
+
+.deleteAll {
+  background-color: #e8edf3;
+  border: none;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 14px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+  place-items: center;
 }
 
 .key:hover {
@@ -32,6 +59,6 @@
 }
 
 .special {
-  font-size: 12px;      /* 기존 18px에서 축소 */
-  line-height: 1;       /* 높이 보정 */
+  font-size: 16px;
+  color: #ccc;
 }
