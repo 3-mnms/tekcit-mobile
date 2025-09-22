@@ -9,8 +9,9 @@ import { useAuthStore } from '@/shared/storage/useAuthStore'
 import SockJS from 'sockjs-client'
 import { Client, type IMessage, type StompHeaders } from '@stomp/stompjs'
 import { useTokenInfoQuery } from '@/shared/api/useTokenInfoQuery'
+import { getEnv } from '@/shared/config/env'
 
-const WS_URL = 'http://localhost:10000/ws'
+const WS_URL = getEnv('API_URL', '') + '/ws'
 
 const makeBroadcastTopic = (fid: string, date: string, time?: string) => {
   const d = date?.trim()
