@@ -24,16 +24,22 @@ type NavState = {
 
 const RESNO_KEY = 'reservationId';
 
+// detail 안에 ticketPick/deliveryAvailabilityCode가 들어올 수 있어서
+type AvailabilityLike = {
+  ticketPick?: number;                // 1 | 2
+  deliveryAvailabilityCode?: number;  // 1 | 2
+};
+
 const TicketOrderInfoPage: React.FC = () => {
   const navigate = useNavigate();
   const { fid: fidFromPath } = useParams<{ fid: string }>();
   const { state } = useLocation() as { state?: Partial<NavState> };
   const [sp] = useSearchParams();
 
-  // 예매자 정보(이름 등)
+  // 예매자 정보
   const { data: user } = usePreReservation(true);
 
-  // 수령방법/주소 (모바일 UI는 그대로)
+  // 수령방법/주소
   const [method, setMethod] = useState<DeliveryMethod>('QR');
   const [address, setAddress] = useState('');
   const isPaper = method === 'PAPER';
@@ -68,7 +74,7 @@ const TicketOrderInfoPage: React.FC = () => {
 
   if (!fid || !reservationNumber) return null;
 
-  // 화면 표시값(서버 우선, 부족하면 state 보조)
+  // 화면 표시값
   const display = useMemo(() => {
     const perf = detail?.performanceDate; // "YYYY-MM-DDTHH:mm:ss"
     const [d, tFull] = perf ? perf.split('T') : [state?.dateYMD, state?.time];
@@ -88,10 +94,17 @@ const TicketOrderInfoPage: React.FC = () => {
     return `${display.date}T${display.time}:00`;
   }, [display.date, display.time]);
 
+  // ✅ ticketPick 계산: detail.ticketPick / deliveryAvailabilityCode 우선 사용
+  const ticketPick: 1 | 2 = useMemo(() => {
+    const shape = detail as AvailabilityLike | undefined;
+    const code = shape?.ticketPick ?? shape?.deliveryAvailabilityCode ?? 1;
+    return code === 2 ? 2 : 1;
+  }, [detail]);
+
   // 수령방법 저장 훅
   const { mutate: saveDelivery, isPending: isSaving } = useSelectDelivery();
 
-  // 라디오 변경: QR이면 즉시 저장, PAPER는 주소 제출 시 저장
+  // 라디오 변경
   const handleMethodChange = (m: DeliveryMethod | null) => {
     const next = m ?? 'QR';
     setMethod(next);
@@ -100,7 +113,7 @@ const TicketOrderInfoPage: React.FC = () => {
       saveDelivery({
         festivalId: fid,
         reservationNumber,
-        deliveryMethod: mapUiToBeDelivery('QR'), // UI→BE 매핑(MOBILE)
+        deliveryMethod: mapUiToBeDelivery('QR'),
       });
     }
   };
@@ -118,7 +131,7 @@ const TicketOrderInfoPage: React.FC = () => {
     });
   };
 
-  // 결제 이동(결제 페이지에서 사용할 페이로드 세션에 캐시)
+  // 결제 이동
   const handlePay = () => {
     const bookingId = reservationNumber;
 
@@ -131,7 +144,7 @@ const TicketOrderInfoPage: React.FC = () => {
       unitPrice: display.unitPrice,
       quantity: display.quantity,
       bookerName: user?.name ?? '',
-      deliveryMethod: method,                       // 'QR' | 'PAPER' (API 유지)
+      deliveryMethod: method,
       address: method === 'PAPER' ? address : undefined,
     };
 
@@ -146,7 +159,7 @@ const TicketOrderInfoPage: React.FC = () => {
 
     navigate('/payment', { state: payload });
   };
-  // PAPER일 때만 로딩/에러 문구 노출(모바일 UI는 그대로)
+
   const showDetailLoading = isPaper && isLoading;
   const showDetailError = isPaper && isError;
 
@@ -156,7 +169,7 @@ const TicketOrderInfoPage: React.FC = () => {
 
       <div className={styles.stack}>
         {/* 예매 정보 카드 */}
-        <section className={styles.card}>
+        <section>
           <TicketInfoSection
             compact
             posterUrl={display.posterUrl}
@@ -170,11 +183,12 @@ const TicketOrderInfoPage: React.FC = () => {
         </section>
 
         {/* 수령방법 */}
-        <section className={styles.card}>
+        <section>
           <TicketDeliverySelectSection
             value={method}
             onChange={handleMethodChange}
             loading={isSaving}
+            ticketPick={ticketPick}   // ✅ 2면 QR만
           />
         </section>
 
@@ -185,19 +199,19 @@ const TicketOrderInfoPage: React.FC = () => {
             {showDetailLoading && <p className={styles.noScroll}>상세 불러오는 중…</p>}
             {showDetailError && (
               <p className={styles.noScroll} aria-live="polite">
-                상세 불러오기 실패: {(error as any)?.message ?? '에러'}
+                상세 불러오기 실패: {(error as Error)?.message ?? '에러'}
               </p>
             )}
           </section>
         )}
 
         {/* 예매자 정보 */}
-        <section className={styles.card}>
+        <section>
           <TicketBookerInfoSection className={styles.noScroll} />
         </section>
 
         {/* 합계 / 결제 버튼 */}
-        <section className={`${styles.card} ${styles.confirm}`}>
+        <section className={styles.confirm}>
           <OrderConfirmSection
             unitPrice={display.unitPrice}
             quantity={display.quantity}
