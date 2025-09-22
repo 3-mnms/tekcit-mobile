@@ -1,0 +1,195 @@
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
+}
+
+.body {
+  padding: 12px 25px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #b4b4b4;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input {
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.formGrid {
+  display: grid;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .row2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.compact {
+  --v-gap: 0.5rem;
+}
+
+.formGrid.compact {
+  gap: var(--v-gap);
+  margin-top: -5px;
+}
+
+.row2.compact {
+  gap: var(--v-gap);
+}
+
+.formGrid.compact>* {
+  margin: 0 !important;
+}
+
+.row2.compact>* {
+  margin: 0 !important;
+}
+
+.formGrid.compact :where(label),
+.row2.compact :where(label) {
+  margin-bottom: 0.25rem !important;
+}
+
+.authCodeRow {
+  margin-top: -0.25rem;
+}
+
+.help {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.actionsCard {
+  padding: 0;
+  border-color: transparent;
+  margin-top: 10px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.actions>button {
+  flex: 1;
+}
+
+@media (min-width: 480px) {
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.labelWithIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #374151;
+  margin-left: 5px;
+}
+
+.labelIcon {
+  width: 14px;
+  height: 14px;
+  color: #4D9AFD;
+}
+
+.btnPrimary,
+.btnGhost {
+  height: 44px;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.btnGhost {
+  background: #f5f6f7 !important;
+}
+
+.residentField {
+  display: grid;
+  gap: 6px;
+}
+
+.residentRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.residentInputFront {
+  width: 100%;
+}
+
+.residentInputBack {
+  width: 42px;
+  text-align: center;
+}
+
+.residentDash {
+  margin: 0 6px;
+  color: #9ca3af;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.residentBackGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mask {
+  letter-spacing: 2px;
+  color: #9ca3af;
+  user-select: none;
+  margin-bottom: 13px;
+  margin-left: 5px;
+  font-size: 25px;
+}
+
+.noMb {
+  margin-bottom: 0 !important;
+}

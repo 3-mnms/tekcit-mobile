@@ -1,0 +1,105 @@
+.section {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem; /* rounded-2xl */
+  padding: 1rem;       /* p-4 */
+  background: #fff;
+}
+
+/* 제목 */
+.heading {
+  margin-bottom: 1rem; /* mb-4 */
+  font-size: 2rem; /* text-lg */
+  font-weight: 600;    /* font-semibold */
+}
+.headingCompact {
+  margin-bottom: 0.5rem; /* mb-2 */
+  font-size: 1.2rem;   /* text-sm */
+  font-weight: 600;
+}
+
+/* 레이아웃 */
+.content {
+  display: flex;
+  gap: 10px; 
+}
+
+/* 포스터 */
+.poster {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem; /* rounded-lg */
+  flex-shrink: 0;
+}
+.posterCompact {
+  width: 120px;
+}
+.posterFull {
+  width: 100%;
+}
+.posterImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 정보 영역 */
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; /* grid gap-1 */
+}
+
+/* 타이틀/메타 */
+.title {
+  font-size: 1.1rem;  
+  font-weight: 500;  
+}
+.titleCompact {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  font-size: 1rem; 
+  opacity: 0.8;
+}
+.metaCompact {
+  font-size: 0.75rem;  /* text-xs */
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 가격 영역 */
+.priceBox {
+  margin-top: 0.5rem; 
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem; /* text-sm */
+}
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.label {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+.value {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.subtotal {
+  font-size: 1rem;  /* text-base */
+  font-weight: 600; /* font-semibold */
+}

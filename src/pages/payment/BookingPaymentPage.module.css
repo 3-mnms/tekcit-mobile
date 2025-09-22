@@ -1,0 +1,118 @@
+/* BookingPaymentPage.module.css */
+
+/* 전체 페이지 래퍼: iOS 하단 홈바(세이프에어리어) 여유 포함 */
+.page {
+  display: flex; /* 페이지를 세로 스택으로 구성 */
+  flex-direction: column; /* 상단 헤더 → 본문 순서 유지 */
+  min-height: 100dvh; /* 모바일 뷰포트 높이 채움 */
+  background: #ffffff; /* 배경 흰색 */
+  box-sizing: border-box; /* 패딩/보더 포함 박스 계산 */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom)); /* 하단 고정 바 높이만큼 여백 확보 */
+}
+
+/* 본문 컨테이너: 단일 컬럼 레이아웃 (모바일 기본) */
+.container {
+  display: flex; /* 컨테이너를 플렉스로 구성 */
+  flex-direction: column; /* 좌측/우측 섹션을 세로로 배치 */
+  gap: 12px; /* 섹션 간 여백 */
+  padding: 12px 16px 0 16px; /* 좌우 패딩 */
+  flex: 1; /* 남는 공간 채움 */
+  box-sizing: border-box; /* 패딩 포함 */
+}
+
+/* 좌측(주 내용) 영역: 모바일에서는 첫 번째 섹션 */
+.left {
+  display: flex; /* 내부 카드들을 세로로 정렬 */
+  flex-direction: column; /* 수령방법/결제수단 순서대로 쌓기 */
+  gap: 16px; /* 카드 간 여백 */
+}
+
+/* 우측(요약) 영역: 모바일에서는 두 번째 섹션으로 전체 폭 */
+.right {
+  display: flex; /* 요약 카드와 버튼 래핑 */
+  flex-direction: column; /* 카드 → 버튼 순서 */
+  gap: 12px; /* 요소 간 여백 */
+}
+
+/* 공통 섹션 컨테이너 */
+.sectionContainer {
+  display: flex; /* 카드 묶음 */
+  flex-direction: column; /* 세로 배치 */
+  gap: 16px; /* 카드 간격 */
+}
+
+/* 수령방법 영역 카드 */
+.receiveSection {
+  background: #ffffff; /* 카드 배경 */
+  border: 1px solid #e9eef5; /* 옅은 회색 경계선 */
+  border-radius: 12px; /* 모서리 라운드 */
+  padding: 14px; /* 카드 내부 여백 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); /* 은은한 그림자 */
+}
+
+/* 섹션 타이틀 */
+.sectionTitle {
+  font-size: 14px; /* 타이틀 크기 */
+  font-weight: 700; /* 굵게 */
+  color: #1f2937; /* 진한 회색 */
+  margin: 0 0 10px 0; /* 아래 여백만 */
+  line-height: 1.2; /* 타이틀 줄간격 */
+}
+
+/* 결제 요약 카드 */
+.summaryCard {
+  background: #ffffff; /* 카드 배경 */
+  border: 1px solid #e9eef5; /* 옅은 경계선 */
+  border-radius: 12px; /* 라운드 */
+  padding: 14px; /* 내부 여백 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); /* 그림자 */
+}
+
+/* 하단 버튼 래퍼: 화면 하단에 고정되는 바 역할 */
+.buttonWrapper {
+  position: fixed; /* 화면 하단 고정 */
+  left: 0; /* 좌측 끝 */
+  right: 0; /* 우측 끝 */
+  bottom: 0; /* 하단 끝 */
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) 16px; /* 세이프에어리어 반영 */
+  background: rgba(255, 255, 255, 0.96); /* 반투명 흰색 배경 */
+  backdrop-filter: blur(6px); /* iOS 느낌의 블러 */
+  box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.06); /* 상단으로 드리운 그림자 */
+  z-index: 100; /* 상단 배치 */
+  box-sizing: border-box; /* 패딩 포함 */
+}
+
+/* 결제 버튼: 전체 폭, 시선 끄는 스타일 */
+.payButton {
+  width: 100%; /* 전체 폭 확장 */
+  height: 48px; /* 터치 타겟 높이 */
+  border-radius: 10px; /* 버튼 라운드 */
+  font-size: 16px; /* 버튼 텍스트 크기 */
+  font-weight: 700; /* 강조 */
+  background: #4d9afd; /* 브랜드 대표색 */
+  border: 1px solid #4d9afd; /* 동일 색상 경계선 */
+  color: #ffffff; /* 텍스트 흰색 */
+  display: inline-flex; /* 가운데 정렬 */
+  align-items: center; /* 수직 중앙 */
+  justify-content: center; /* 수평 중앙 */
+  letter-spacing: 0.2px; /* 약간의 자간 */
+  transition: transform 0.06s ease, opacity 0.2s ease; /* 상호작용 피드백 */
+}
+
+/* 버튼 상호작용 상태: 접근성 고려 */
+.payButton[aria-busy="true"] {
+  opacity: 0.7; /* 로딩 시 반투명 */
+  pointer-events: none; /* 클릭 차단 */
+}
+
+/* 버튼 누름 피드백 */
+.payButton:active {
+  transform: translateY(1px); /* 살짝 눌림 */
+}
+
+/* 보조: 카드 내부 요소 간격을 조금 촘촘히 정리 */
+.sectionContainer > *:not(:last-child),
+.left > *:not(:last-child),
+.right > *:not(:last-child) {
+  margin-bottom: 2px; /* 카드 사이 미세 간격 */
+}

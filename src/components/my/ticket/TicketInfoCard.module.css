@@ -1,0 +1,137 @@
+.card {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+@media (min-width: 480px) {
+  .card {
+    grid-template-columns: 112px 1fr;
+    gap: 14px;
+    padding: 14px;
+  }
+}
+
+.poster {
+  width: 96px;
+  height: 128px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+@media (min-width: 480px) {
+  .poster {
+    width: 112px;
+    height: 148px;
+  }
+}
+
+.info {
+  display: grid;
+  gap: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 6px 0;
+  border-bottom: 1px dashed #edf2f7;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.k {
+  color: #464b54;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.v {
+  color: #111827;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  word-break: keep-all;
+}
+
+.linkBtn {
+  appearance: none;
+  border: 1px solid #cfe2ff;
+  background: #f0f7ff;
+  color: #2563eb;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  background: #e6f0ff;
+}
+
+.chip {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
+  border-radius: 9999px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modalContent {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+  width: 280px;
+  text-align: center;
+}
+
+.modalTitle {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+.qrImage {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 12px;
+}
+
+.closeBtn {
+  padding: 6px 12px;
+  border: 0;
+  background: #4D9AFD;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background: #377fd0;
+}

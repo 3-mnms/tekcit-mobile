@@ -1,0 +1,83 @@
+.page {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding-bottom: var(--bottom-nav-height, 64px);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px 16px;
+}
+
+.actions {
+  display: inline-flex;
+  gap: 10px;
+}
+
+.textBtn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.count {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.grid {
+  padding: 0 16px 16px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.emptyBox {
+  border: 1px solid #e2e8f0;
+  border-left: 6px solid #4D9AFD;
+  background: #fff;
+  border-radius: 12px;
+  text-align: center;
+  padding: 3rem 1rem;
+  margin: 10px;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  color: #94a3b8;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.emptyTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+  color: #0f172a;
+}
+
+.emptyDesc {
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.removedHead {
+  margin: 10px 16px 8px;
+  font-size: 14px;
+  color: #6b7280;
+}

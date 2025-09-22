@@ -1,0 +1,69 @@
+/* ✅ 전체 오버레이 배경 (변경 없음) */
+.overlay {
+  position: fixed; /* 삐약! 🐥 화면 전체를 덮도록 해요. */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 삐약! 🐥 다른 요소들 위에 뜨도록 z-index를 높게 설정해요. */
+}
+
+/* ✅ 카드 자체 (작고 예쁘게 중앙에) */
+.highlightCard {
+  width: 90%; /* 삐약! 🐥 모바일 화면에 맞춰 너비를 조절해요. */
+  max-width: 400px; /* 삐약! 🐥 너무 커지지 않도록 최대 너비를 설정해요. */
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 5px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.cardLabel {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+
+.cardCount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4D9AFD;
+  margin-bottom: 0.8rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 12px;
+  background-color: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: #4D9AFD;
+  transition: width 0.3s ease-in-out;
+}
+
+.percentLabel {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #4D9AFD;
+  font-weight: 500;
+}

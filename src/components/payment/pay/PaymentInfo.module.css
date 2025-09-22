@@ -1,0 +1,99 @@
+.card {
+  background: #ffffff;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  box-sizing: border-box;
+  height: 100%;       
+}
+
+/* ─ 헤더 ─ */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.posterBox {
+  width: 70px;
+  height: 93px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.posterPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* 배지 포함 간격 약간 확대 멍 */
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sub {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* 수령 방법 배지 멍 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4D9AFD;              /* 대표색 텍스트 멍 */
+  background: #eaf4ff;         /* 연한 배경 멍 */
+  border: 1px solid #d6e9ff;   /* 옅은 보더 멍 */
+  border-radius: 999px;        /* pill 형태 멍 */
+  width: fit-content;
+}
+
+/* ─ 표 영역 ─ */
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.value {
+  font-weight: 700;
+  color: #111827;
+}

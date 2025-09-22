@@ -1,0 +1,123 @@
+.item {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #4D9AFD;
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+  transition: box-shadow .2s ease, transform .02s ease;
+}
+
+.item:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+}
+
+.inner {
+  position: relative;        /* 버튼을 절대배치할 기준 */
+  padding: 1rem 1.25rem;
+  padding-right: 100px;      /* 버튼 자리만큼 우측 여백 확보 (34*2 + gap 여유) */
+  display: block;            /* flex → block로 바꿔도 OK (아래 left가 전체 차지) */
+}
+
+.left {
+  width: 100%;               /* 전체 너비 사용 */
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.iconWrap {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  color: #4D9AFD;
+  /* 대표색 */
+  align-items: center;
+  justify-content: center;
+}
+
+.recipient {
+  font-weight: 700;
+  color: #111827;
+}
+
+.badge {
+  margin-left: 4px;
+  background: #dbeafe;
+  /* 연한 블루 */
+  color: #1e40af;
+  /* 진한 블루 */
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.phone {
+  color: #111827;
+  font-weight: 600;
+}
+
+.actions {
+  position: absolute;        /* 흐름에서 제거 → 콘텐츠가 가로 전체 사용 */
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.addr {
+  display: block;
+  width: 300px;        
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;  
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.actionBtn:active {
+  transform: translateY(1px);
+}
+
+.editBtn {
+  border-color: #bfdbfe;
+  /* 연한 블루 */
+  color: #2563eb;
+  /* 파랑 계열 */
+  background: transparent;
+}
+
+.editBtn:hover {
+  background: #eff6ff;
+}
+
+.deleteBtn {
+  background: transparent;
+}

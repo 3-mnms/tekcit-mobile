@@ -1,0 +1,52 @@
+.wrapper {
+  /* ✅ 부모 카드 폭을 그대로 따라가도록 강제 */
+  width: 100%;
+  /* 전체 폭 채움 */
+  box-sizing: border-box;
+  /* 패딩 포함 계산 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 기본 박스 스타일 */
+.box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+
+  /* ✅ 카드 내부와 톤 맞추기: 배경은 부모 카드가 이미 하얀색이므로 굳이 또 칠할 필요 없음 */
+  background: transparent;
+  /* 기존 #fff → transparent로 변경 */
+
+  /* ✅ 혹시 내부가 좁게 잡히는 것을 방지 */
+  width: 100%;
+  /* 전체 폭 채움 */
+}
+
+/* 아이콘/텍스트는 그대로 */
+.icon {
+  font-size: 1.4rem;
+  color: #4b5563;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.texts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.4;
+}

@@ -1,0 +1,50 @@
+.container {
+  width: 100%;
+  background-color: white;
+  border-radius: 1rem;
+  border: none;
+  min-height: 500px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  font-size: 1.2rem;
+  color: #4D9AFD;
+}
+
+.description {
+  font-size: 0.95rem;
+  color: #555;
+  white-space: pre-line;
+}
+
+.images {
+  display: flex;
+  flex-direction: column;   /* 한 줄에 하나 */
+  gap: 12px;
+  margin-top: 12px;         /* 설명과 간격만 살짝 */
+}
+
+.imageItem {
+  width: 100%;
+  margin: 0;                /* figure 기본 여백 제거 */
+  /* border-radius: 12px; */
+  border: 1px solid #e5e7eb;
+  overflow: hidden;         /* 둥근 모서리 유지 */
+  background: #fff;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;             /* 비율 유지 */
+  object-fit: contain;      /* 잘림 없이 전체 표시 */
+}

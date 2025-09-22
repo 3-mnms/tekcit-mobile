@@ -1,0 +1,250 @@
+/* 컨테이너: 카드 톤 + iPhone SE 폭 기준 */
+.address-container {
+  padding: 12px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  max-width: 375px;
+  margin: 0 auto;
+  font-family: 'Pretendard', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+}
+
+/* 폼 레이아웃 */
+.form-grid {
+  display: grid;
+  grid-auto-rows: minmax(44px, auto);
+  gap: 12px;
+}
+
+.form-field {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* 인풋/셀렉트 공통 */
+input,
+select {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  background: #fff;
+}
+
+input::placeholder {
+  color: #9ca3af;
+}
+
+/* 포커스 스타일 */
+input:focus,
+select:focus {
+  border-color: #4D9AFD;
+  box-shadow: 0 0 0 3px rgba(77, 154, 253, 0.18);
+}
+
+.address-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tabs-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* 라벨 오른쪽 버튼 묶음(선택) */
+.address-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 관리(배송지 선택) 버튼 */
+.tab-manage-btn {
+  border: 1px solid #4D9AFD;
+  background-color: #ffffff;
+  color: #4D9AFD;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tab-manage-btn:active {
+  transform: translateY(1px);
+}
+
+/* 주소 검색 버튼(기존값에서 불필요한 margin 제거) */
+.address-search-btn {
+  border: 1px solid #4D9AFD;
+  background-color: #EAF4FF;
+  color: #2563EB;
+  padding: 0 12px;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+  margin-left: 0;
+}
+
+/* 연락처 */
+.phone-inputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.phone-prefix {
+  width: 80px;
+}
+
+.phone-mid,
+.phone-end {
+  width: 74px;
+  text-align: center;
+}
+
+/* 에러 라인 높이 고정 */
+.error-space {
+  min-height: 18px;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* 주소 헤더: 라벨 + 버튼 오른쪽 정렬 */
+.address-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.address-text {
+  font-weight: 700;
+  color: #374151;
+}
+
+/* 주소 행: 인풋 + 버튼 자리(필요 시 확장 가능) */
+.address-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 공통 버튼 토큰 */
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: #fff;
+  color: #111827;
+  border-radius: 10px;
+  height: 44px;
+  padding: 0 12px;
+  font-weight: 700;
+  font-size: 10.8px;
+  cursor: pointer;
+}
+
+/* 주소 검색 버튼: 브랜드 컬러 적용 */
+.address-search-btn {
+  border: 1px solid #4D9AFD;
+  background-color: #EAF4FF;
+  color: #2563EB;
+}
+
+.address-search-btn:active {
+  transform: translateY(1px);
+}
+
+/* ===== 모달 공통 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(15, 23, 42, 0.5);
+}
+
+.modal-sheet {
+  width: 90%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+  transform: translateZ(0);
+  animation: sheetUp .16s ease-out;
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(12px);
+    opacity: .98;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ===== 주소 검색 모달 전용 ===== */
+
+/* 모달 시트 크기: 모바일에서도 충분한 높이 */
+.search-sheet {
+  display: flex;
+  flex-direction: column;
+  height: 78%;
+}
+
+/* 헤더: 닫기 버튼을 임베드와 분리하여 겹침 방지 */
+.search-header {
+  height: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2%;
+  border-bottom: 1px solid #eef2f7;
+}
+
+/* 닫기 버튼: 접근성 포커스 및 브랜드 컬러 */
+.search-close {
+  color: #000000;
+  padding: 95%;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.search-close:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77, 154, 253, 0.18);
+}
+
+/* 임베드 영역: 남은 공간 100% 채움 */
+.search-body {
+  flex: 1;
+  min-height: 0;
+  /* flex 컨텍스트에서 내부 스크롤 허용 */
+}

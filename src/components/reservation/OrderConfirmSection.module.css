@@ -1,0 +1,54 @@
+.section {
+  width: 100%;
+  border: 1px solid #e5e7eb;     
+  border-radius: 16px;            
+  padding: 20px;               
+  background: #ffffff;
+}
+
+.title {
+  margin-bottom: 12px;             
+  font-size: 18px;                 
+  line-height: 28px;              
+  font-weight: 600;             
+  color: #111827;                
+}
+
+.priceBox {
+  margin-bottom: 16px;         
+  display: grid;              
+  gap: 8px;                    
+  font-size: 14px;              
+  line-height: 20px;
+  color: #111827;
+}
+
+.row {
+  display: flex;             
+  align-items: center;           
+  justify-content: space-between; 
+}
+
+.label {
+  opacity: 0.8;                    
+}
+
+.value {
+  font-weight: 500;             
+}
+
+.totalRow {
+  font-size: 16px;             
+  line-height: 24px;
+}
+
+.total {
+  font-weight: 600;         
+}
+
+.payButton {
+  width: 100%;                   
+  padding-top: 12px;              
+  padding-bottom: 12px;
+  border-radius: 16px;         
+}

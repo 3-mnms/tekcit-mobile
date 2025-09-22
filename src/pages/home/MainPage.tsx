@@ -1,0 +1,25 @@
+import React from 'react'
+import Header from '@components/common/header/Header'
+import Footer from '@/components/payment/footer/Footer'
+import Hot from '@/components/festival/main/HotSection'
+import Category from '@/components/festival/main/CategorySection'
+import KakaoPopupBridge from '@/components/auth/login/KakaoPopupBridge'
+import BottomNav from '@/components/festival/main/bottomnav/BottomNav'
+import TikiChatWidget from '@/components/ai/chatbot/TikiChatWidget';
+
+const MainPage: React.FC = () => {
+
+  return (
+    <div>
+      <TikiChatWidget />
+      {typeof window !== 'undefined' && !!window.opener && <KakaoPopupBridge status="existing" />}
+      <Header />
+      <Hot />
+      <Category />
+      <BottomNav/>
+      <Footer />
+    </div>
+  )
+}
+
+export default MainPage
